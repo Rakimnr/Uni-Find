@@ -5,6 +5,7 @@ import {
   createFoundItem,
   updateFoundItem,
   updateFoundItemStatus,
+  deleteFoundItem,
 } from "../controller/foundItemController.js";
 
 import { upload } from "../middleware/uploadMiddleware.js";
@@ -17,11 +18,12 @@ router
   .get(getFoundItems)
   .post(upload.single("image"), createFoundItem);
 
-// GET single item + UPDATE item
+// GET single item + UPDATE item + DELETE item
 router
   .route("/:id")
   .get(getFoundItemById)
-  .put(updateFoundItem);
+  .put(updateFoundItem)
+  .delete(deleteFoundItem);
 
 // UPDATE status
 router

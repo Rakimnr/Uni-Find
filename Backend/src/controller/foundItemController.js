@@ -1,10 +1,29 @@
 import FoundItem from "../models/FoundItem.js";
 
+const EXPIRE_DAYS = 30;
+
+const expireOldAvailableItems = async () => {
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - EXPIRE_DAYS);
+
+  await FoundItem.updateMany(
+    {
+      status: "available",
+      dateFound: { $lt: cutoffDate },
+    },
+    {
+      $set: { status: "expired" },
+    }
+  );
+};
+
 // @desc    Get all found items
 // @route   GET /api/found-items
 // @access  Public
 export const getFoundItems = async (req, res) => {
   try {
+    await expireOldAvailableItems();
+
     const foundItems = await FoundItem.find().sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -26,6 +45,8 @@ export const getFoundItems = async (req, res) => {
 // @access  Public
 export const getFoundItemById = async (req, res) => {
   try {
+    await expireOldAvailableItems();
+
     const foundItem = await FoundItem.findById(req.params.id);
 
     if (!foundItem) {
@@ -157,6 +178,34 @@ export const updateFoundItemStatus = async (req, res) => {
     res.status(400).json({
       success: false,
       message: "Failed to update status",
+      error: error.message,
+    });
+  }
+};
+
+// @desc    Delete found item
+// @route   DELETE /api/found-items/:id
+// @access  Public for now (later Admin only)
+export const deleteFoundItem = async (req, res) => {
+  try {
+    const deletedItem = await FoundItem.findByIdAndDelete(req.params.id);
+
+    if (!deletedItem) {
+      return res.status(404).json({
+        success: false,
+        message: "Found item not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Found item deleted successfully",
+      data: deletedItem,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete found item",
       error: error.message,
     });
   }

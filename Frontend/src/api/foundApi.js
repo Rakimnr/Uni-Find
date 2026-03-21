@@ -21,3 +21,20 @@ export const createFoundItem = async (itemData) => {
 
   return response.data;
 };
+
+export const updateFoundItem = async (id, itemData) => {
+  const response = await axios.put(`${API_BASE_URL}/${id}`, itemData);
+  return response.data;
+};
+
+export const updateFoundItemStatus = async (id, status) => {
+  const response = await axios.patch(`${API_BASE_URL}/${id}/status`, {
+    status,
+  });
+  return response.data;
+};
+
+export const deleteFoundItem = async (id) => {
+  const response = await axios.delete(`${API_BASE_URL}/${id}`);
+  return response.data;
+};

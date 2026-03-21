@@ -148,8 +148,8 @@ const styles = {
     fontSize: "15px",
   },
   activeNavItem: {
-    backgroundColor: "#eff6ff",
-    color: "#2563eb",
+    backgroundColor: "#fff7ed",
+    color: "#f97316",
   },
   backButton: {
     backgroundColor: "#f97316",
