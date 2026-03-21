@@ -41,6 +41,21 @@ const claimSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    itemDescription: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    uniqueFeature: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    contentsDescription: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],

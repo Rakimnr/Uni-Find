@@ -4,6 +4,8 @@ const UserLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const isDashboard = location.pathname === "/dashboard";
+
   const isItemsPage =
     location.pathname === "/" ||
     location.pathname.startsWith("/report-found-item") ||
@@ -25,7 +27,15 @@ const UserLayout = () => {
           </div>
 
           <nav style={styles.nav}>
-            <div style={styles.navItem}>Dashboard</div>
+            <div
+              onClick={() => navigate("/dashboard")}
+              style={{
+                ...styles.navItem,
+                ...(isDashboard ? styles.activeNavItem : {}),
+              }}
+            >
+              Dashboard
+            </div>
 
             <div
               onClick={() => navigate("/")}

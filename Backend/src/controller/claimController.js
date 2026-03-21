@@ -12,6 +12,9 @@ export const createClaim = async (req, res) => {
       reason,
       lostLocation,
       lostDate,
+      itemDescription,
+      uniqueFeature,
+      contentsDescription,
     } = req.body;
 
     if (
@@ -21,7 +24,9 @@ export const createClaim = async (req, res) => {
       !email ||
       !reason ||
       !lostLocation ||
-      !lostDate
+      !lostDate ||
+      !itemDescription ||
+      !uniqueFeature
     ) {
       return res.status(400).json({
         message: "Please provide all required fields.",
@@ -37,6 +42,9 @@ export const createClaim = async (req, res) => {
       reason,
       lostLocation,
       lostDate,
+      itemDescription,
+      uniqueFeature,
+      contentsDescription,
     });
 
     await newClaim.save();

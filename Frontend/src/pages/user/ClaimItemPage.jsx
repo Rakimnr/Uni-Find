@@ -37,7 +37,7 @@ const ClaimItemPage = () => {
     <div style={styles.page}>
       <h1 style={styles.title}>Claim Found Item</h1>
       <p style={styles.subtitle}>
-        Fill in the details to request this item.
+        Fill in the details below to request this item.
       </p>
 
       {message && <p style={styles.message}>{message}</p>}

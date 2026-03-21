@@ -7,7 +7,6 @@ import {
   updateFoundItemStatus,
   deleteFoundItem,
 } from "../controller/foundItemController.js";
-
 import { upload } from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
@@ -26,8 +25,6 @@ router
   .delete(deleteFoundItem);
 
 // UPDATE status
-router
-  .route("/:id/status")
-  .patch(updateFoundItemStatus);
+router.route("/:id/status").patch(updateFoundItemStatus);
 
 export default router;

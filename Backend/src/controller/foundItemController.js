@@ -71,7 +71,7 @@ export const getFoundItemById = async (req, res) => {
 
 // @desc    Create a new found item
 // @route   POST /api/found-items
-// @access  Public for now (later Admin only)
+// @access  Public for now
 export const createFoundItem = async (req, res) => {
   try {
     const {
@@ -94,7 +94,8 @@ export const createFoundItem = async (req, res) => {
       foundLocation,
       dateFound,
       storageLocation,
-      status,
+      status: status || "available",
+      createdBy: null, // no login yet
     });
 
     res.status(201).json({
@@ -113,7 +114,7 @@ export const createFoundItem = async (req, res) => {
 
 // @desc    Update found item
 // @route   PUT /api/found-items/:id
-// @access  Public for now (later Admin only)
+// @access  Public for now
 export const updateFoundItem = async (req, res) => {
   try {
     const updatedItem = await FoundItem.findByIdAndUpdate(
@@ -148,7 +149,7 @@ export const updateFoundItem = async (req, res) => {
 
 // @desc    Update found item status only
 // @route   PATCH /api/found-items/:id/status
-// @access  Public for now (later Admin only)
+// @access  Public for now
 export const updateFoundItemStatus = async (req, res) => {
   try {
     const { status } = req.body;
@@ -185,7 +186,7 @@ export const updateFoundItemStatus = async (req, res) => {
 
 // @desc    Delete found item
 // @route   DELETE /api/found-items/:id
-// @access  Public for now (later Admin only)
+// @access  Public for now
 export const deleteFoundItem = async (req, res) => {
   try {
     const deletedItem = await FoundItem.findByIdAndDelete(req.params.id);

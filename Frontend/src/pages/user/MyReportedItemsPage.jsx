@@ -1,10 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiBell, FiSearch } from "react-icons/fi";
-import { getFoundItems } from "../../api/foundApi";
+import { getMyFoundItems } from "../../api/foundApi";
 import FoundCard from "../../components/found/FoundCard";
 
-const FoundListPage = () => {
+const MyReportedItemsPage = () => {
   const navigate = useNavigate();
 
   const [items, setItems] = useState([]);
@@ -25,53 +24,37 @@ const FoundListPage = () => {
   ];
 
   useEffect(() => {
-    const fetchItems = async () => {
+    const fetchMyItems = async () => {
       try {
-        const result = await getFoundItems();
+        const result = await getMyFoundItems();
         setItems(result.data || []);
       } catch (err) {
-        setError("Failed to load found items");
+        setError("Failed to load your reported items");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchItems();
+    fetchMyItems();
   }, []);
 
-  const parseDate = (dateString) => {
-    if (!dateString) return new Date(0);
-
-    if (dateString.includes("/")) {
-      const parts = dateString.split("/");
-      if (parts.length === 3) {
-        const [day, month, year] = parts;
-        return new Date(`${year}-${month}-${day}`);
-      }
-    }
-
-    return new Date(dateString);
-  };
-
   const filteredItems = useMemo(() => {
-    return items
-      .filter((item) => {
-        const matchesCategory =
-          filteredCategory === "All Categories" ||
-          item.category === filteredCategory;
+    return items.filter((item) => {
+      const matchesCategory =
+        filteredCategory === "All Categories" ||
+        item.category === filteredCategory;
 
-        const text =
-          `${item.title || ""} ${item.foundLocation || ""} ${item.category || ""}`.toLowerCase();
+      const text =
+        `${item.title || ""} ${item.foundLocation || ""} ${item.category || ""}`.toLowerCase();
 
-        const matchesSearch = text.includes(searchTerm.toLowerCase());
+      const matchesSearch = text.includes(searchTerm.toLowerCase());
 
-        return matchesCategory && matchesSearch;
-      })
-      .sort((a, b) => parseDate(b.dateFound) - parseDate(a.dateFound));
+      return matchesCategory && matchesSearch;
+    });
   }, [items, filteredCategory, searchTerm]);
 
   if (loading) {
-    return <div style={styles.stateText}>Loading found items...</div>;
+    return <div style={styles.stateText}>Loading your reported items...</div>;
   }
 
   if (error) {
@@ -79,42 +62,46 @@ const FoundListPage = () => {
   }
 
   return (
-    <div style={styles.page}>
-      <div style={styles.topBar}>
+    <div>
+      <div style={styles.headerBar}>
         <div>
-          <h1 style={styles.heading}>Found Items Catalog</h1>
-          <p style={styles.subText}>Browse found items inside the university</p>
+          <h1 style={styles.heading}>My Reported Items</h1>
+          <p style={styles.subText}>
+            View and manage only the found items you uploaded
+          </p>
         </div>
 
-        <div style={styles.topBarRight}>
-          <div style={styles.searchBox}>
-            <FiSearch size={18} color="#6b7280" />
-            <input
-              type="text"
-              placeholder="Search by item name, location..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={styles.searchInput}
-            />
-          </div>
+        <div style={styles.headerRight}>
+          <input
+            type="text"
+            placeholder="Search my items..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={styles.searchInput}
+          />
 
-          <button style={styles.iconButton}>
-            <FiBell size={18} />
-          </button>
+          <button style={styles.notificationButton}>🔔</button>
 
           <div style={styles.profileBox}>
-            <div style={styles.avatar}>H</div>
-            <div>
-              <p style={styles.profileName}>Hashini</p>
-              <p style={styles.profileRole}>UniFind User</p>
+            <div style={styles.profileAvatar}>H</div>
+            <div style={styles.profileTextBox}>
+              <span style={styles.profileName}>Hashini</span>
+              <span style={styles.profileRole}>UniFind User</span>
             </div>
           </div>
         </div>
       </div>
 
       <div style={styles.tabs}>
+        <button
+          style={styles.tabButton}
+          onClick={() => navigate("/found")}
+        >
+          All Found Items
+        </button>
+
         <button style={{ ...styles.tabButton, ...styles.activeTab }}>
-          Found Items
+          My Reported Items
         </button>
 
         <button
@@ -141,7 +128,7 @@ const FoundListPage = () => {
       </div>
 
       {filteredItems.length === 0 ? (
-        <div style={styles.stateText}>No found items available.</div>
+        <div style={styles.stateText}>You have not reported any found items yet.</div>
       ) : (
         <div style={styles.grid}>
           {filteredItems.map((item) => (
@@ -154,18 +141,15 @@ const FoundListPage = () => {
 };
 
 const styles = {
-  page: {
-    padding: "0",
-  },
-  topBar: {
+  headerBar: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "flex-start",
+    alignItems: "center",
     gap: "20px",
-    flexWrap: "wrap",
     marginBottom: "24px",
+    flexWrap: "wrap",
   },
-  topBarRight: {
+  headerRight: {
     display: "flex",
     alignItems: "center",
     gap: "14px",
@@ -173,61 +157,67 @@ const styles = {
   },
   heading: {
     margin: 0,
-    fontSize: "32px",
-    fontWeight: "800",
+    fontSize: "30px",
     color: "#111827",
-    marginBottom: "8px",
+    fontWeight: "700",
   },
   subText: {
-    margin: 0,
-    fontSize: "15px",
+    marginTop: "8px",
     color: "#6b7280",
+    fontSize: "15px",
+    marginBottom: 0,
   },
-  searchBox: {
+  searchInput: {
+    width: "280px",
+    maxWidth: "100%",
+    padding: "12px 14px",
+    borderRadius: "12px",
+    border: "1px solid #e5e7eb",
+    outline: "none",
+    fontSize: "14px",
+    backgroundColor: "#ffffff",
+    boxSizing: "border-box",
+  },
+  notificationButton: {
+    width: "40px",
+    height: "40px",
+    borderRadius: "12px",
+    border: "1px solid #e5e7eb",
+    backgroundColor: "#ffffff",
+    cursor: "pointer",
+    fontSize: "16px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  profileBox: {
     display: "flex",
     alignItems: "center",
     gap: "10px",
     backgroundColor: "#ffffff",
     border: "1px solid #e5e7eb",
     borderRadius: "14px",
-    padding: "0 14px",
-    height: "46px",
-    minWidth: "320px",
-    boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
+    padding: "6px 12px",
   },
-  searchInput: {
-    border: "none",
-    outline: "none",
+  profileTextBox: {
+    display: "flex",
+    flexDirection: "column",
+  },
+  profileName: {
     fontSize: "14px",
+    fontWeight: "700",
     color: "#111827",
-    width: "100%",
-    background: "transparent",
+    lineHeight: 1.2,
   },
-  iconButton: {
-    width: "46px",
-    height: "46px",
-    borderRadius: "14px",
-    border: "1px solid #e5e7eb",
-    backgroundColor: "#ffffff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    cursor: "pointer",
-    boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
+  profileRole: {
+    fontSize: "12px",
+    color: "#6b7280",
+    lineHeight: 1.2,
+    marginTop: "3px",
   },
-  profileBox: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    backgroundColor: "#ffffff",
-    border: "1px solid #e5e7eb",
-    borderRadius: "16px",
-    padding: "8px 14px",
-    boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
-  },
-  avatar: {
-    width: "40px",
-    height: "40px",
+  profileAvatar: {
+    width: "38px",
+    height: "38px",
     borderRadius: "50%",
     backgroundColor: "#f97316",
     color: "#ffffff",
@@ -235,21 +225,7 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     fontWeight: "700",
-    fontSize: "16px",
     flexShrink: 0,
-  },
-  profileName: {
-    margin: 0,
-    fontSize: "14px",
-    fontWeight: "700",
-    color: "#111827",
-    lineHeight: 1.2,
-  },
-  profileRole: {
-    margin: "3px 0 0 0",
-    fontSize: "12px",
-    color: "#6b7280",
-    lineHeight: 1.2,
   },
   tabs: {
     display: "flex",
@@ -307,4 +283,4 @@ const styles = {
   },
 };
 
-export default FoundListPage;
+export default MyReportedItemsPage;

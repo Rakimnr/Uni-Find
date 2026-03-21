@@ -56,6 +56,8 @@ const foundItemSchema = new mongoose.Schema(
       ],
       default: "available",
     },
+
+    // keep optional for now because login is not built yet
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

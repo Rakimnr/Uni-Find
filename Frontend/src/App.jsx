@@ -6,8 +6,8 @@ import FoundListPage from "./pages/user/FoundListPage";
 import AddFoundItemPage from "./pages/user/AddFoundItemPage";
 import ClaimItemPage from "./pages/user/ClaimItemPage";
 import MyClaimsPage from "./pages/user/MyClaimsPage";
+import UserDashboardPage from "./pages/user/UserDashboardPage";
 
-import AdminRoute from "./routes/AdminRoute";
 import AdminClaimReviewPage from "./pages/admin/AdminClaimReviewPage";
 import AdminManageFoundPage from "./pages/admin/AdminManageFoundPage";
 import AdminAddFoundPage from "./pages/admin/AdminAddFoundPage";
@@ -22,6 +22,7 @@ function App() {
         <Route path="/report-found-item" element={<AddFoundItemPage />} />
         <Route path="/claims/new/:itemId" element={<ClaimItemPage />} />
         <Route path="/my-claims" element={<MyClaimsPage />} />
+        <Route path="/dashboard" element={<UserDashboardPage />} />
       </Route>
 
       <Route element={<AdminLayout />}>
