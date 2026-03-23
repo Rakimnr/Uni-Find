@@ -4,17 +4,18 @@ const lostItemSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
+      required: [true, "Item title is required"],
       trim: true,
     },
     description: {
       type: String,
-      required: true,
+      required: [true, "Description is required"],
       trim: true,
     },
     category: {
       type: String,
-      required: true,
+      required: [true, "Category is required"],
+      trim: true,
       enum: [
         "Electronics",
         "Documents",
@@ -27,12 +28,12 @@ const lostItemSchema = new mongoose.Schema(
     },
     lostLocation: {
       type: String,
-      required: true,
+      required: [true, "Lost location is required"],
       trim: true,
     },
     dateLost: {
       type: Date,
-      required: true,
+      required: [true, "Date lost is required"],
     },
     uniqueFeatures: {
       type: String,
@@ -41,12 +42,12 @@ const lostItemSchema = new mongoose.Schema(
     },
     contactName: {
       type: String,
-      required: true,
+      required: [true, "Contact name is required"],
       trim: true,
     },
     contactEmail: {
       type: String,
-      required: true,
+      required: [true, "Contact email is required"],
       trim: true,
     },
     contactPhone: {
@@ -54,14 +55,15 @@ const lostItemSchema = new mongoose.Schema(
       default: "",
       trim: true,
     },
-    image: {
-      type: String,
-      default: "",
-    },
     status: {
       type: String,
-      enum: ["open", "possible_match", "claimed", "closed"],
+      enum: ["open", "possible_match", "closed"],
       default: "open",
+    },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
     },
   },
   { timestamps: true }
