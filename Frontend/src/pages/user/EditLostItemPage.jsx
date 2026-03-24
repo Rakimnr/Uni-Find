@@ -65,7 +65,7 @@ function EditLostItemPage() {
         });
 
         setExistingImage(item.image || "");
-      } catch (err) {
+      } catch {
         setError("Failed to load lost item details.");
       } finally {
         setLoading(false);
@@ -225,46 +225,55 @@ function EditLostItemPage() {
     ) : null;
 
   if (loading) {
-    return <div style={styles.stateText}>Loading lost item...</div>;
+    return (
+      <div style={styles.loadingWrapper}>
+        <div style={styles.loadingSpinner}></div>
+        <p style={styles.stateText}>Retrieving report details...</p>
+      </div>
+    );
   }
 
   return (
     <div style={styles.page}>
       <div style={styles.wrapper}>
+        {/* Modern Header bar */}
         <div style={styles.topBar}>
           <div>
-            <p style={styles.badgeTop}>Lost Item Portal</p>
-            <h1 style={styles.heading}>Edit Lost Report</h1>
-            <p style={styles.subText}>
-              Update the lost item details below.
-            </p>
+            <span style={styles.badgeTop}>Editing Report</span>
+            <h1 style={styles.heading}>Update Lost Item</h1>
+            <p style={styles.subText}>Make changes to your lost item record below.</p>
           </div>
 
           <div style={styles.topButtons}>
-            <Link to="/" style={styles.secondaryButton}>
-              Home
-            </Link>
-            <Link to="/lost-reports" style={styles.backButton}>
-              Back to Reports
-            </Link>
+            <Link to="/" style={styles.secondaryButton}>Home</Link>
+            <Link to="/lost-reports" style={styles.backButton}>View Reports</Link>
           </div>
         </div>
 
-        <div style={styles.formCard}>
-          {message && <div style={styles.successBox}>{message}</div>}
-          {error && <div style={styles.errorBox}>{error}</div>}
+        <form onSubmit={handleSubmit} style={styles.formLayout}>
+          {message && <div style={styles.successBox}>✅ {message}</div>}
+          {error && <div style={styles.errorBox}>⚠️ {error}</div>}
 
-          <form onSubmit={handleSubmit} style={styles.form}>
+          {/* SECTION 1: Item Details */}
+          <div style={styles.cardSection}>
+            <div style={styles.sectionHeader}>
+              <span style={styles.sectionIcon}>📦</span>
+              <div>
+                <h2 style={styles.sectionTitle}>Basic Information</h2>
+                <p style={styles.sectionSubText}>Describe the item that was lost.</p>
+              </div>
+            </div>
+
             <div style={styles.grid}>
               <div style={styles.fieldGroup}>
                 <label style={styles.label}>Item Title *</label>
                 <input
                   type="text"
                   name="title"
-                  placeholder="Ex: Black wallet"
+                  placeholder="Ex: Brown leather wallet"
                   value={formData.title}
                   onChange={handleChange}
-                  style={styles.input}
+                  style={{ ...styles.input, ...(errors.title ? styles.inputError : {}) }}
                   disabled={saving}
                 />
                 {renderFieldError("title")}
@@ -276,14 +285,12 @@ function EditLostItemPage() {
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
-                  style={styles.input}
+                  style={{ ...styles.input, ...(errors.category ? styles.inputError : {}) }}
                   disabled={saving}
                 >
                   <option value="">Select category</option>
                   {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
+                    <option key={category} value={category}>{category}</option>
                   ))}
                 </select>
                 {renderFieldError("category")}
@@ -294,13 +301,36 @@ function EditLostItemPage() {
               <label style={styles.label}>Description *</label>
               <textarea
                 name="description"
-                placeholder="Describe the lost item clearly..."
+                placeholder="Include brand, color, contents inside..."
                 value={formData.description}
                 onChange={handleChange}
-                style={styles.textarea}
+                style={{ ...styles.textarea, ...(errors.description ? styles.inputError : {}) }}
                 disabled={saving}
               />
               {renderFieldError("description")}
+            </div>
+
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>Unique Features (Optional)</label>
+              <textarea
+                name="uniqueFeatures"
+                placeholder="Ex: Scratch on side, specific sticker..."
+                value={formData.uniqueFeatures}
+                onChange={handleChange}
+                style={styles.textareaSmall}
+                disabled={saving}
+              />
+            </div>
+          </div>
+
+          {/* SECTION 2: Location & Time */}
+          <div style={styles.cardSection}>
+            <div style={styles.sectionHeader}>
+              <span style={styles.sectionIcon}>📍</span>
+              <div>
+                <h2 style={styles.sectionTitle}>Location & Timeline</h2>
+                <p style={styles.sectionSubText}>Where and when did it go missing?</p>
+              </div>
             </div>
 
             <div style={styles.grid}>
@@ -309,10 +339,10 @@ function EditLostItemPage() {
                 <input
                   type="text"
                   name="lostLocation"
-                  placeholder="Ex: Library 2nd floor"
+                  placeholder="Ex: Student Union Cafe"
                   value={formData.lostLocation}
                   onChange={handleChange}
-                  style={styles.input}
+                  style={{ ...styles.input, ...(errors.lostLocation ? styles.inputError : {}) }}
                   disabled={saving}
                 />
                 {renderFieldError("lostLocation")}
@@ -325,57 +355,68 @@ function EditLostItemPage() {
                   name="dateLost"
                   value={formData.dateLost}
                   onChange={handleChange}
-                  style={styles.input}
+                  style={{ ...styles.input, ...(errors.dateLost ? styles.inputError : {}) }}
                   disabled={saving}
                   max={today}
                 />
                 {renderFieldError("dateLost")}
               </div>
             </div>
+          </div>
+
+          {/* SECTION 3: Visuals */}
+          <div style={styles.cardSection}>
+            <div style={styles.sectionHeader}>
+              <span style={styles.sectionIcon}>🖼️</span>
+              <div>
+                <h2 style={styles.sectionTitle}>Item Visuals</h2>
+                <p style={styles.sectionSubText}>Upload an image to help identify the item.</p>
+              </div>
+            </div>
 
             <div style={styles.fieldGroup}>
-              <label style={styles.label}>Current / New Image</label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                style={styles.fileInput}
-                disabled={saving}
-              />
+              <div style={styles.uploadBox}>
+                <label style={styles.uploadLabel}>
+                  <div style={styles.uploadPlaceholder}>
+                    <span>Change or Upload Image</span>
+                    <span style={styles.uploadHint}>Click to select file (PNG, JPG, Max 5MB)</span>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    style={styles.fileInputHidden}
+                    disabled={saving}
+                  />
+                </label>
+              </div>
               {renderFieldError("image")}
 
-              {imagePreview ? (
-                <div style={styles.previewBox}>
-                  <img
-                    src={imagePreview}
-                    alt="New preview"
-                    style={styles.previewImage}
-                  />
+              {/* Enhanced image preview rendering */}
+              {(imagePreview || existingImage) && (
+                <div style={styles.previewContainer}>
+                  <p style={styles.previewLabel}>{imagePreview ? "New Image Preview:" : "Current Attached Image:"}</p>
+                  <div style={styles.previewBox}>
+                    <img
+                      src={imagePreview || `http://localhost:5001${existingImage}`}
+                      alt="Lost Item"
+                      style={styles.previewImage}
+                    />
+                  </div>
                 </div>
-              ) : existingImage ? (
-                <div style={styles.previewBox}>
-                  <img
-                    src={`http://localhost:5001${existingImage}`}
-                    alt="Current item"
-                    style={styles.previewImage}
-                  />
-                </div>
-              ) : null}
+              )}
             </div>
+          </div>
 
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>Unique Features</label>
-              <textarea
-                name="uniqueFeatures"
-                placeholder="Ex: Scratch near zip, yellow keychain..."
-                value={formData.uniqueFeatures}
-                onChange={handleChange}
-                style={styles.textareaSmall}
-                disabled={saving}
-              />
+          {/* SECTION 4: Contacts */}
+          <div style={styles.cardSection}>
+            <div style={styles.sectionHeader}>
+              <span style={styles.sectionIcon}>📞</span>
+              <div>
+                <h2 style={styles.sectionTitle}>Contact Information</h2>
+                <p style={styles.sectionSubText}>How can finders reach you?</p>
+              </div>
             </div>
-
-            <div style={styles.sectionTitle}>Contact Information</div>
 
             <div style={styles.grid}>
               <div style={styles.fieldGroup}>
@@ -383,10 +424,10 @@ function EditLostItemPage() {
                 <input
                   type="text"
                   name="contactName"
-                  placeholder="Your name"
+                  placeholder="Your Name"
                   value={formData.contactName}
                   onChange={handleChange}
-                  style={styles.input}
+                  style={{ ...styles.input, ...(errors.contactName ? styles.inputError : {}) }}
                   disabled={saving}
                 />
                 {renderFieldError("contactName")}
@@ -400,7 +441,7 @@ function EditLostItemPage() {
                   placeholder="your@email.com"
                   value={formData.contactEmail}
                   onChange={handleChange}
-                  style={styles.input}
+                  style={{ ...styles.input, ...(errors.contactEmail ? styles.inputError : {}) }}
                   disabled={saving}
                 />
                 {renderFieldError("contactEmail")}
@@ -408,11 +449,11 @@ function EditLostItemPage() {
             </div>
 
             <div style={styles.fieldGroup}>
-              <label style={styles.label}>Contact Phone</label>
+              <label style={styles.label}>Contact Phone (Optional)</label>
               <input
                 type="text"
                 name="contactPhone"
-                placeholder="07XXXXXXXX"
+                placeholder="Ex: 07XXXXXXXX"
                 value={formData.contactPhone}
                 onChange={handleChange}
                 style={styles.input}
@@ -420,21 +461,22 @@ function EditLostItemPage() {
               />
               {renderFieldError("contactPhone")}
             </div>
+          </div>
 
-            <div style={styles.bottomActions}>
-              <button
-                type="submit"
-                style={{
-                  ...styles.submitButton,
-                  ...(saving ? styles.submitButtonDisabled : {}),
-                }}
-                disabled={saving}
-              >
-                {saving ? "Saving..." : "Update Report"}
-              </button>
-            </div>
-          </form>
-        </div>
+          {/* CTA Group */}
+          <div style={styles.bottomActions}>
+            <button
+              type="submit"
+              style={{
+                ...styles.submitButton,
+                ...(saving ? styles.submitButtonDisabled : {}),
+              }}
+              disabled={saving}
+            >
+              {saving ? "Saving Changes..." : "Update Report"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
@@ -443,210 +485,288 @@ function EditLostItemPage() {
 const styles = {
   page: {
     minHeight: "100vh",
-    background:
-      "linear-gradient(135deg, #fff7ed 0%, #ffffff 40%, #f9fafb 100%)",
-    padding: "32px 20px",
+    background: "#f8fafc", // Cool grey background for enterprise feel
+    padding: "40px 24px",
     boxSizing: "border-box",
+    fontFamily: "'Inter', system-ui, sans-serif",
   },
   wrapper: {
-    maxWidth: "1000px",
+    maxWidth: "800px", // Reduced width for easy visual scanning
     margin: "0 auto",
   },
   topBar: {
-    backgroundColor: "#ffffff",
-    border: "1px solid #eef2f7",
-    borderRadius: "22px",
-    padding: "28px",
-    boxShadow: "0 10px 24px rgba(0,0,0,0.05)",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    gap: "20px",
+    marginBottom: "32px",
     flexWrap: "wrap",
-    marginBottom: "22px",
+    gap: "16px",
   },
   badgeTop: {
     display: "inline-block",
-    margin: "0 0 10px 0",
     padding: "6px 12px",
     borderRadius: "999px",
-    backgroundColor: "#fff7ed",
+    backgroundColor: "#ffedd5",
     color: "#ea580c",
     fontSize: "12px",
-    fontWeight: "700",
+    fontWeight: "600",
+    letterSpacing: "0.5px",
+    marginBottom: "12px",
   },
   heading: {
     margin: 0,
-    fontSize: "36px",
+    fontSize: "32px",
     fontWeight: "800",
-    color: "#111827",
+    color: "#0f172a",
   },
   subText: {
-    margin: "10px 0 0 0",
+    margin: "4px 0 0 0",
     fontSize: "15px",
-    color: "#6b7280",
-    lineHeight: "1.6",
+    color: "#64748b",
   },
   topButtons: {
     display: "flex",
-    gap: "10px",
-    flexWrap: "wrap",
+    gap: "12px",
   },
   secondaryButton: {
     textDecoration: "none",
-    backgroundColor: "#e5e7eb",
-    color: "#111827",
-    padding: "12px 16px",
-    borderRadius: "12px",
-    fontWeight: "700",
+    backgroundColor: "#ffffff",
+    border: "1px solid #e2e8f0",
+    color: "#475569",
+    padding: "11px 18px",
+    borderRadius: "10px",
+    fontWeight: "600",
+    fontSize: "14px",
+    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
   },
   backButton: {
     textDecoration: "none",
-    backgroundColor: "#f97316",
+    backgroundColor: "#ea580c",
     color: "#ffffff",
-    padding: "12px 16px",
-    borderRadius: "12px",
-    fontWeight: "700",
+    padding: "11px 18px",
+    borderRadius: "10px",
+    fontWeight: "600",
+    fontSize: "14px",
+    boxShadow: "0 4px 12px rgba(234, 88, 12, 0.2)",
   },
-  formCard: {
-    backgroundColor: "#ffffff",
-    border: "1px solid #eef2f7",
-    borderRadius: "22px",
-    padding: "28px",
-    boxShadow: "0 12px 28px rgba(0,0,0,0.06)",
-  },
-  form: {
+  formLayout: {
     display: "flex",
     flexDirection: "column",
-    gap: "18px",
+    gap: "24px", // Spaces between sections
+  },
+  cardSection: {
+    backgroundColor: "#ffffff",
+    border: "1px solid #e2e8f0",
+    borderRadius: "16px",
+    padding: "32px",
+    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
+  },
+  sectionHeader: {
+    display: "flex",
+    gap: "14px",
+    alignItems: "flex-start",
+    marginBottom: "24px",
+    borderBottom: "1px solid #f1f5f9",
+    paddingBottom: "18px",
+  },
+  sectionIcon: {
+    fontSize: "24px",
+    backgroundColor: "#f8fafc",
+    padding: "10px",
+    borderRadius: "12px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  sectionTitle: {
+    margin: 0,
+    fontSize: "18px",
+    fontWeight: "700",
+    color: "#1e293b",
+  },
+  sectionSubText: {
+    margin: "4px 0 0 0",
+    fontSize: "13px",
+    color: "#64748b",
   },
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-    gap: "16px",
+    gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+    gap: "20px",
+    marginBottom: "20px",
   },
   fieldGroup: {
     display: "flex",
     flexDirection: "column",
+    marginBottom: "16px",
   },
   label: {
     fontSize: "14px",
-    fontWeight: "700",
-    color: "#374151",
+    fontWeight: "600",
+    color: "#334155",
     marginBottom: "8px",
   },
   input: {
     width: "100%",
-    padding: "14px 16px",
+    padding: "12px 16px",
     fontSize: "15px",
-    borderRadius: "14px",
-    border: "1px solid #d1d5db",
+    borderRadius: "10px",
+    border: "1px solid #cbd5e1",
     boxSizing: "border-box",
     backgroundColor: "#ffffff",
+    color: "#1e293b",
+    outline: "none",
+    transition: "border-color 0.2s ease",
   },
-  fileInput: {
-    width: "100%",
-    padding: "12px",
-    fontSize: "14px",
-    borderRadius: "14px",
-    border: "1px solid #d1d5db",
-    backgroundColor: "#ffffff",
-    boxSizing: "border-box",
+  inputError: {
+    borderColor: "#ef4444",
   },
   textarea: {
     width: "100%",
-    minHeight: "130px",
-    padding: "14px 16px",
+    minHeight: "120px",
+    padding: "12px 16px",
     fontSize: "15px",
-    borderRadius: "14px",
-    border: "1px solid #d1d5db",
+    borderRadius: "10px",
+    border: "1px solid #cbd5e1",
     resize: "vertical",
     boxSizing: "border-box",
     backgroundColor: "#ffffff",
+    outline: "none",
   },
   textareaSmall: {
     width: "100%",
-    minHeight: "100px",
-    padding: "14px 16px",
+    minHeight: "90px",
+    padding: "12px 16px",
     fontSize: "15px",
-    borderRadius: "14px",
-    border: "1px solid #d1d5db",
+    borderRadius: "10px",
+    border: "1px solid #cbd5e1",
     resize: "vertical",
     boxSizing: "border-box",
     backgroundColor: "#ffffff",
+    outline: "none",
   },
-  previewBox: {
-    marginTop: "12px",
-    border: "1px solid #e5e7eb",
-    borderRadius: "14px",
-    padding: "10px",
-    backgroundColor: "#f9fafb",
-    width: "fit-content",
-  },
-  previewImage: {
-    width: "180px",
-    height: "180px",
-    objectFit: "cover",
+  uploadBox: {
+    border: "2px dashed #cbd5e1",
     borderRadius: "12px",
+    padding: "24px",
+    textAlign: "center",
+    cursor: "pointer",
+    backgroundColor: "#f8fafc",
+    transition: "all 0.2s ease",
+  },
+  uploadLabel: {
+    cursor: "pointer",
     display: "block",
   },
-  sectionTitle: {
-    fontSize: "16px",
-    fontWeight: "800",
-    color: "#111827",
-    marginTop: "4px",
-    marginBottom: "-4px",
+  fileInputHidden: {
+    display: "none",
+  },
+  uploadPlaceholder: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
+    color: "#475569",
+    fontWeight: "600",
+    fontSize: "15px",
+  },
+  uploadHint: {
+    fontSize: "12px",
+    fontWeight: "400",
+    color: "#64748b",
+  },
+  previewContainer: {
+    marginTop: "20px",
+  },
+  previewLabel: {
+    fontSize: "13px",
+    fontWeight: "600",
+    color: "#475569",
+    marginBottom: "8px",
+  },
+  previewBox: {
+    border: "1px solid #e2e8f0",
+    borderRadius: "12px",
+    padding: "8px",
+    backgroundColor: "#ffffff",
+    width: "fit-content",
+    boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+  },
+  previewImage: {
+    width: "140px",
+    height: "140px",
+    objectFit: "cover",
+    borderRadius: "8px",
+    display: "block",
   },
   fieldError: {
     margin: "6px 0 0 2px",
     fontSize: "13px",
-    color: "#dc2626",
+    color: "#ef4444",
     fontWeight: "500",
   },
   successBox: {
-    marginBottom: "16px",
-    backgroundColor: "#dcfce7",
+    backgroundColor: "#f0fdf4",
     color: "#166534",
-    padding: "12px 14px",
+    border: "1px solid #bbf7d0",
+    padding: "16px",
     borderRadius: "12px",
     fontSize: "14px",
     fontWeight: "600",
   },
   errorBox: {
-    marginBottom: "16px",
-    backgroundColor: "#fee2e2",
-    color: "#b91c1c",
-    padding: "12px 14px",
+    backgroundColor: "#fef2f2",
+    color: "#991b1b",
+    border: "1px solid #fecaca",
+    padding: "16px",
     borderRadius: "12px",
     fontSize: "14px",
     fontWeight: "600",
   },
   bottomActions: {
     display: "flex",
-    gap: "12px",
     justifyContent: "flex-end",
-    flexWrap: "wrap",
-    marginTop: "4px",
+    marginTop: "12px",
+    marginBottom: "40px",
   },
   submitButton: {
     border: "none",
-    backgroundColor: "#f97316",
+    backgroundColor: "#ea580c",
     color: "#ffffff",
-    padding: "14px 22px",
+    padding: "14px 32px",
     borderRadius: "12px",
-    fontWeight: "800",
+    fontWeight: "700",
     fontSize: "15px",
     cursor: "pointer",
-    minWidth: "190px",
+    boxShadow: "0 10px 15px -3px rgba(234, 88, 12, 0.3)",
+    transition: "transform 0.2s ease, opacity 0.2s ease",
   },
   submitButtonDisabled: {
-    opacity: 0.75,
+    opacity: 0.65,
     cursor: "not-allowed",
+    transform: "none",
+    boxShadow: "none",
+  },
+  loadingWrapper: {
+    minHeight: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: "16px",
+    background: "#f8fafc",
+  },
+  loadingSpinner: {
+    width: "40px",
+    height: "40px",
+    border: "4px solid #e2e8f0",
+    borderTopColor: "#ea580c",
+    borderRadius: "50%",
+    animation: "spin 1s linear infinite",
   },
   stateText: {
-    padding: "40px",
-    fontSize: "18px",
-    color: "#6b7280",
+    fontSize: "16px",
+    color: "#64748b",
+    fontWeight: "500",
   },
 };
 

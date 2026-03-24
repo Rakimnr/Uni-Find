@@ -185,7 +185,7 @@ const styles = {
     padding: "10px 14px",
     borderRadius: "10px",
     cursor: "pointer",
-    fontWeight: "600",
+    fontWeight: "1000",
   },
 };
 

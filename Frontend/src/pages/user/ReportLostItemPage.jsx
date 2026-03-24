@@ -2,6 +2,11 @@ import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createLostItem } from "../../api/lostApi.js";
 
+// --- Custom Icons ---
+const BackIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+);
+
 function ReportLostItemPage() {
   const navigate = useNavigate();
 
@@ -29,49 +34,30 @@ function ReportLostItemPage() {
   const [submitError, setSubmitError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const categories = [
-    "Electronics",
-    "Documents",
-    "Bags",
-    "Accessories",
-    "Stationery",
-    "Clothing",
-    "Other",
-  ];
-
+  const categories = ["Electronics", "Documents", "Bags", "Accessories", "Stationery", "Clothing", "Other"];
   const today = new Date().toISOString().split("T")[0];
 
   const validate = () => {
     const newErrors = {};
-
     if (!formData.title.trim()) newErrors.title = "Item title is required.";
-    if (!formData.description.trim())
-      newErrors.description = "Description is required.";
+    if (!formData.description.trim()) newErrors.description = "Description is required.";
     if (!formData.category) newErrors.category = "Please select a category.";
-    if (!formData.lostLocation.trim())
-      newErrors.lostLocation = "Lost location is required.";
+    if (!formData.lostLocation.trim()) newErrors.lostLocation = "Lost location is required.";
     if (!formData.dateLost) {
       newErrors.dateLost = "Date lost is required.";
     } else if (formData.dateLost > today) {
       newErrors.dateLost = "Date lost cannot be in the future.";
     }
-    if (!formData.contactName.trim())
-      newErrors.contactName = "Contact name is required.";
+    if (!formData.contactName.trim()) newErrors.contactName = "Contact name is required.";
     if (!formData.contactEmail.trim()) {
       newErrors.contactEmail = "Contact email is required.";
-    } else if (
-      !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(formData.contactEmail)
-    ) {
+    } else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(formData.contactEmail)) {
       newErrors.contactEmail = "Enter a valid email address.";
     }
 
     if (formData.image) {
-      if (!formData.image.type.startsWith("image/")) {
-        newErrors.image = "Only image files are allowed.";
-      }
-      if (formData.image.size > 5 * 1024 * 1024) {
-        newErrors.image = "Image size must be less than 5MB.";
-      }
+      if (!formData.image.type.startsWith("image/")) newErrors.image = "Only images allowed.";
+      if (formData.image.size > 5 * 1024 * 1024) newErrors.image = "Max size is 5MB.";
     }
 
     setErrors(newErrors);
@@ -80,520 +66,234 @@ function ReportLostItemPage() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-
-    setErrors((prev) => ({
-      ...prev,
-      [name]: "",
-    }));
-
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    setErrors((prev) => ({ ...prev, [name]: "" }));
     setMessage("");
     setSubmitError("");
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-
-    setFormData((prev) => ({
-      ...prev,
-      image: file || null,
-    }));
-
-    setErrors((prev) => ({
-      ...prev,
-      image: "",
-    }));
-
-    if (file) {
-      setImagePreview(URL.createObjectURL(file));
-    } else {
-      setImagePreview("");
-    }
+    setFormData((prev) => ({ ...prev, image: file || null }));
+    setErrors((prev) => ({ ...prev, image: "" }));
+    if (file) setImagePreview(URL.createObjectURL(file));
+    else setImagePreview("");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     setMessage("");
     setSubmitError("");
-
     if (!validate()) return;
-
     setSubmitting(true);
 
     try {
       const submitData = new FormData();
-      submitData.append("title", formData.title);
-      submitData.append("description", formData.description);
-      submitData.append("category", formData.category);
-      submitData.append("lostLocation", formData.lostLocation);
-      submitData.append("dateLost", formData.dateLost);
-      submitData.append("uniqueFeatures", formData.uniqueFeatures);
-      submitData.append("contactName", formData.contactName);
-      submitData.append("contactEmail", formData.contactEmail);
-      submitData.append("contactPhone", formData.contactPhone);
-      submitData.append("status", formData.status);
-
-      if (formData.image) {
-        submitData.append("image", formData.image);
-      }
+      Object.keys(formData).forEach(key => {
+        if (key === 'image' && formData[key]) submitData.append("image", formData[key]);
+        else submitData.append(key, formData[key]);
+      });
 
       await createLostItem(submitData);
-
-      setMessage("Lost item report submitted successfully.");
+      setMessage("Report submitted successfully.");
       setFormData(initialFormData);
       setImagePreview("");
-      setErrors({});
-
-      setTimeout(() => {
-        navigate("/lost-reports");
-      }, 1000);
+      setTimeout(() => navigate("/lost-reports"), 1500);
     } catch (err) {
-      setSubmitError(
-        err?.response?.data?.message || "Failed to submit lost item report."
-      );
+      setSubmitError(err?.response?.data?.message || "Submission failed.");
     } finally {
       setSubmitting(false);
     }
   };
 
-  const renderFieldError = (fieldName) =>
-    errors[fieldName] ? (
-      <p style={styles.fieldError}>{errors[fieldName]}</p>
-    ) : null;
-
   return (
     <div style={styles.page}>
-      <div style={styles.wrapper}>
-        <div style={styles.headerCard}>
-          <div>
-            <p style={styles.badge}>Lost Item Portal</p>
-            <h1 style={styles.heading}>Report Lost Item</h1>
-            <p style={styles.subText}>
-              Fill in the details clearly so the item can be identified faster.
-            </p>
-          </div>
-
-          <div style={styles.headerButtons}>
-            <Link to="/" style={styles.secondaryButton}>
-              Home
+      <div style={styles.container}>
+        {/* --- HEADER LAYER --- */}
+        <header style={styles.header}>
+          <div style={styles.headerLeft}>
+            <Link to="/lost-reports" style={styles.backLink}>
+              <BackIcon /> Back to Reports
             </Link>
-            <Link to="/lost-reports" style={styles.primaryOutlineButton}>
-              My Reports
-            </Link>
+            <h1 style={styles.title}>New Lost Report</h1>
+            <p style={styles.subtitle}>Provide as much detail as possible to help recovery.</p>
           </div>
-        </div>
+          <div style={styles.headerActions}>
+            <Link to="/" style={styles.homeBtn}>Home</Link>
+          </div>
+        </header>
 
-        <div style={styles.formCard}>
-          {message && <div style={styles.successBox}>{message}</div>}
-          {submitError && <div style={styles.errorBox}>{submitError}</div>}
+        <form onSubmit={handleSubmit} style={styles.formGrid}>
+          {/* --- LEFT COLUMN: ITEM DETAILS --- */}
+          <div style={styles.mainCard}>
+            <h2 style={styles.sectionHeading}>Item Details</h2>
+            
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>Item Title <span style={styles.required}>*</span></label>
+              <input
+                type="text" name="title" placeholder="e.g. Blue Nike Backpack"
+                value={formData.title} onChange={handleChange}
+                style={{...styles.input, ...(errors.title ? styles.inputError : {})}}
+                disabled={submitting}
+              />
+              {errors.title && <p style={styles.errorText}>{errors.title}</p>}
+            </div>
 
-          <form onSubmit={handleSubmit} style={styles.form}>
-            <div style={styles.grid}>
-              <div style={styles.fieldGroup}>
-                <label style={styles.label}>Item Title *</label>
-                <input
-                  type="text"
-                  name="title"
-                  placeholder="Ex: Black wallet"
-                  value={formData.title}
-                  onChange={handleChange}
-                  style={styles.input}
-                  disabled={submitting}
-                />
-                {renderFieldError("title")}
-              </div>
-
-              <div style={styles.fieldGroup}>
-                <label style={styles.label}>Category *</label>
+            <div style={styles.row}>
+              <div style={{...styles.fieldGroup, flex: 1}}>
+                <label style={styles.label}>Category <span style={styles.required}>*</span></label>
                 <select
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                  style={styles.input}
+                  name="category" value={formData.category} onChange={handleChange}
+                  style={{...styles.select, ...(errors.category ? styles.inputError : {})}}
                   disabled={submitting}
                 >
-                  <option value="">Select category</option>
-                  {categories.map((category) => (
-                    <option key={category} value={category}>
-                      {category}
-                    </option>
-                  ))}
+                  <option value="">Choose category</option>
+                  {categories.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
-                {renderFieldError("category")}
+                {errors.category && <p style={styles.errorText}>{errors.category}</p>}
+              </div>
+
+              <div style={{...styles.fieldGroup, flex: 1}}>
+                <label style={styles.label}>Date Lost <span style={styles.required}>*</span></label>
+                <input
+                  type="date" name="dateLost" max={today}
+                  value={formData.dateLost} onChange={handleChange}
+                  style={{...styles.input, ...(errors.dateLost ? styles.inputError : {})}}
+                  disabled={submitting}
+                />
+                {errors.dateLost && <p style={styles.errorText}>{errors.dateLost}</p>}
               </div>
             </div>
 
             <div style={styles.fieldGroup}>
-              <label style={styles.label}>Description *</label>
-              <textarea
-                name="description"
-                placeholder="Describe the lost item clearly..."
-                value={formData.description}
-                onChange={handleChange}
-                style={styles.textarea}
-                disabled={submitting}
-              />
-              {renderFieldError("description")}
-            </div>
-
-            <div style={styles.grid}>
-              <div style={styles.fieldGroup}>
-                <label style={styles.label}>Lost Location *</label>
-                <input
-                  type="text"
-                  name="lostLocation"
-                  placeholder="Ex: Library 2nd floor"
-                  value={formData.lostLocation}
-                  onChange={handleChange}
-                  style={styles.input}
-                  disabled={submitting}
-                />
-                {renderFieldError("lostLocation")}
-              </div>
-
-              <div style={styles.fieldGroup}>
-                <label style={styles.label}>Date Lost *</label>
-                <input
-                  type="date"
-                  name="dateLost"
-                  value={formData.dateLost}
-                  onChange={handleChange}
-                  style={styles.input}
-                  disabled={submitting}
-                  max={today}
-                />
-                {renderFieldError("dateLost")}
-              </div>
-            </div>
-
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>Item Image</label>
+              <label style={styles.label}>Lost Location <span style={styles.required}>*</span></label>
               <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                style={styles.fileInput}
+                type="text" name="lostLocation" placeholder="e.g. Main Library, 3rd Floor"
+                value={formData.lostLocation} onChange={handleChange}
+                style={{...styles.input, ...(errors.lostLocation ? styles.inputError : {})}}
                 disabled={submitting}
               />
-              {renderFieldError("image")}
+              {errors.lostLocation && <p style={styles.errorText}>{errors.lostLocation}</p>}
+            </div>
 
-              {imagePreview && (
-                <div style={styles.previewBox}>
-                  <img src={imagePreview} alt="Preview" style={styles.previewImage} />
-                </div>
-              )}
+            <div style={styles.fieldGroup}>
+              <label style={styles.label}>Full Description <span style={styles.required}>*</span></label>
+              <textarea
+                name="description" placeholder="Mention color, brand, and contents..."
+                value={formData.description} onChange={handleChange}
+                style={{...styles.textarea, ...(errors.description ? styles.inputError : {})}}
+                disabled={submitting}
+              />
+              {errors.description && <p style={styles.errorText}>{errors.description}</p>}
             </div>
 
             <div style={styles.fieldGroup}>
               <label style={styles.label}>Unique Features</label>
-              <textarea
-                name="uniqueFeatures"
-                placeholder="Ex: Scratch near zip, yellow keychain..."
-                value={formData.uniqueFeatures}
-                onChange={handleChange}
-                style={styles.textareaSmall}
-                disabled={submitting}
-              />
-            </div>
-
-            <div style={styles.sectionTitle}>Contact Information</div>
-
-            <div style={styles.grid}>
-              <div style={styles.fieldGroup}>
-                <label style={styles.label}>Contact Name *</label>
-                <input
-                  type="text"
-                  name="contactName"
-                  placeholder="Your name"
-                  value={formData.contactName}
-                  onChange={handleChange}
-                  style={styles.input}
-                  disabled={submitting}
-                />
-                {renderFieldError("contactName")}
-              </div>
-
-              <div style={styles.fieldGroup}>
-                <label style={styles.label}>Contact Email *</label>
-                <input
-                  type="email"
-                  name="contactEmail"
-                  placeholder="your@email.com"
-                  value={formData.contactEmail}
-                  onChange={handleChange}
-                  style={styles.input}
-                  disabled={submitting}
-                />
-                {renderFieldError("contactEmail")}
-              </div>
-            </div>
-
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>Contact Phone</label>
               <input
-                type="text"
-                name="contactPhone"
-                placeholder="07XXXXXXXX"
-                value={formData.contactPhone}
-                onChange={handleChange}
-                style={styles.input}
-                disabled={submitting}
+                type="text" name="uniqueFeatures" placeholder="e.g. Scratched corner, Batman sticker"
+                value={formData.uniqueFeatures} onChange={handleChange}
+                style={styles.input} disabled={submitting}
               />
             </div>
+          </div>
 
-            <div style={styles.bottomActions}>
-              <button
-                type="button"
-                onClick={() => {
-                  setFormData(initialFormData);
-                  setImagePreview("");
-                  setErrors({});
-                  setMessage("");
-                  setSubmitError("");
-                }}
-                style={styles.clearButton}
-                disabled={submitting}
-              >
-                Clear Form
+          {/* --- RIGHT COLUMN: MEDIA & CONTACT --- */}
+          <div style={styles.sideColumn}>
+            <div style={styles.sideCard}>
+              <h2 style={styles.sectionHeading}>Media & Image</h2>
+              <div style={styles.imageUploadBox}>
+                {imagePreview ? (
+                  <div style={styles.previewContainer}>
+                    <img src={imagePreview} alt="Preview" style={styles.previewImg} />
+                    <button type="button" onClick={() => {setImagePreview(""); setFormData(p=>({...p, image:null}))}} style={styles.removeImgBtn}>Remove</button>
+                  </div>
+                ) : (
+                  <div style={styles.uploadPlaceholder}>
+                    <p style={{margin:0, color:'#94a3b8'}}>Upload Item Photo</p>
+                    <input type="file" accept="image/*" onChange={handleImageChange} style={styles.hiddenFileInput} />
+                    <button type="button" style={styles.fileDummyBtn}>Select File</button>
+                  </div>
+                )}
+              </div>
+              {errors.image && <p style={styles.errorText}>{errors.image}</p>}
+            </div>
+
+            <div style={styles.sideCard}>
+              <h2 style={styles.sectionHeading}>Contact Info</h2>
+              <div style={styles.fieldGroup}>
+                <label style={styles.label}>Your Name <span style={styles.required}>*</span></label>
+                <input type="text" name="contactName" value={formData.contactName} onChange={handleChange} style={styles.input} />
+              </div>
+              <div style={styles.fieldGroup}>
+                <label style={styles.label}>Email Address <span style={styles.required}>*</span></label>
+                <input type="email" name="contactEmail" value={formData.contactEmail} onChange={handleChange} style={styles.input} />
+              </div>
+              <div style={styles.fieldGroup}>
+                <label style={styles.label}>Phone Number</label>
+                <input type="text" name="contactPhone" value={formData.contactPhone} onChange={handleChange} style={styles.input} />
+              </div>
+            </div>
+
+            <div style={styles.actionBox}>
+              {message && <div style={styles.successMsg}>{message}</div>}
+              {submitError && <div style={styles.errorMsg}>{submitError}</div>}
+              <button type="submit" style={styles.submitBtn} disabled={submitting}>
+                {submitting ? "Processing..." : "Submit Report"}
               </button>
-
-              <button
-                type="submit"
-                style={{
-                  ...styles.submitButton,
-                  ...(submitting ? styles.submitButtonDisabled : {}),
-                }}
-                disabled={submitting}
-              >
-                {submitting ? "Submitting..." : "Submit Lost Report"}
+              <button type="button" onClick={() => {setFormData(initialFormData); setImagePreview("")}} style={styles.clearBtn}>
+                Reset Form
               </button>
             </div>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
+
+      <style>{`
+        input:focus, select:focus, textarea:focus { border-color: #f97316 !important; box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1) !important; outline: none; }
+      `}</style>
     </div>
   );
 }
 
 const styles = {
-  page: {
-    minHeight: "100vh",
-    background:
-      "linear-gradient(135deg, #fff7ed 0%, #ffffff 40%, #f9fafb 100%)",
-    padding: "32px 20px",
-    boxSizing: "border-box",
-  },
-  wrapper: {
-    maxWidth: "1000px",
-    margin: "0 auto",
-  },
-  headerCard: {
-    backgroundColor: "#ffffff",
-    border: "1px solid #f1f5f9",
-    borderRadius: "22px",
-    padding: "28px",
-    boxShadow: "0 10px 24px rgba(0,0,0,0.05)",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: "20px",
-    flexWrap: "wrap",
-    marginBottom: "22px",
-  },
-  badge: {
-    display: "inline-block",
-    margin: "0 0 10px 0",
-    padding: "6px 12px",
-    borderRadius: "999px",
-    backgroundColor: "#fff7ed",
-    color: "#ea580c",
-    fontSize: "12px",
-    fontWeight: "700",
-  },
-  heading: {
-    margin: 0,
-    fontSize: "36px",
-    fontWeight: "800",
-    color: "#111827",
-  },
-  subText: {
-    margin: "10px 0 0 0",
-    fontSize: "15px",
-    color: "#6b7280",
-    lineHeight: "1.6",
-    maxWidth: "600px",
-  },
-  headerButtons: {
-    display: "flex",
-    gap: "10px",
-    flexWrap: "wrap",
-  },
-  secondaryButton: {
-    textDecoration: "none",
-    backgroundColor: "#e5e7eb",
-    color: "#111827",
-    padding: "12px 16px",
-    borderRadius: "12px",
-    fontWeight: "700",
-  },
-  primaryOutlineButton: {
-    textDecoration: "none",
-    backgroundColor: "#ffffff",
-    color: "#f97316",
-    padding: "12px 16px",
-    borderRadius: "12px",
-    fontWeight: "700",
-    border: "1px solid #f97316",
-  },
-  formCard: {
-    backgroundColor: "#ffffff",
-    border: "1px solid #eef2f7",
-    borderRadius: "22px",
-    padding: "28px",
-    boxShadow: "0 12px 28px rgba(0,0,0,0.06)",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "18px",
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-    gap: "16px",
-  },
-  fieldGroup: {
-    display: "flex",
-    flexDirection: "column",
-  },
-  label: {
-    fontSize: "14px",
-    fontWeight: "700",
-    color: "#374151",
-    marginBottom: "8px",
-  },
-  input: {
-    width: "100%",
-    padding: "14px 16px",
-    fontSize: "15px",
-    borderRadius: "14px",
-    border: "1px solid #d1d5db",
-    boxSizing: "border-box",
-    backgroundColor: "#ffffff",
-  },
-  fileInput: {
-    width: "100%",
-    padding: "12px",
-    fontSize: "14px",
-    borderRadius: "14px",
-    border: "1px solid #d1d5db",
-    backgroundColor: "#ffffff",
-    boxSizing: "border-box",
-  },
-  textarea: {
-    width: "100%",
-    minHeight: "130px",
-    padding: "14px 16px",
-    fontSize: "15px",
-    borderRadius: "14px",
-    border: "1px solid #d1d5db",
-    resize: "vertical",
-    boxSizing: "border-box",
-    backgroundColor: "#ffffff",
-  },
-  textareaSmall: {
-    width: "100%",
-    minHeight: "100px",
-    padding: "14px 16px",
-    fontSize: "15px",
-    borderRadius: "14px",
-    border: "1px solid #d1d5db",
-    resize: "vertical",
-    boxSizing: "border-box",
-    backgroundColor: "#ffffff",
-  },
-  previewBox: {
-    marginTop: "12px",
-    border: "1px solid #e5e7eb",
-    borderRadius: "14px",
-    padding: "10px",
-    backgroundColor: "#f9fafb",
-    width: "fit-content",
-  },
-  previewImage: {
-    width: "180px",
-    height: "180px",
-    objectFit: "cover",
-    borderRadius: "12px",
-    display: "block",
-  },
-  sectionTitle: {
-    fontSize: "16px",
-    fontWeight: "800",
-    color: "#111827",
-    marginTop: "4px",
-    marginBottom: "-4px",
-  },
-  fieldError: {
-    margin: "6px 0 0 2px",
-    fontSize: "13px",
-    color: "#dc2626",
-    fontWeight: "500",
-  },
-  successBox: {
-    marginBottom: "16px",
-    backgroundColor: "#dcfce7",
-    color: "#166534",
-    padding: "12px 14px",
-    borderRadius: "12px",
-    fontSize: "14px",
-    fontWeight: "600",
-  },
-  errorBox: {
-    marginBottom: "16px",
-    backgroundColor: "#fee2e2",
-    color: "#b91c1c",
-    padding: "12px 14px",
-    borderRadius: "12px",
-    fontSize: "14px",
-    fontWeight: "600",
-  },
-  bottomActions: {
-    display: "flex",
-    gap: "12px",
-    justifyContent: "flex-end",
-    flexWrap: "wrap",
-    marginTop: "4px",
-  },
-  clearButton: {
-    border: "none",
-    backgroundColor: "#e5e7eb",
-    color: "#111827",
-    padding: "14px 18px",
-    borderRadius: "12px",
-    fontWeight: "700",
-    cursor: "pointer",
-  },
-  submitButton: {
-    border: "none",
-    backgroundColor: "#f97316",
-    color: "#ffffff",
-    padding: "14px 22px",
-    borderRadius: "12px",
-    fontWeight: "800",
-    fontSize: "15px",
-    cursor: "pointer",
-    minWidth: "190px",
-  },
-  submitButtonDisabled: {
-    opacity: 0.75,
-    cursor: "not-allowed",
-  },
+  page: { minHeight: "100vh", backgroundColor: "#f8fafc", padding: "40px 20px" },
+  container: { maxWidth: "1100px", margin: "0 auto" },
+  header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "40px" },
+  backLink: { display: "flex", alignItems: "center", gap: "8px", color: "#64748b", textDecoration: "none", fontWeight: "600", fontSize: "14px", marginBottom: "12px" },
+  title: { fontSize: "32px", fontWeight: "800", color: "#0f172a", margin: 0, letterSpacing: "-0.02em" },
+  subtitle: { color: "#64748b", fontSize: "16px", marginTop: "4px" },
+  homeBtn: { padding: "10px 20px", borderRadius: "10px", backgroundColor: "#fff", border: "1px solid #e2e8f0", textDecoration: "none", color: "#0f172a", fontWeight: "600" },
+  
+  formGrid: { display: "grid", gridTemplateColumns: "1fr 380px", gap: "24px", alignItems: "start" },
+  mainCard: { backgroundColor: "#fff", padding: "32px", borderRadius: "24px", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03)" },
+  sideColumn: { display: "flex", flexDirection: "column", gap: "24px" },
+  sideCard: { backgroundColor: "#fff", padding: "24px", borderRadius: "24px", boxShadow: "0 4px 6px -1px rgba(0,0,0,0.05)" },
+  
+  sectionHeading: { fontSize: "18px", fontWeight: "700", color: "#1e293b", marginBottom: "20px", borderBottom: "1px solid #f1f5f9", paddingBottom: "10px" },
+  fieldGroup: { marginBottom: "20px" },
+  label: { display: "block", fontSize: "14px", fontWeight: "600", color: "#475569", marginBottom: "8px" },
+  required: { color: "#ef4444" },
+  row: { display: "flex", gap: "16px" },
+  
+  input: { width: "100%", padding: "12px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", fontSize: "15px", backgroundColor: "#fcfcfd", boxSizing: "border-box" },
+  select: { width: "100%", padding: "12px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", fontSize: "15px", backgroundColor: "#fcfcfd" },
+  textarea: { width: "100%", minHeight: "120px", padding: "12px 16px", borderRadius: "12px", border: "1px solid #e2e8f0", fontSize: "15px", resize: "none", boxSizing: "border-box" },
+  inputError: { borderColor: "#ef4444", backgroundColor: "#fef2f2" },
+  errorText: { color: "#ef4444", fontSize: "12px", marginTop: "4px", fontWeight: "500" },
+
+  imageUploadBox: { border: "2px dashed #e2e8f0", borderRadius: "16px", padding: "20px", textAlign: "center", position: "relative", backgroundColor: "#f8fafc" },
+  uploadPlaceholder: { display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" },
+  hiddenFileInput: { position: "absolute", opacity: 0, width: "100%", height: "100%", cursor: "pointer", left: 0, top: 0 },
+  fileDummyBtn: { padding: "8px 16px", borderRadius: "8px", backgroundColor: "#fff", border: "1px solid #e2e8f0", fontSize: "13px", fontWeight: "600" },
+  previewContainer: { textAlign: "center" },
+  previewImg: { width: "100%", maxHeight: "200px", objectFit: "cover", borderRadius: "12px" },
+  removeImgBtn: { marginTop: "10px", background: "none", border: "none", color: "#ef4444", fontSize: "13px", fontWeight: "600", cursor: "pointer" },
+
+  actionBox: { display: "flex", flexDirection: "column", gap: "12px" },
+  submitBtn: { padding: "16px", borderRadius: "14px", backgroundColor: "#f97316", color: "#fff", border: "none", fontSize: "16px", fontWeight: "700", cursor: "pointer", boxShadow: "0 10px 15px -3px rgba(249, 115, 22, 0.3)" },
+  clearBtn: { padding: "12px", borderRadius: "12px", backgroundColor: "transparent", border: "1px solid #e2e8f0", color: "#64748b", fontWeight: "600", cursor: "pointer" },
+  successMsg: { backgroundColor: "#dcfce7", color: "#166534", padding: "12px", borderRadius: "10px", fontSize: "14px", textAlign: "center", fontWeight: "600" },
+  errorMsg: { backgroundColor: "#fef2f2", color: "#991b1b", padding: "12px", borderRadius: "10px", fontSize: "14px", textAlign: "center", fontWeight: "600" },
 };
 
 export default ReportLostItemPage;

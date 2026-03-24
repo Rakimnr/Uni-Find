@@ -19,144 +19,133 @@ function LostItemDetailsPage() {
         setLoading(false);
       }
     };
-
     fetchItem();
   }, [id]);
-
-  const getStatusStyle = (status) => {
-    if (status === "open") {
-      return {
-        backgroundColor: "#dcfce7",
-        color: "#166534",
-      };
-    }
-
-    if (status === "possible_match") {
-      return {
-        backgroundColor: "#ffedd5",
-        color: "#c2410c",
-      };
-    }
-
-    return {
-      backgroundColor: "#e5e7eb",
-      color: "#374151",
-    };
-  };
-
-  const formatStatus = (status) => {
-    if (!status) return "Unknown";
-    return status.replace(/_/g, " ");
-  };
 
   const formatDate = (dateValue) => {
     if (!dateValue) return "N/A";
     const date = new Date(dateValue);
-    if (Number.isNaN(date.getTime())) return "N/A";
-    return date.toLocaleDateString();
+    return isNaN(date.getTime()) ? "N/A" : date.toLocaleDateString("en-US", { 
+      day: 'numeric', month: 'short', year: 'numeric' 
+    });
   };
 
-  if (loading) {
-    return <div style={styles.stateText}>Loading item details...</div>;
-  }
-
-  if (error) {
-    return <div style={styles.stateText}>{error}</div>;
-  }
-
-  if (!item) {
-    return <div style={styles.stateText}>Item not found.</div>;
-  }
+  if (loading) return <div style={styles.loader}>Loading...</div>;
+  if (error) return <div style={styles.loader}>{error}</div>;
+  if (!item) return <div style={styles.loader}>Item not found</div>;
 
   return (
-    <div style={styles.page}>
-      <div style={styles.wrapper}>
-        <div style={styles.topBar}>
-          <div>
-            <p style={styles.badgeTop}>Lost Item Portal</p>
-            <h1 style={styles.heading}>Lost Item Details</h1>
-            <p style={styles.subText}>
-              View the full details of your lost item report.
-            </p>
+    <div style={styles.pageContainer}>
+      <div style={styles.mainWrapper}>
+        
+        {/* Navigation Breadcrumb */}
+        <nav style={styles.navBar}>
+          <Link to="/lost-reports" style={styles.backBtn}>
+            <span style={{ fontSize: '18px' }}>←</span> Back to Gallery
+          </Link>
+          <Link to="/" style={styles.homeBtn}>Dashboard</Link>
+        </nav>
+
+        <div style={styles.layoutGrid}>
+          
+          {/* LEFT: The Image Showcase */}
+          <div style={styles.visualSection}>
+            <div style={styles.imageFrame}>
+              {item.image ? (
+                <>
+                  {/* Blurred background auto-adapts to image color */}
+                  <div style={{
+                    ...styles.blurredBg,
+                    backgroundImage: `url(http://localhost:5001${item.image})`
+                  }} />
+                  <img
+                    src={`http://localhost:5001${item.image}`}
+                    alt={item.title}
+                    style={styles.mainImg}
+                  />
+                </>
+              ) : (
+                <div style={styles.placeholderImg}>No Image Available</div>
+              )}
+            </div>
+            
+            <div style={styles.descCard}>
+              <h3 style={styles.sectionHeading}>Description</h3>
+              <p style={styles.bodyText}>{item.description || "No description provided."}</p>
+              
+              {item.uniqueFeatures && (
+                <div style={styles.featureBox}>
+                  <span style={styles.featureLabel}>Distinctive Marks:</span>
+                  <p style={styles.featureText}>{item.uniqueFeatures}</p>
+                </div>
+              )}
+            </div>
           </div>
 
-          <div style={styles.topButtons}>
-            <Link to="/" style={styles.secondaryButton}>
-              Home
-            </Link>
-            <Link to="/lost-reports" style={styles.backButton}>
-              Back to Reports
-            </Link>
-          </div>
-        </div>
-
-        <div style={styles.card}>
-          <div style={styles.headerRow}>
-            <div>
-              <h2 style={styles.title}>{item.title || "Untitled Item"}</h2>
-              <p style={styles.category}>{item.category || "Uncategorized"}</p>
+          {/* RIGHT: Information & Contact */}
+          <div style={styles.infoSection}>
+            
+            {/* Vital Stats Card */}
+            <div style={styles.statsCard}>
+              <div style={styles.statusRow}>
+                <span style={styles.catLabel}>{item.category}</span>
+                {/* STATUS PILL: Pale Orange background with primary orange accent */}
+                <div style={{...styles.statusPill, backgroundColor: item.status === 'open' ? '#ffedd5' : '#fef3c7'}}>
+                   <span style={{...styles.dot, backgroundColor: item.status === 'open' ? '#f97316' : '#f59e0b'}} />
+                   {item.status?.replace('_', ' ')}
+                </div>
+              </div>
+              
+              <h1 style={styles.itemTitle}>{item.title}</h1>
+              
+              <div style={styles.metaGrid}>
+                <div style={styles.metaCell}>
+                  <p style={styles.metaTitle}>📍 Last Seen</p>
+                  <p style={styles.metaValue}>{item.lostLocation}</p>
+                </div>
+                <div style={styles.metaCell}>
+                  <p style={styles.metaTitle}>📅 Reported On</p>
+                  <p style={styles.metaValue}>{formatDate(item.dateLost)}</p>
+                </div>
+              </div>
             </div>
 
-            <span
-              style={{
-                ...styles.statusBadge,
-                ...getStatusStyle(item.status),
-              }}
-            >
-              {formatStatus(item.status)}
-            </span>
-          </div>
+            {/* Owner Profile Card */}
+            <div style={styles.contactCard}>
+              <h3 style={styles.contactTitle}>Contact Owner</h3>
+              <div style={styles.ownerInfo}>
+                {/* AVATAR: Primary Orange */}
+                <div style={styles.ownerAvatar}>
+                  {item.contactName?.charAt(0)}
+                </div>
+                <div>
+                  <p style={styles.ownerName}>{item.contactName}</p>
+                  <p style={styles.ownerEmail}>{item.contactEmail}</p>
+                </div>
+              </div>
+              
+              <div style={styles.contactDetails}>
+                <div style={styles.detailRow}>
+                  <span>Email Reference</span>
+                  <span style={styles.detailVal}>Verified</span>
+                </div>
+                {item.contactPhone && (
+                  <div style={styles.detailRow}>
+                    <span>Phone</span>
+                    <span style={styles.detailVal}>{item.contactPhone}</span>
+                  </div>
+                )}
+              </div>
 
-          {item.image && (
-            <div style={styles.imageWrapper}>
-              <img
-                src={`http://localhost:5001${item.image}`}
-                alt={item.title}
-                style={styles.image}
-              />
-            </div>
-          )}
-
-          <div style={styles.infoGrid}>
-            <div style={styles.infoBox}>
-              <p style={styles.label}>Description</p>
-              <p style={styles.value}>{item.description || "N/A"}</p>
-            </div>
-
-            <div style={styles.infoBox}>
-              <p style={styles.label}>Lost Location</p>
-              <p style={styles.value}>{item.lostLocation || "N/A"}</p>
-            </div>
-
-            <div style={styles.infoBox}>
-              <p style={styles.label}>Date Lost</p>
-              <p style={styles.value}>{formatDate(item.dateLost)}</p>
-            </div>
-
-            <div style={styles.infoBox}>
-              <p style={styles.label}>Unique Features</p>
-              <p style={styles.value}>{item.uniqueFeatures || "N/A"}</p>
+              {/* ACTION BUTTON: Primary Orange */}
+              <button 
+                style={styles.msgBtn}
+                onClick={() => window.location.href = `mailto:${item.contactEmail}`}
+              >
+                Reach Out via Email
+              </button>
             </div>
 
-            <div style={styles.infoBox}>
-              <p style={styles.label}>Contact Name</p>
-              <p style={styles.value}>{item.contactName || "N/A"}</p>
-            </div>
-
-            <div style={styles.infoBox}>
-              <p style={styles.label}>Contact Email</p>
-              <p style={styles.value}>{item.contactEmail || "N/A"}</p>
-            </div>
-
-            <div style={styles.infoBox}>
-              <p style={styles.label}>Contact Phone</p>
-              <p style={styles.value}>{item.contactPhone || "N/A"}</p>
-            </div>
-
-            <div style={styles.infoBox}>
-              <p style={styles.label}>Report Status</p>
-              <p style={styles.value}>{formatStatus(item.status)}</p>
-            </div>
           </div>
         </div>
       </div>
@@ -165,150 +154,276 @@ function LostItemDetailsPage() {
 }
 
 const styles = {
-  page: {
+  pageContainer: {
     minHeight: "100vh",
-    background:
-      "linear-gradient(135deg, #fff7ed 0%, #ffffff 40%, #f9fafb 100%)",
-    padding: "32px 20px",
-    boxSizing: "border-box",
+    backgroundColor: "#fcfcfd", // Clean, near-white base
+    fontFamily: "'Inter', system-ui, sans-serif",
+    padding: "20px",
   },
-  wrapper: {
-    maxWidth: "1000px",
+  mainWrapper: {
+    maxWidth: "1140px",
     margin: "0 auto",
   },
-  topBar: {
-    backgroundColor: "#ffffff",
-    border: "1px solid #eef2f7",
-    borderRadius: "22px",
-    padding: "28px",
-    boxShadow: "0 10px 24px rgba(0,0,0,0.05)",
+  navBar: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    gap: "20px",
-    flexWrap: "wrap",
-    marginBottom: "22px",
+    marginBottom: "24px",
+    padding: "0 10px",
   },
-  badgeTop: {
-    display: "inline-block",
-    margin: "0 0 10px 0",
-    padding: "6px 12px",
-    borderRadius: "999px",
-    backgroundColor: "#fff7ed",
-    color: "#ea580c",
-    fontSize: "12px",
-    fontWeight: "700",
-  },
-  heading: {
-    margin: 0,
-    fontSize: "36px",
-    fontWeight: "800",
-    color: "#111827",
-  },
-  subText: {
-    margin: "10px 0 0 0",
+  backBtn: {
+    textDecoration: "none",
+    color: "#f97316", // Primary Orange
+    fontWeight: "600",
     fontSize: "15px",
-    color: "#6b7280",
-    lineHeight: "1.6",
-  },
-  topButtons: {
     display: "flex",
-    gap: "10px",
-    flexWrap: "wrap",
+    alignItems: "center",
+    gap: "8px",
   },
-  secondaryButton: {
+  homeBtn: {
     textDecoration: "none",
-    backgroundColor: "#e5e7eb",
-    color: "#111827",
-    padding: "12px 16px",
+    backgroundColor: "#fff",
+    color: "#1e293b",
+    padding: "8px 16px",
+    borderRadius: "8px",
+    border: "1px solid #e2e8f0",
+    fontSize: "14px",
+    fontWeight: "600",
+  },
+  layoutGrid: {
+    display: "grid",
+    gridTemplateColumns: "1.4fr 1fr",
+    gap: "32px",
+    alignItems: "start",
+  },
+
+  /* Visual Section */
+  visualSection: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "24px",
+  },
+  imageFrame: {
+    position: "relative",
+    height: "420px",
+    backgroundColor: "#f1f5f9", // Neutral gray placeholder
+    borderRadius: "24px",
+    overflow: "hidden",
+    boxShadow: "0 10px 30px -10px rgba(0,0,0,0.1)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  blurredBg: {
+    position: "absolute",
+    top: 0, left: 0, right: 0, bottom: 0,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    filter: "blur(40px) opacity(0.3)", // Auto-adapts to image colors
+    transform: "scale(1.1)",
+  },
+  mainImg: {
+    position: "relative",
+    maxHeight: "90%",
+    maxWidth: "90%",
+    objectFit: "contain",
     borderRadius: "12px",
-    fontWeight: "700",
+    zIndex: 1,
   },
-  backButton: {
-    textDecoration: "none",
-    backgroundColor: "#f97316",
-    color: "#ffffff",
-    padding: "12px 16px",
+  placeholderImg: {
+    color: "#94a3b8",
+    fontSize: "16px",
+    fontWeight: "600",
+  },
+  descCard: {
+    backgroundColor: "#fff",
+    padding: "32px",
+    borderRadius: "24px",
+    border: "1px solid #f1f5f9",
+  },
+  sectionHeading: {
+    fontSize: "18px",
+    fontWeight: "700",
+    color: "#0f172a", // Slate heading
+    margin: "0 0 16px 0",
+  },
+  bodyText: {
+    fontSize: "16px",
+    color: "#475569", // Slate body text
+    lineHeight: "1.8",
+    margin: 0,
+  },
+  featureBox: {
+    marginTop: "24px",
+    padding: "16px",
+    backgroundColor: "#fff7ed", // Pale Orange background
     borderRadius: "12px",
+    borderLeft: "4px solid #f97316", // Primary Orange border
+  },
+  featureLabel: {
+    fontSize: "13px",
     fontWeight: "700",
+    color: "#f97316", // Primary Orange
+    textTransform: "uppercase",
+    display: "block",
+    marginBottom: "4px",
   },
-  card: {
-    backgroundColor: "#ffffff",
-    borderRadius: "22px",
-    padding: "28px",
-    border: "1px solid #e5e7eb",
-    boxShadow: "0 12px 28px rgba(0,0,0,0.06)",
+  featureText: {
+    margin: 0,
+    color: "#1e293b",
+    fontWeight: "500",
   },
-  headerRow: {
+
+  /* Info Section */
+  infoSection: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "24px",
+  },
+  statsCard: {
+    backgroundColor: "#fff",
+    padding: "32px",
+    borderRadius: "24px",
+    border: "1px solid #f1f5f9",
+    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
+  },
+  statusRow: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "flex-start",
-    gap: "16px",
-    flexWrap: "wrap",
-    marginBottom: "22px",
+    alignItems: "center",
+    marginBottom: "20px",
   },
-  title: {
-    margin: "0 0 8px 0",
-    fontSize: "30px",
+  catLabel: {
+    fontSize: "12px",
     fontWeight: "800",
-    color: "#111827",
+    color: "#7c2d12", // Burnt Orange text for contrast
+    textTransform: "uppercase",
+    letterSpacing: "0.05em",
   },
-  category: {
+  statusPill: {
+    padding: "6px 12px",
+    borderRadius: "99px",
+    fontSize: "12px",
+    fontWeight: "700",
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+    textTransform: "capitalize",
+    color: "#1e293b",
+  },
+  dot: {
+    width: "6px",
+    height: "6px",
+    borderRadius: "50%",
+  },
+  itemTitle: {
+    fontSize: "28px",
+    fontWeight: "800",
+    color: "#0f172a", // Slate heading
+    margin: "0 0 24px 0",
+  },
+  metaGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr",
+    gap: "20px",
+  },
+  metaCell: {
+    padding: "16px",
+    backgroundColor: "#fcfcfd",
+    borderRadius: "16px",
+    border: "1px solid #f1f5f9",
+  },
+  metaTitle: {
+    margin: "0 0 4px 0",
+    fontSize: "12px",
+    fontWeight: "600",
+    color: "#94a3b8", // Grey label
+  },
+  metaValue: {
     margin: 0,
     fontSize: "15px",
-    color: "#f97316",
-    fontWeight: "700",
+    fontWeight: "600",
+    color: "#1e293b", // Slate value
   },
-  statusBadge: {
-    padding: "8px 12px",
-    borderRadius: "999px",
-    fontSize: "13px",
-    fontWeight: "700",
-    textTransform: "capitalize",
-    whiteSpace: "nowrap",
+
+  /* Contact Card */
+  contactCard: {
+    backgroundColor: "#fff",
+    padding: "32px",
+    borderRadius: "24px",
+    border: "1px solid #f1f5f9",
   },
-  imageWrapper: {
+  contactTitle: {
+    fontSize: "16px",
+    fontWeight: "700",
+    color: "#0f172a",
+    marginBottom: "20px",
+  },
+  ownerInfo: {
+    display: "flex",
+    alignItems: "center",
+    gap: "16px",
     marginBottom: "24px",
   },
-  image: {
-    width: "240px",
-    height: "240px",
-    objectFit: "cover",
-    borderRadius: "16px",
-    border: "1px solid #e5e7eb",
-    display: "block",
-  },
-  infoGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-    gap: "16px",
-  },
-  infoBox: {
-    backgroundColor: "#f9fafb",
-    border: "1px solid #eef2f7",
-    borderRadius: "16px",
-    padding: "16px",
-  },
-  label: {
-    margin: "0 0 8px 0",
-    fontSize: "13px",
+  ownerAvatar: {
+    width: "48px",
+    height: "48px",
+    borderRadius: "50%",
+    backgroundColor: "#f97316", // Primary Orange
+    color: "#fff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     fontWeight: "700",
-    color: "#6b7280",
-    textTransform: "uppercase",
-    letterSpacing: "0.3px",
+    fontSize: "20px",
   },
-  value: {
+  ownerName: {
     margin: 0,
+    fontWeight: "700",
+    color: "#1e293b",
+  },
+  ownerEmail: {
+    margin: 0,
+    fontSize: "13px",
+    color: "#64748b",
+  },
+  contactDetails: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+    marginBottom: "24px",
+  },
+  detailRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    fontSize: "14px",
+    color: "#64748b",
+  },
+  detailVal: {
+    fontWeight: "600",
+    color: "#1e293b",
+  },
+  msgBtn: {
+    width: "100%",
+    padding: "14px",
+    borderRadius: "12px",
+    border: "none",
+    backgroundColor: "#f97316", // Primary Orange
+    color: "#fff",
+    fontWeight: "700",
     fontSize: "15px",
-    color: "#374151",
-    lineHeight: "1.6",
-    wordBreak: "break-word",
+    cursor: "pointer",
+    transition: "background 0.2s, transform 0.1s",
+    boxShadow: "0 4px 10px rgba(249, 115, 22, 0.2)",
   },
-  stateText: {
-    padding: "40px",
+  loader: {
+    height: "100vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#64748b",
     fontSize: "18px",
-    color: "#6b7280",
-  },
+  }
 };
 
 export default LostItemDetailsPage;

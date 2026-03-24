@@ -1,352 +1,256 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import {
-  getLostItems,
-  updateLostItemStatus,
-  deleteLostItem,
-} from "../../api/lostApi.js";
+import { getLostItems, updateLostItemStatus, deleteLostItem } from "../../api/lostApi.js";
+
+// --- Modern Orange Themed Icons ---
+const AdminShield = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+);
 
 function AdminManageLostPage() {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const fetchItems = async () => {
     try {
       const result = await getLostItems();
       setItems(result.data || []);
     } catch (err) {
-      setError("Failed to load lost items.");
+      console.error("Fetch error");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchItems();
-  }, []);
+  useEffect(() => { fetchItems(); }, []);
 
   const handleStatusChange = async (id, status) => {
     try {
       await updateLostItemStatus(id, status);
       fetchItems();
     } catch (err) {
-      alert("Failed to update status.");
+      alert("Status update failed.");
     }
   };
 
   const handleDelete = async (id, title) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to delete "${title}"?`
-    );
-
-    if (!confirmed) return;
-
-    try {
-      await deleteLostItem(id);
-      fetchItems();
-    } catch (err) {
-      alert("Failed to delete lost item.");
+    if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
+      try {
+        await deleteLostItem(id);
+        fetchItems();
+      } catch (err) {
+        alert("Delete failed.");
+      }
     }
   };
 
-  const getStatusBadgeStyle = (status) => {
-    if (status === "open") {
-      return {
-        backgroundColor: "#dcfce7",
-        color: "#166534",
-      };
-    }
+  // Filter items based on search
+  const filteredItems = items.filter(item => 
+    item.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.lostLocation?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-    if (status === "possible_match") {
-      return {
-        backgroundColor: "#ffedd5",
-        color: "#c2410c",
-      };
-    }
-
-    return {
-      backgroundColor: "#e5e7eb",
-      color: "#374151",
-    };
-  };
-
-  const formatStatus = (status) => {
-    if (!status) return "Unknown";
-    return status.replace(/_/g, " ");
-  };
-
-  const formatDate = (dateValue) => {
-    if (!dateValue) return "N/A";
-
-    const date = new Date(dateValue);
-    if (Number.isNaN(date.getTime())) return "N/A";
-
-    return date.toLocaleDateString();
-  };
-
-  if (loading) {
-    return <div style={styles.stateText}>Loading lost items...</div>;
-  }
-
-  if (error) {
-    return <div style={styles.stateText}>{error}</div>;
-  }
+  if (loading) return (
+    <div style={styles.loaderWrap}>
+      <div style={styles.spinner}></div>
+      <p style={{color: '#f97316', fontWeight: '700'}}>Syncing Secure Database...</p>
+    </div>
+  );
 
   return (
     <div style={styles.page}>
-      <div style={styles.topBar}>
-        <div>
-          <p style={styles.badgeTop}>Admin Panel</p>
-          <h1 style={styles.heading}>Manage Lost Items</h1>
-          <p style={styles.subText}>
-            View, update, and remove lost item reports.
-          </p>
+      <div style={styles.container}>
+        
+        {/* --- PREMIUM ORANGE UPPER LAYER (AS REQUESTED) --- */}
+        <header style={styles.heroSection}>
+          <div style={styles.heroContent}>
+            <div style={styles.badge}>
+              <AdminShield />
+              <span style={styles.badgeText}>System Administrator</span>
+            </div>
+            <h1 style={styles.mainHeading}>Manage Lost Database</h1>
+            <p style={styles.subHeading}>Monitor, verify, and resolve lost item reports across the platform.</p>
+            
+            {/* Integrated Search Bar inside Hero */}
+            <div style={styles.searchWrapper}>
+                <input 
+                    type="text" 
+                    placeholder="Search records by title or location..." 
+                    style={styles.heroSearch}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                <span style={styles.searchIcon}>🔍</span>
+            </div>
+          </div>
+          <Link to="/" style={styles.exitButton}>Exit Console</Link>
+        </header>
+
+        {/* --- STATISTICS HUB --- */}
+        <div style={styles.statsRow}>
+          {[
+            { label: "Total Files", val: items.length, color: "#7c2d12", bar: "#fed7aa" },
+            { label: "Open Tickets", val: items.filter(i => i.status === 'open').length, color: "#ea580c", bar: "#f97316" },
+            { label: "Resolved", val: items.filter(i => i.status === 'closed').length, color: "#9a3412", bar: "#fdba74" }
+          ].map((s, i) => (
+            <div key={i} style={styles.statCard}>
+              <span style={styles.statLabel}>{s.label}</span>
+              <span style={{...styles.statVal, color: s.color}}>{s.val}</span>
+              <div style={{...styles.statBar, backgroundColor: s.bar}}></div>
+            </div>
+          ))}
         </div>
 
-        <Link to="/" style={styles.backButton}>
-          Back Home
-        </Link>
-      </div>
-
-      {items.length === 0 ? (
-        <div style={styles.emptyBox}>No lost items found.</div>
-      ) : (
+        {/* --- DATA GRID --- */}
         <div style={styles.grid}>
-          {items.map((item) => (
+          {filteredItems.map((item) => (
             <div key={item._id} style={styles.card}>
-              {item.image && (
-                <div style={styles.imageWrapper}>
-                  <img
-                    src={`http://localhost:5001${item.image}`}
-                    alt={item.title || "Lost item"}
-                    style={styles.image}
-                  />
-                </div>
-              )}
-
-              <div style={styles.topRow}>
-                <div>
-                  <h3 style={styles.cardTitle}>{item.title || "Untitled Item"}</h3>
-                  <p style={styles.category}>{item.category || "Uncategorized"}</p>
-                </div>
-
-                <span
-                  style={{
-                    ...styles.badge,
-                    ...getStatusBadgeStyle(item.status),
-                  }}
-                >
-                  {formatStatus(item.status)}
-                </span>
+              <div style={styles.imageArea}>
+                {item.image && (
+                  <img src={`http://localhost:5001${item.image}`} alt={item.title} style={styles.img} />
+                )}
+                <div style={styles.catLabel}>{item.category || "Other"}</div>
               </div>
 
-              <p style={styles.text}>
-                <strong>Location:</strong> {item.lostLocation || "N/A"}
-              </p>
+              <div style={styles.cardInfo}>
+                <h3 style={styles.cardTitle}>{item.title || "Untitled Record"}</h3>
+                
+                <div style={styles.metaRow}>
+                  <span style={styles.metaIcon}>📍</span>
+                  <span style={styles.metaText}>{item.lostLocation}</span>
+                </div>
+                
+                <div style={styles.metaRow}>
+                  <span style={styles.metaIcon}>👤</span>
+                  <span style={styles.metaText}>{item.contactName}</span>
+                </div>
 
-              <p style={styles.text}>
-                <strong>Date:</strong> {formatDate(item.dateLost)}
-              </p>
+                <div style={styles.statusControl}>
+                  <label style={styles.controlLabel}>Workstream Status</label>
+                  <select 
+                    value={item.status} 
+                    onChange={(e) => handleStatusChange(item._id, e.target.value)}
+                    style={styles.selectInput}
+                  >
+                    <option value="open">🟠 Active Search</option>
+                    <option value="possible_match">🟡 Match Found</option>
+                    <option value="closed">⚪ Archived</option>
+                  </select>
+                </div>
 
-              <p style={styles.text}>
-                <strong>Contact:</strong> {item.contactName || "N/A"}
-              </p>
-
-              <p style={styles.text}>
-                <strong>Email:</strong> {item.contactEmail || "N/A"}
-              </p>
-
-              <p style={styles.text}>
-                <strong>Description:</strong> {item.description || "N/A"}
-              </p>
-
-              <select
-                value={item.status || "open"}
-                onChange={(e) => handleStatusChange(item._id, e.target.value)}
-                style={styles.select}
-              >
-                <option value="open">Open</option>
-                <option value="possible_match">Possible Match</option>
-                <option value="closed">Closed</option>
-              </select>
-
-              <div style={styles.actions}>
-                <Link
-                  to={`/lost-reports/${item._id}`}
-                  style={styles.viewButton}
-                >
-                  View
-                </Link>
-
-                <button
-                  type="button"
-                  onClick={() => handleDelete(item._id, item.title)}
-                  style={styles.deleteButton}
-                >
-                  Delete Item
-                </button>
+                <div style={styles.footerBtns}>
+                  <Link to={`/lost-reports/${item._id}`} style={styles.viewBtn}>Inspect Record</Link>
+                  <button onClick={() => handleDelete(item._id, item.title)} style={styles.delBtn}>Delete</button>
+                </div>
               </div>
             </div>
           ))}
         </div>
-      )}
+
+        {filteredItems.length === 0 && (
+            <div style={styles.emptyState}>No matching records found in the database.</div>
+        )}
+      </div>
+
+      <style>{`
+        @keyframes rotate { to { transform: rotate(360deg); } }
+        select:focus { outline: 2px solid #fdba74; }
+        input:focus { outline: none; border-color: #f97316 !important; box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.1); }
+      `}</style>
     </div>
   );
 }
 
 const styles = {
-  page: {
-    minHeight: "100vh",
-    background:
-      "linear-gradient(135deg, #fff7ed 0%, #ffffff 40%, #f9fafb 100%)",
-    padding: "32px 20px",
-    boxSizing: "border-box",
+  page: { 
+    backgroundColor: "#fffcf9", 
+    minHeight: "100vh", 
+    padding: "40px 20px",
+    fontFamily: "'Inter', system-ui, sans-serif"
   },
-  topBar: {
-    backgroundColor: "#ffffff",
-    border: "1px solid #eef2f7",
-    borderRadius: "22px",
-    padding: "28px",
-    boxShadow: "0 10px 24px rgba(0,0,0,0.05)",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: "20px",
-    flexWrap: "wrap",
-    marginBottom: "22px",
-  },
-  badgeTop: {
-    display: "inline-block",
-    margin: "0 0 10px 0",
-    padding: "6px 12px",
-    borderRadius: "999px",
-    backgroundColor: "#111827",
-    color: "#ffffff",
-    fontSize: "12px",
-    fontWeight: "700",
-  },
-  heading: {
-    margin: 0,
-    fontSize: "36px",
-    fontWeight: "800",
-    color: "#111827",
-  },
-  subText: {
-    margin: "10px 0 0 0",
-    fontSize: "15px",
-    color: "#6b7280",
-    lineHeight: "1.6",
-  },
-  backButton: {
-    textDecoration: "none",
-    backgroundColor: "#e5e7eb",
-    color: "#111827",
-    padding: "12px 16px",
-    borderRadius: "12px",
-    fontWeight: "700",
-  },
-  emptyBox: {
-    backgroundColor: "#ffffff",
-    borderRadius: "16px",
-    padding: "30px",
-    color: "#6b7280",
-    border: "1px solid #e5e7eb",
-  },
-  grid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-    gap: "20px",
-  },
-  card: {
-    backgroundColor: "#ffffff",
-    border: "1px solid #e5e7eb",
-    borderRadius: "18px",
-    padding: "18px",
-    boxShadow: "0 6px 16px rgba(0,0,0,0.05)",
-    overflow: "hidden",
-  },
-  imageWrapper: {
-    marginBottom: "16px",
-  },
-  image: {
-    width: "100%",
-    height: "200px",
-    objectFit: "cover",
-    borderRadius: "14px",
-    border: "1px solid #e5e7eb",
-    display: "block",
-  },
-  topRow: {
+  container: { maxWidth: "1250px", margin: "0 auto" },
+  
+  // --- Hero Section (Upper Layer) ---
+  heroSection: {
+    background: "linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)",
+    padding: "50px",
+    borderRadius: "32px",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    gap: "10px",
-    marginBottom: "8px",
+    marginBottom: "40px",
+    border: "1px solid #fed7aa",
+    boxShadow: "0 20px 40px -15px rgba(249, 115, 22, 0.1)"
   },
-  cardTitle: {
-    margin: 0,
-    fontSize: "20px",
-    fontWeight: "700",
-    color: "#111827",
+  heroContent: { flex: 1 },
+  badge: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "15px" },
+  badgeText: { fontWeight: "800", color: "#c2410c", textTransform: "uppercase", fontSize: "12px", letterSpacing: "1px" },
+  mainHeading: { fontSize: "38px", fontWeight: "900", color: "#431407", margin: 0, letterSpacing: "-1px" },
+  subHeading: { color: "#9a3412", fontSize: "16px", marginTop: "10px", opacity: 0.8 },
+  
+  searchWrapper: { position: "relative", marginTop: "25px", maxWidth: "500px" },
+  heroSearch: { 
+    width: "100%", padding: "14px 20px 14px 45px", borderRadius: "16px", 
+    border: "1px solid #fed7aa", fontSize: "15px", transition: "0.3s" 
   },
-  category: {
-    margin: "6px 0 0 0",
-    fontSize: "14px",
-    color: "#f97316",
-    fontWeight: "600",
+  searchIcon: { position: "absolute", left: "15px", top: "50%", transform: "translateY(-50%)", opacity: 0.5 },
+
+  exitButton: { 
+    padding: "12px 24px", backgroundColor: "#fff", color: "#ea580c", 
+    borderRadius: "14px", textDecoration: "none", fontWeight: "700", 
+    border: "1px solid #fed7aa", whiteSpace: "nowrap" 
   },
-  badge: {
-    padding: "6px 10px",
-    borderRadius: "999px",
-    fontSize: "12px",
-    fontWeight: "700",
-    textTransform: "capitalize",
-    whiteSpace: "nowrap",
+
+  // --- Stats Section ---
+  statsRow: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "25px", marginBottom: "60px" },
+  statCard: {
+    backgroundColor: "#fff", padding: "28px", borderRadius: "24px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.02)", border: "1px solid #fef3c7",
+    position: "relative", overflow: "hidden"
   },
-  text: {
-    margin: "8px 0",
-    fontSize: "14px",
-    color: "#374151",
-    lineHeight: "1.5",
+  statLabel: { fontSize: "13px", fontWeight: "700", color: "#9a3412", textTransform: "uppercase" },
+  statVal: { display: "block", fontSize: "34px", fontWeight: "900", marginTop: "10px" },
+  statBar: { position: "absolute", bottom: 0, left: 0, height: "5px", width: "100%" },
+
+  // --- Grid & Cards ---
+  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "30px" },
+  card: {
+    backgroundColor: "#fff", borderRadius: "30px", border: "1px solid #f1f5f9",
+    overflow: "hidden", transition: "all 0.3s ease", boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
   },
-  select: {
-    width: "100%",
-    marginTop: "12px",
-    padding: "10px 12px",
-    borderRadius: "10px",
-    border: "1px solid #d1d5db",
-    backgroundColor: "#ffffff",
-    fontSize: "14px",
+  imageArea: { position: "relative", height: "200px", backgroundColor: "#f9fafb" },
+  img: { width: "100%", height: "100%", objectFit: "cover" },
+  catLabel: {
+    position: "absolute", bottom: "12px", right: "12px",
+    backgroundColor: "rgba(255,255,255,0.9)", padding: "5px 12px",
+    borderRadius: "10px", fontSize: "11px", fontWeight: "800", color: "#ea580c"
   },
-  actions: {
-    display: "flex",
-    gap: "10px",
-    marginTop: "14px",
-    flexWrap: "wrap",
+  cardInfo: { padding: "24px" },
+  cardTitle: { fontSize: "19px", fontWeight: "800", color: "#1e293b", margin: "0 0 16px 0" },
+  metaRow: { display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" },
+  metaIcon: { fontSize: "14px" },
+  metaText: { fontSize: "14px", color: "#64748b", fontWeight: "500" },
+  
+  statusControl: { marginTop: "24px", paddingTop: "20px", borderTop: "1px solid #f1f5f9" },
+  controlLabel: { fontSize: "11px", fontWeight: "800", color: "#94a3b8", textTransform: "uppercase", marginBottom: "8px", display: "block" },
+  selectInput: {
+    width: "100%", padding: "12px", borderRadius: "14px", border: "1.5px solid #fff7ed",
+    backgroundColor: "#fff7ed", color: "#c2410c", fontWeight: "700", fontSize: "14px", cursor: "pointer"
   },
-  viewButton: {
-    textDecoration: "none",
-    backgroundColor: "#111827",
-    color: "#ffffff",
-    padding: "10px 14px",
-    borderRadius: "10px",
-    fontWeight: "600",
+  footerBtns: { display: "flex", gap: "10px", marginTop: "24px" },
+  viewBtn: {
+    flex: 2, textAlign: "center", padding: "12px", backgroundColor: "#f97316",
+    color: "#fff", borderRadius: "14px", fontWeight: "700", textDecoration: "none"
   },
-  deleteButton: {
-    border: "none",
-    backgroundColor: "#ef4444",
-    color: "#ffffff",
-    padding: "10px 14px",
-    borderRadius: "10px",
-    cursor: "pointer",
-    fontWeight: "600",
+  delBtn: {
+    flex: 1, padding: "12px", border: "none", backgroundColor: "#fee2e2",
+    color: "#ef4444", borderRadius: "14px", fontWeight: "700", cursor: "pointer"
   },
-  stateText: {
-    padding: "40px",
-    fontSize: "18px",
-    color: "#6b7280",
-  },
+
+  emptyState: { textAlign: "center", padding: "60px", color: "#94a3b8", fontWeight: "600" },
+  loaderWrap: { height: "100vh", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: "15px" },
+  spinner: { width: "40px", height: "40px", border: "4px solid #fff7ed", borderTop: "4px solid #f97316", borderRadius: "50%", animation: "rotate 1s linear infinite" }
 };
 
 export default AdminManageLostPage;
