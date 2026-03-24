@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { getLostItems, deleteLostItem } from "../../api/lostApi.js";
+import LostCard from "../../components/lost/LostCard.jsx";
 
 function MyLostReportsPage() {
   const [items, setItems] = useState([]);
@@ -25,7 +27,7 @@ function MyLostReportsPage() {
         const result = await getLostItems();
         setItems(result.data || []);
       } catch {
-        setError("Failed to load lost reports");
+        setError("Failed to load lost reports.");
       } finally {
         setLoading(false);
       }
@@ -37,10 +39,13 @@ function MyLostReportsPage() {
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
       const matchesCategory =
-        filteredCategory === "All Categories" || item.category === filteredCategory;
+        filteredCategory === "All Categories" ||
+        item.category === filteredCategory;
 
       const text =
-        `${item.title || ""} ${item.lostLocation || ""} ${item.category || ""}`.toLowerCase();
+        `${item.title || ""} ${item.lostLocation || ""} ${
+          item.category || ""
+        }`.toLowerCase();
 
       return matchesCategory && text.includes(searchTerm.toLowerCase());
     });
@@ -54,7 +59,7 @@ function MyLostReportsPage() {
       await deleteLostItem(id);
       setItems((prev) => prev.filter((item) => item._id !== id));
     } catch {
-      alert("Failed to delete lost report");
+      alert("Failed to delete lost report.");
     }
   };
 
@@ -72,65 +77,48 @@ function MyLostReportsPage() {
         <div>
           <h1 style={styles.heading}>My Lost Reports</h1>
           <p style={styles.subText}>
-            View and manage the lost items you reported.
+            View, search, and manage your reported lost items.
           </p>
         </div>
 
-        <div style={styles.searchBox}>
-          <input
-            type="text"
-            placeholder="Search lost reports..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            style={styles.searchInput}
-          />
+        <div style={styles.topActions}>
+          <Link to="/" style={styles.navButton}>
+            Home
+          </Link>
+          <Link to="/report-lost" style={styles.primaryButton}>
+            + New Report
+          </Link>
         </div>
       </div>
 
-      <div style={styles.filters}>
-        {categories.map((category) => (
-          <button
-            key={category}
-            onClick={() => setFilteredCategory(category)}
-            style={{
-              ...styles.filterButton,
-              ...(filteredCategory === category ? styles.activeFilter : {}),
-            }}
-          >
-            {category}
-          </button>
-        ))}
+      <div style={styles.toolbar}>
+        <input
+          type="text"
+          placeholder="Search lost reports..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={styles.searchInput}
+        />
+
+        <select
+          value={filteredCategory}
+          onChange={(e) => setFilteredCategory(e.target.value)}
+          style={styles.select}
+        >
+          {categories.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
       </div>
 
       {filteredItems.length === 0 ? (
-        <div style={styles.stateText}>No lost reports available.</div>
+        <div style={styles.emptyBox}>No lost reports available.</div>
       ) : (
         <div style={styles.grid}>
           {filteredItems.map((item) => (
-            <div key={item._id} style={styles.card}>
-              <h3 style={styles.cardTitle}>{item.title}</h3>
-              <p style={styles.cardCategory}>{item.category}</p>
-              <p style={styles.cardText}>
-                <strong>Description:</strong> {item.description}
-              </p>
-              <p style={styles.cardText}>
-                <strong>Lost Location:</strong> {item.lostLocation}
-              </p>
-              <p style={styles.cardText}>
-                <strong>Date Lost:</strong>{" "}
-                {new Date(item.dateLost).toLocaleDateString()}
-              </p>
-              <p style={styles.cardText}>
-                <strong>Status:</strong> {item.status}
-              </p>
-
-              <button
-                onClick={() => handleDelete(item._id)}
-                style={styles.deleteButton}
-              >
-                Delete
-              </button>
-            </div>
+            <LostCard key={item._id} item={item} onDelete={handleDelete} />
           ))}
         </div>
       )}
@@ -148,7 +136,7 @@ const styles = {
   topBar: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "flex-start",
+    alignItems: "center",
     gap: "20px",
     flexWrap: "wrap",
     marginBottom: "24px",
@@ -158,94 +146,66 @@ const styles = {
     fontSize: "32px",
     fontWeight: "800",
     color: "#111827",
-    marginBottom: "8px",
   },
   subText: {
-    margin: 0,
+    margin: "8px 0 0 0",
     fontSize: "15px",
     color: "#6b7280",
   },
-  searchBox: {
+  topActions: {
     display: "flex",
-    alignItems: "center",
-    backgroundColor: "#ffffff",
-    border: "1px solid #e5e7eb",
-    borderRadius: "14px",
-    padding: "0 14px",
-    height: "46px",
-    minWidth: "320px",
-    boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
-  },
-  searchInput: {
-    border: "none",
-    outline: "none",
-    fontSize: "14px",
-    color: "#111827",
-    width: "100%",
-    background: "transparent",
-  },
-  filters: {
-    display: "flex",
-    flexWrap: "wrap",
     gap: "10px",
-    marginBottom: "26px",
+    flexWrap: "wrap",
   },
-  filterButton: {
-    border: "1px solid #e5e7eb",
-    backgroundColor: "#ffffff",
+  navButton: {
+    textDecoration: "none",
+    backgroundColor: "#e5e7eb",
+    color: "#111827",
     padding: "10px 16px",
-    borderRadius: "999px",
-    cursor: "pointer",
-    color: "#374151",
-    fontWeight: "500",
-    fontSize: "14px",
+    borderRadius: "10px",
+    fontWeight: "700",
   },
-  activeFilter: {
+  primaryButton: {
+    textDecoration: "none",
     backgroundColor: "#f97316",
     color: "#ffffff",
-    border: "1px solid #f97316",
+    padding: "10px 16px",
+    borderRadius: "10px",
+    fontWeight: "700",
+  },
+  toolbar: {
+    display: "flex",
+    gap: "12px",
+    flexWrap: "wrap",
+    marginBottom: "24px",
+  },
+  searchInput: {
+    flex: "1",
+    minWidth: "260px",
+    padding: "13px 14px",
+    borderRadius: "12px",
+    border: "1px solid #d1d5db",
+    fontSize: "14px",
+  },
+  select: {
+    minWidth: "220px",
+    padding: "13px 14px",
+    borderRadius: "12px",
+    border: "1px solid #d1d5db",
+    fontSize: "14px",
+    backgroundColor: "#ffffff",
+  },
+  emptyBox: {
+    backgroundColor: "#ffffff",
+    borderRadius: "16px",
+    padding: "30px",
+    color: "#6b7280",
+    border: "1px solid #e5e7eb",
   },
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(260px, 260px))",
+    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
     gap: "20px",
-    width: "100%",
-    alignItems: "start",
-    justifyContent: "start",
-  },
-  card: {
-    backgroundColor: "#ffffff",
-    border: "1px solid #e5e7eb",
-    borderRadius: "16px",
-    padding: "18px",
-    boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
-  },
-  cardTitle: {
-    margin: "0 0 6px 0",
-    fontSize: "20px",
-    fontWeight: "700",
-    color: "#111827",
-  },
-  cardCategory: {
-    margin: "0 0 12px 0",
-    fontSize: "14px",
-    color: "#f97316",
-    fontWeight: "600",
-  },
-  cardText: {
-    margin: "8px 0",
-    fontSize: "14px",
-    color: "#374151",
-  },
-  deleteButton: {
-    marginTop: "12px",
-    border: "none",
-    backgroundColor: "#ef4444",
-    color: "#ffffff",
-    padding: "10px 14px",
-    borderRadius: "10px",
-    cursor: "pointer",
-    fontWeight: "600",
   },
   stateText: {
     padding: "40px",
