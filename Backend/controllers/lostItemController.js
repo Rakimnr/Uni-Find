@@ -44,30 +44,20 @@ export const getLostItemById = async (req, res) => {
 
 export const createLostItem = async (req, res) => {
   try {
-    const {
-      title,
-      description,
-      category,
-      lostLocation,
-      dateLost,
-      uniqueFeatures,
-      contactName,
-      contactEmail,
-      contactPhone,
-      status,
-    } = req.body;
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : "";
 
     const newLostItem = await LostItem.create({
-      title,
-      description,
-      category,
-      lostLocation,
-      dateLost,
-      uniqueFeatures,
-      contactName,
-      contactEmail,
-      contactPhone,
-      status: status || "open",
+      title: req.body.title,
+      description: req.body.description,
+      category: req.body.category,
+      lostLocation: req.body.lostLocation,
+      dateLost: req.body.dateLost,
+      uniqueFeatures: req.body.uniqueFeatures,
+      contactName: req.body.contactName,
+      contactEmail: req.body.contactEmail,
+      contactPhone: req.body.contactPhone,
+      status: req.body.status || "open",
+      image: imagePath,
     });
 
     res.status(201).json({
@@ -86,21 +76,37 @@ export const createLostItem = async (req, res) => {
 
 export const updateLostItem = async (req, res) => {
   try {
-    const updatedItem = await LostItem.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const existingItem = await LostItem.findById(req.params.id);
 
-    if (!updatedItem) {
+    if (!existingItem) {
       return res.status(404).json({
         success: false,
         message: "Lost item not found",
       });
     }
+
+    const updatedData = {
+      title: req.body.title,
+      description: req.body.description,
+      category: req.body.category,
+      lostLocation: req.body.lostLocation,
+      dateLost: req.body.dateLost,
+      uniqueFeatures: req.body.uniqueFeatures,
+      contactName: req.body.contactName,
+      contactEmail: req.body.contactEmail,
+      contactPhone: req.body.contactPhone,
+      status: req.body.status || existingItem.status,
+    };
+
+    if (req.file) {
+      updatedData.image = `/uploads/${req.file.filename}`;
+    }
+
+    const updatedItem = await LostItem.findByIdAndUpdate(
+      req.params.id,
+      updatedData,
+      { new: true, runValidators: true }
+    );
 
     res.status(200).json({
       success: true,

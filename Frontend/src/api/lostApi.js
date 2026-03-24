@@ -12,13 +12,21 @@ export const getLostItemById = async (id) => {
   return response.data;
 };
 
-export const createLostItem = async (itemData) => {
-  const response = await axios.post(API_BASE_URL, itemData);
+export const createLostItem = async (formData) => {
+  const response = await axios.post(API_BASE_URL, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return response.data;
 };
 
-export const updateLostItem = async (id, itemData) => {
-  const response = await axios.put(`${API_BASE_URL}/${id}`, itemData);
+export const updateLostItem = async (id, formData) => {
+  const response = await axios.put(`${API_BASE_URL}/${id}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return response.data;
 };
 
