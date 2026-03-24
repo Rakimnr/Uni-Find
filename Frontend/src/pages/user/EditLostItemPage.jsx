@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { getLostItemById, updateLostItem } from "../../api/lostApi.js";
 
 function EditLostItemPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
 
   const initialFormData = useMemo(
     () => ({
@@ -58,7 +59,7 @@ function EditLostItemPage() {
           dateLost: item.dateLost ? item.dateLost.split("T")[0] : "",
           uniqueFeatures: item.uniqueFeatures || "",
           contactName: item.contactName || "",
-          contactEmail: item.contactEmail || "",
+          contactEmail: (item.contactEmail || "").toLowerCase(),
           contactPhone: item.contactPhone || "",
           status: item.status || "open",
           image: null,
@@ -75,101 +76,180 @@ function EditLostItemPage() {
     fetchItem();
   }, [id, initialFormData]);
 
-  const validate = () => {
+  useEffect(() => {
+    return () => {
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+    };
+  }, [imagePreview]);
+
+  const normalizeText = (value) => value.replace(/\s+/g, " ").trim();
+  const sanitizeName = (value) => value.replace(/[^A-Za-z\s.'-]/g, "");
+  const sanitizePhone = (value) => value.replace(/[^\d+\s()-]/g, "");
+
+  const validateField = (name, value, data = formData) => {
+    switch (name) {
+      case "title": {
+        const clean = normalizeText(value || "");
+        if (!clean) return "Item title is required.";
+        if (clean.length < 3) return "Title must be at least 3 characters.";
+        if (clean.length > 100) return "Title cannot exceed 100 characters.";
+        return "";
+      }
+
+      case "description": {
+        const clean = normalizeText(value || "");
+        if (!clean) return "Description is required.";
+        if (clean.length < 10) return "Description must be at least 10 characters.";
+        if (clean.length > 1000) return "Description cannot exceed 1000 characters.";
+        return "";
+      }
+
+      case "category": {
+        if (!value) return "Please select a category.";
+        if (!categories.includes(value)) return "Please choose a valid category.";
+        return "";
+      }
+
+      case "lostLocation": {
+        const clean = normalizeText(value || "");
+        if (!clean) return "Lost location is required.";
+        if (clean.length < 3) return "Lost location must be at least 3 characters.";
+        if (clean.length > 120) return "Lost location cannot exceed 120 characters.";
+        return "";
+      }
+
+      case "dateLost": {
+        if (!value) return "Date lost is required.";
+        if (value > today) return "Date lost cannot be in the future.";
+        return "";
+      }
+
+      case "uniqueFeatures": {
+        const clean = normalizeText(value || "");
+        if (clean.length > 200) return "Unique features cannot exceed 200 characters.";
+        return "";
+      }
+
+      case "contactName": {
+        const clean = normalizeText(value || "");
+        if (!clean) return "Contact name is required.";
+        if (!/^[A-Za-z\s.'-]+$/.test(clean)) {
+          return "Name can contain letters only.";
+        }
+        if (clean.length < 2) return "Name must be at least 2 characters.";
+        if (clean.length > 60) return "Name cannot exceed 60 characters.";
+        return "";
+      }
+
+      case "contactEmail": {
+        const clean = normalizeText(value || "").toLowerCase();
+        if (!clean) return "Contact email is required.";
+        if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(clean)) {
+          return "Enter a valid email address.";
+        }
+        return "";
+      }
+
+      case "contactPhone": {
+        const clean = normalizeText(value || "");
+        if (!clean) return "";
+        const phone = clean.replace(/[\s()-]/g, "");
+        if (!/^\+?\d{7,15}$/.test(phone)) {
+          return "Enter a valid phone number.";
+        }
+        return "";
+      }
+
+      case "image": {
+        if (!value) return "";
+        if (!value.type.startsWith("image/")) {
+          return "Only image files are allowed.";
+        }
+        if (value.size > 5 * 1024 * 1024) {
+          return "Image size must be less than 5MB.";
+        }
+        return "";
+      }
+
+      default:
+        return "";
+    }
+  };
+
+  const validateForm = (data = formData) => {
     const newErrors = {};
 
-    if (!formData.title.trim()) {
-      newErrors.title = "Item title is required.";
-    } else if (formData.title.trim().length < 3) {
-      newErrors.title = "Title must be at least 3 characters.";
-    }
-
-    if (!formData.description.trim()) {
-      newErrors.description = "Description is required.";
-    } else if (formData.description.trim().length < 10) {
-      newErrors.description = "Description must be at least 10 characters.";
-    }
-
-    if (!formData.category) {
-      newErrors.category = "Please select a category.";
-    }
-
-    if (!formData.lostLocation.trim()) {
-      newErrors.lostLocation = "Lost location is required.";
-    }
-
-    if (!formData.dateLost) {
-      newErrors.dateLost = "Date lost is required.";
-    } else if (formData.dateLost > today) {
-      newErrors.dateLost = "Date lost cannot be in the future.";
-    }
-
-    if (!formData.contactName.trim()) {
-      newErrors.contactName = "Contact name is required.";
-    }
-
-    if (!formData.contactEmail.trim()) {
-      newErrors.contactEmail = "Contact email is required.";
-    } else if (
-      !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(formData.contactEmail)
-    ) {
-      newErrors.contactEmail = "Enter a valid email address.";
-    }
-
-    if (formData.contactPhone.trim()) {
-      const cleanedPhone = formData.contactPhone.replace(/\s+/g, "");
-      if (!/^[0-9+()-]{7,15}$/.test(cleanedPhone)) {
-        newErrors.contactPhone = "Enter a valid phone number.";
-      }
-    }
-
-    if (formData.image) {
-      if (!formData.image.type.startsWith("image/")) {
-        newErrors.image = "Only image files are allowed.";
-      }
-      if (formData.image.size > 5 * 1024 * 1024) {
-        newErrors.image = "Image size must be less than 5MB.";
-      }
-    }
+    [
+      "title",
+      "description",
+      "category",
+      "lostLocation",
+      "dateLost",
+      "uniqueFeatures",
+      "contactName",
+      "contactEmail",
+      "contactPhone",
+      "image",
+    ].forEach((field) => {
+      const errorText = validateField(field, data[field], data);
+      if (errorText) newErrors[field] = errorText;
+    });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name } = e.target;
+    let { value } = e.target;
 
-    setFormData((prev) => ({
-      ...prev,
+    if (name === "contactName") value = sanitizeName(value);
+    if (name === "contactPhone") value = sanitizePhone(value);
+    if (name === "contactEmail") value = value.toLowerCase().replace(/\s+/g, "");
+
+    const updated = {
+      ...formData,
       [name]: value,
-    }));
+    };
+
+    setFormData(updated);
+    setError("");
+    setMessage("");
 
     setErrors((prev) => ({
       ...prev,
-      [name]: "",
+      [name]: validateField(name, value, updated),
     }));
+  };
 
-    setError("");
-    setMessage("");
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setErrors((prev) => ({
+      ...prev,
+      [name]: validateField(name, value, formData),
+    }));
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0] || null;
+    const imageError = validateField("image", file);
+
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
 
     setFormData((prev) => ({
       ...prev,
-      image: file || null,
+      image: file,
     }));
 
     setErrors((prev) => ({
       ...prev,
-      image: "",
+      image: imageError,
     }));
 
     setError("");
     setMessage("");
 
-    if (file) {
+    if (file && !imageError) {
       setImagePreview(URL.createObjectURL(file));
     } else {
       setImagePreview("");
@@ -182,26 +262,39 @@ function EditLostItemPage() {
     setError("");
     setMessage("");
 
-    if (!validate()) {
+    const cleanedData = {
+      ...formData,
+      title: normalizeText(formData.title),
+      description: normalizeText(formData.description),
+      lostLocation: normalizeText(formData.lostLocation),
+      uniqueFeatures: normalizeText(formData.uniqueFeatures),
+      contactName: normalizeText(formData.contactName),
+      contactEmail: normalizeText(formData.contactEmail).toLowerCase(),
+      contactPhone: normalizeText(formData.contactPhone),
+    };
+
+    setFormData(cleanedData);
+
+    if (!validateForm(cleanedData)) {
       setSaving(false);
       return;
     }
 
     try {
       const submitData = new FormData();
-      submitData.append("title", formData.title);
-      submitData.append("description", formData.description);
-      submitData.append("category", formData.category);
-      submitData.append("lostLocation", formData.lostLocation);
-      submitData.append("dateLost", formData.dateLost);
-      submitData.append("uniqueFeatures", formData.uniqueFeatures);
-      submitData.append("contactName", formData.contactName);
-      submitData.append("contactEmail", formData.contactEmail);
-      submitData.append("contactPhone", formData.contactPhone);
-      submitData.append("status", formData.status);
+      submitData.append("title", cleanedData.title);
+      submitData.append("description", cleanedData.description);
+      submitData.append("category", cleanedData.category);
+      submitData.append("lostLocation", cleanedData.lostLocation);
+      submitData.append("dateLost", cleanedData.dateLost);
+      submitData.append("uniqueFeatures", cleanedData.uniqueFeatures);
+      submitData.append("contactName", cleanedData.contactName);
+      submitData.append("contactEmail", cleanedData.contactEmail);
+      submitData.append("contactPhone", cleanedData.contactPhone);
+      submitData.append("status", cleanedData.status);
 
-      if (formData.image) {
-        submitData.append("image", formData.image);
+      if (cleanedData.image) {
+        submitData.append("image", cleanedData.image);
       }
 
       await updateLostItem(id, submitData);
@@ -211,18 +304,14 @@ function EditLostItemPage() {
         navigate("/lost-reports");
       }, 900);
     } catch (err) {
-      setError(
-        err?.response?.data?.message || "Failed to update lost report."
-      );
+      setError(err?.response?.data?.message || "Failed to update lost report.");
     } finally {
       setSaving(false);
     }
   };
 
   const renderFieldError = (fieldName) =>
-    errors[fieldName] ? (
-      <p style={styles.fieldError}>{errors[fieldName]}</p>
-    ) : null;
+    errors[fieldName] ? <p style={styles.fieldError}>{errors[fieldName]}</p> : null;
 
   if (loading) {
     return (
@@ -236,7 +325,6 @@ function EditLostItemPage() {
   return (
     <div style={styles.page}>
       <div style={styles.wrapper}>
-        {/* Modern Header bar */}
         <div style={styles.topBar}>
           <div>
             <span style={styles.badgeTop}>Editing Report</span>
@@ -250,11 +338,10 @@ function EditLostItemPage() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} style={styles.formLayout}>
+        <form onSubmit={handleSubmit} style={styles.formLayout} noValidate>
           {message && <div style={styles.successBox}>✅ {message}</div>}
           {error && <div style={styles.errorBox}>⚠️ {error}</div>}
 
-          {/* SECTION 1: Item Details */}
           <div style={styles.cardSection}>
             <div style={styles.sectionHeader}>
               <span style={styles.sectionIcon}>📦</span>
@@ -273,8 +360,10 @@ function EditLostItemPage() {
                   placeholder="Ex: Brown leather wallet"
                   value={formData.title}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   style={{ ...styles.input, ...(errors.title ? styles.inputError : {}) }}
                   disabled={saving}
+                  maxLength={100}
                 />
                 {renderFieldError("title")}
               </div>
@@ -285,6 +374,7 @@ function EditLostItemPage() {
                   name="category"
                   value={formData.category}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   style={{ ...styles.input, ...(errors.category ? styles.inputError : {}) }}
                   disabled={saving}
                 >
@@ -304,8 +394,10 @@ function EditLostItemPage() {
                 placeholder="Include brand, color, contents inside..."
                 value={formData.description}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 style={{ ...styles.textarea, ...(errors.description ? styles.inputError : {}) }}
                 disabled={saving}
+                maxLength={1000}
               />
               {renderFieldError("description")}
             </div>
@@ -317,13 +409,15 @@ function EditLostItemPage() {
                 placeholder="Ex: Scratch on side, specific sticker..."
                 value={formData.uniqueFeatures}
                 onChange={handleChange}
-                style={styles.textareaSmall}
+                onBlur={handleBlur}
+                style={{ ...styles.textareaSmall, ...(errors.uniqueFeatures ? styles.inputError : {}) }}
                 disabled={saving}
+                maxLength={200}
               />
+              {renderFieldError("uniqueFeatures")}
             </div>
           </div>
 
-          {/* SECTION 2: Location & Time */}
           <div style={styles.cardSection}>
             <div style={styles.sectionHeader}>
               <span style={styles.sectionIcon}>📍</span>
@@ -342,8 +436,10 @@ function EditLostItemPage() {
                   placeholder="Ex: Student Union Cafe"
                   value={formData.lostLocation}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   style={{ ...styles.input, ...(errors.lostLocation ? styles.inputError : {}) }}
                   disabled={saving}
+                  maxLength={120}
                 />
                 {renderFieldError("lostLocation")}
               </div>
@@ -355,6 +451,7 @@ function EditLostItemPage() {
                   name="dateLost"
                   value={formData.dateLost}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   style={{ ...styles.input, ...(errors.dateLost ? styles.inputError : {}) }}
                   disabled={saving}
                   max={today}
@@ -364,7 +461,6 @@ function EditLostItemPage() {
             </div>
           </div>
 
-          {/* SECTION 3: Visuals */}
           <div style={styles.cardSection}>
             <div style={styles.sectionHeader}>
               <span style={styles.sectionIcon}>🖼️</span>
@@ -382,6 +478,7 @@ function EditLostItemPage() {
                     <span style={styles.uploadHint}>Click to select file (PNG, JPG, Max 5MB)</span>
                   </div>
                   <input
+                    ref={fileInputRef}
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
@@ -390,12 +487,14 @@ function EditLostItemPage() {
                   />
                 </label>
               </div>
+
               {renderFieldError("image")}
 
-              {/* Enhanced image preview rendering */}
               {(imagePreview || existingImage) && (
                 <div style={styles.previewContainer}>
-                  <p style={styles.previewLabel}>{imagePreview ? "New Image Preview:" : "Current Attached Image:"}</p>
+                  <p style={styles.previewLabel}>
+                    {imagePreview ? "New Image Preview:" : "Current Attached Image:"}
+                  </p>
                   <div style={styles.previewBox}>
                     <img
                       src={imagePreview || `http://localhost:5001${existingImage}`}
@@ -408,7 +507,6 @@ function EditLostItemPage() {
             </div>
           </div>
 
-          {/* SECTION 4: Contacts */}
           <div style={styles.cardSection}>
             <div style={styles.sectionHeader}>
               <span style={styles.sectionIcon}>📞</span>
@@ -427,8 +525,10 @@ function EditLostItemPage() {
                   placeholder="Your Name"
                   value={formData.contactName}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   style={{ ...styles.input, ...(errors.contactName ? styles.inputError : {}) }}
                   disabled={saving}
+                  maxLength={60}
                 />
                 {renderFieldError("contactName")}
               </div>
@@ -441,6 +541,10 @@ function EditLostItemPage() {
                   placeholder="your@email.com"
                   value={formData.contactEmail}
                   onChange={handleChange}
+                  onBlur={handleBlur}
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck={false}
                   style={{ ...styles.input, ...(errors.contactEmail ? styles.inputError : {}) }}
                   disabled={saving}
                 />
@@ -456,14 +560,15 @@ function EditLostItemPage() {
                 placeholder="Ex: 07XXXXXXXX"
                 value={formData.contactPhone}
                 onChange={handleChange}
-                style={styles.input}
+                onBlur={handleBlur}
+                style={{ ...styles.input, ...(errors.contactPhone ? styles.inputError : {}) }}
                 disabled={saving}
+                maxLength={18}
               />
               {renderFieldError("contactPhone")}
             </div>
           </div>
 
-          {/* CTA Group */}
           <div style={styles.bottomActions}>
             <button
               type="submit"
@@ -485,13 +590,13 @@ function EditLostItemPage() {
 const styles = {
   page: {
     minHeight: "100vh",
-    background: "#f8fafc", // Cool grey background for enterprise feel
+    background: "#f8fafc",
     padding: "40px 24px",
     boxSizing: "border-box",
     fontFamily: "'Inter', system-ui, sans-serif",
   },
   wrapper: {
-    maxWidth: "800px", // Reduced width for easy visual scanning
+    maxWidth: "800px",
     margin: "0 auto",
   },
   topBar: {
@@ -552,7 +657,7 @@ const styles = {
   formLayout: {
     display: "flex",
     flexDirection: "column",
-    gap: "24px", // Spaces between sections
+    gap: "24px",
   },
   cardSection: {
     backgroundColor: "#ffffff",
@@ -620,6 +725,7 @@ const styles = {
   },
   inputError: {
     borderColor: "#ef4444",
+    backgroundColor: "#fff5f5",
   },
   textarea: {
     width: "100%",
@@ -652,7 +758,6 @@ const styles = {
     textAlign: "center",
     cursor: "pointer",
     backgroundColor: "#f8fafc",
-    transition: "all 0.2s ease",
   },
   uploadLabel: {
     cursor: "pointer",
@@ -738,12 +843,10 @@ const styles = {
     fontSize: "15px",
     cursor: "pointer",
     boxShadow: "0 10px 15px -3px rgba(234, 88, 12, 0.3)",
-    transition: "transform 0.2s ease, opacity 0.2s ease",
   },
   submitButtonDisabled: {
     opacity: 0.65,
     cursor: "not-allowed",
-    transform: "none",
     boxShadow: "none",
   },
   loadingWrapper: {
