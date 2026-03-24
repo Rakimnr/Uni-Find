@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { getLostItems, deleteLostItem } from "../../api/lostApi";
+import { getLostItems, deleteLostItem } from "../../api/lostApi.js";
 
-const MyLostReportsPage = () => {
+function MyLostReportsPage() {
   const [items, setItems] = useState([]);
   const [filteredCategory, setFilteredCategory] = useState("All Categories");
   const [searchTerm, setSearchTerm] = useState("");
@@ -24,7 +24,7 @@ const MyLostReportsPage = () => {
       try {
         const result = await getLostItems();
         setItems(result.data || []);
-      } catch (err) {
+      } catch {
         setError("Failed to load lost reports");
       } finally {
         setLoading(false);
@@ -39,21 +39,21 @@ const MyLostReportsPage = () => {
       const matchesCategory =
         filteredCategory === "All Categories" || item.category === filteredCategory;
 
-      const text = `${item.title || ""} ${item.lostLocation || ""} ${item.category || ""}`.toLowerCase();
-      const matchesSearch = text.includes(searchTerm.toLowerCase());
+      const text =
+        `${item.title || ""} ${item.lostLocation || ""} ${item.category || ""}`.toLowerCase();
 
-      return matchesCategory && matchesSearch;
+      return matchesCategory && text.includes(searchTerm.toLowerCase());
     });
   }, [items, filteredCategory, searchTerm]);
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this report?");
-    if (!confirmDelete) return;
+    const ok = window.confirm("Are you sure you want to delete this report?");
+    if (!ok) return;
 
     try {
       await deleteLostItem(id);
       setItems((prev) => prev.filter((item) => item._id !== id));
-    } catch (err) {
+    } catch {
       alert("Failed to delete lost report");
     }
   };
@@ -71,7 +71,9 @@ const MyLostReportsPage = () => {
       <div style={styles.topBar}>
         <div>
           <h1 style={styles.heading}>My Lost Reports</h1>
-          <p style={styles.subText}>View and manage the lost items you reported.</p>
+          <p style={styles.subText}>
+            View and manage the lost items you reported.
+          </p>
         </div>
 
         <div style={styles.searchBox}>
@@ -108,12 +110,19 @@ const MyLostReportsPage = () => {
             <div key={item._id} style={styles.card}>
               <h3 style={styles.cardTitle}>{item.title}</h3>
               <p style={styles.cardCategory}>{item.category}</p>
-              <p style={styles.cardText}><strong>Description:</strong> {item.description}</p>
-              <p style={styles.cardText}><strong>Lost Location:</strong> {item.lostLocation}</p>
               <p style={styles.cardText}>
-                <strong>Date Lost:</strong> {new Date(item.dateLost).toLocaleDateString()}
+                <strong>Description:</strong> {item.description}
               </p>
-              <p style={styles.cardText}><strong>Status:</strong> {item.status}</p>
+              <p style={styles.cardText}>
+                <strong>Lost Location:</strong> {item.lostLocation}
+              </p>
+              <p style={styles.cardText}>
+                <strong>Date Lost:</strong>{" "}
+                {new Date(item.dateLost).toLocaleDateString()}
+              </p>
+              <p style={styles.cardText}>
+                <strong>Status:</strong> {item.status}
+              </p>
 
               <button
                 onClick={() => handleDelete(item._id)}
@@ -127,10 +136,15 @@ const MyLostReportsPage = () => {
       )}
     </div>
   );
-};
+}
 
 const styles = {
-  page: { padding: "0" },
+  page: {
+    minHeight: "100vh",
+    backgroundColor: "#f9fafb",
+    padding: "30px",
+    boxSizing: "border-box",
+  },
   topBar: {
     display: "flex",
     justifyContent: "space-between",
@@ -188,7 +202,7 @@ const styles = {
   },
   activeFilter: {
     backgroundColor: "#f97316",
-    color: "white",
+    color: "#ffffff",
     border: "1px solid #f97316",
   },
   grid: {

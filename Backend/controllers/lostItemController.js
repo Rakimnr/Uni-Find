@@ -1,8 +1,5 @@
 import LostItem from "../models/LostItem.js";
 
-// @desc Get all lost items
-// @route GET /api/lost-items
-// @access Public
 export const getLostItems = async (req, res) => {
   try {
     const lostItems = await LostItem.find().sort({ createdAt: -1 });
@@ -21,9 +18,6 @@ export const getLostItems = async (req, res) => {
   }
 };
 
-// @desc Get single lost item
-// @route GET /api/lost-items/:id
-// @access Public
 export const getLostItemById = async (req, res) => {
   try {
     const lostItem = await LostItem.findById(req.params.id);
@@ -48,9 +42,6 @@ export const getLostItemById = async (req, res) => {
   }
 };
 
-// @desc Create lost item
-// @route POST /api/lost-items
-// @access Public
 export const createLostItem = async (req, res) => {
   try {
     const {
@@ -77,7 +68,6 @@ export const createLostItem = async (req, res) => {
       contactEmail,
       contactPhone,
       status: status || "open",
-      createdBy: null,
     });
 
     res.status(201).json({
@@ -94,9 +84,6 @@ export const createLostItem = async (req, res) => {
   }
 };
 
-// @desc Update lost item
-// @route PUT /api/lost-items/:id
-// @access Public
 export const updateLostItem = async (req, res) => {
   try {
     const updatedItem = await LostItem.findByIdAndUpdate(
@@ -129,9 +116,6 @@ export const updateLostItem = async (req, res) => {
   }
 };
 
-// @desc Update lost item status only
-// @route PATCH /api/lost-items/:id/status
-// @access Public
 export const updateLostItemStatus = async (req, res) => {
   try {
     const { status } = req.body;
@@ -166,9 +150,6 @@ export const updateLostItemStatus = async (req, res) => {
   }
 };
 
-// @desc Delete lost item
-// @route DELETE /api/lost-items/:id
-// @access Public
 export const deleteLostItem = async (req, res) => {
   try {
     const deletedItem = await LostItem.findByIdAndDelete(req.params.id);

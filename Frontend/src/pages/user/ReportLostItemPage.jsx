@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createLostItem } from "../../api/lostApi";
+import { createLostItem } from "../../api/lostApi.js";
 
-const ReportLostItemPage = () => {
+function ReportLostItemPage() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -66,9 +66,11 @@ const ReportLostItemPage = () => {
 
       setTimeout(() => {
         navigate("/lost-reports");
-      }, 1000);
+      }, 800);
     } catch (err) {
-      setError(err?.response?.data?.message || "Failed to submit lost item report");
+      setError(
+        err?.response?.data?.message || "Failed to submit lost item report"
+      );
     } finally {
       setSubmitting(false);
     }
@@ -78,7 +80,9 @@ const ReportLostItemPage = () => {
     <div style={styles.page}>
       <div style={styles.topSection}>
         <h1 style={styles.heading}>Report Lost Item</h1>
-        <p style={styles.subText}>Fill in the details of the item you lost inside the university.</p>
+        <p style={styles.subText}>
+          Fill in the details of the item you lost inside the university.
+        </p>
       </div>
 
       <div style={styles.formCard}>
@@ -187,10 +191,7 @@ const ReportLostItemPage = () => {
 
           <button
             type="submit"
-            style={{
-              ...styles.submitButton,
-              ...(submitting ? styles.submitButtonDisabled : {}),
-            }}
+            style={styles.submitButton}
             disabled={submitting}
           >
             {submitting ? "Submitting..." : "Submit Lost Report"}
@@ -199,11 +200,18 @@ const ReportLostItemPage = () => {
       </div>
     </div>
   );
-};
+}
 
 const styles = {
-  page: { padding: 0 },
-  topSection: { marginBottom: "22px" },
+  page: {
+    minHeight: "100vh",
+    backgroundColor: "#f9fafb",
+    padding: "30px",
+    boxSizing: "border-box",
+  },
+  topSection: {
+    marginBottom: "22px",
+  },
   heading: {
     margin: 0,
     fontSize: "30px",
@@ -264,10 +272,6 @@ const styles = {
     fontWeight: "700",
     fontSize: "16px",
     cursor: "pointer",
-  },
-  submitButtonDisabled: {
-    opacity: 0.7,
-    cursor: "not-allowed",
   },
   success: {
     color: "green",

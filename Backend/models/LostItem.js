@@ -15,7 +15,6 @@ const lostItemSchema = new mongoose.Schema(
     category: {
       type: String,
       required: [true, "Category is required"],
-      trim: true,
       enum: [
         "Electronics",
         "Documents",
@@ -59,11 +58,6 @@ const lostItemSchema = new mongoose.Schema(
       type: String,
       enum: ["open", "possible_match", "closed"],
       default: "open",
-    },
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      default: null,
     },
   },
   { timestamps: true }

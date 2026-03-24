@@ -1,13 +1,15 @@
 import { Routes, Route, Link, Navigate } from "react-router-dom";
-import ReportLostItemPage from "./pages/user/ReportLostItemPage";
-import MyLostReportsPage from "./pages/user/MyLostReportsPage";
+import ReportLostItemPage from "./pages/user/ReportLostItemPage.jsx";
+import MyLostReportsPage from "./pages/user/MyLostReportsPage.jsx";
 
 function HomePage() {
   return (
     <div style={styles.page}>
       <div style={styles.card}>
         <h1 style={styles.title}>UniFind - Lost Item Module</h1>
-        <p style={styles.text}>This is Rakindu&apos;s Lost Item Reporting module.</p>
+        <p style={styles.text}>
+          This is Rakindu&apos;s Lost Item Reporting module.
+        </p>
 
         <div style={styles.buttonGroup}>
           <Link to="/report-lost" style={styles.primaryButton}>
