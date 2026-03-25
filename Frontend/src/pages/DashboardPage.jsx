@@ -25,55 +25,6 @@ function DashboardPage() {
       .toUpperCase();
   };
 
-  const getRoleBadge = (role) => {
-    const value = role?.toLowerCase();
-
-    if (value === "admin") {
-      return { label: "Admin", bg: "#ede9fe", color: "#6d28d9", icon: "🛡️" };
-    }
-
-    if (value === "student") {
-      return { label: "Student", bg: "#eff6ff", color: "#1d4ed8", icon: "🎓" };
-    }
-
-    if (value === "staff") {
-      return { label: "Staff", bg: "#ecfdf5", color: "#15803d", icon: "🏫" };
-    }
-
-    return {
-      label: role || "Member",
-      bg: "#f1f5f9",
-      color: "#334155",
-      icon: "👤",
-    };
-  };
-
-  const badge = getRoleBadge(user?.role);
-
-  const stats = [
-    {
-      label: "Items Reported",
-      value: 0,
-      icon: "🔎",
-      bg: "#fffbeb",
-      iconColor: "#d97706",
-    },
-    {
-      label: "Claims Completed",
-      value: 0,
-      icon: "✅",
-      bg: "#ecfdf5",
-      iconColor: "#15803d",
-    },
-    {
-      label: "Active Listings",
-      value: 0,
-      icon: "📋",
-      bg: "#eff6ff",
-      iconColor: "#2563eb",
-    },
-  ];
-
   const quickActions = [
     {
       title: "Report a lost item",
@@ -83,16 +34,27 @@ function DashboardPage() {
     },
     {
       title: "Browse found items",
-      text: "Search the latest found items and claim what belongs to you.",
+      text: "Search current found items and claim what belongs to you.",
       icon: "🧭",
       bg: "#eff6ff",
     },
     {
       title: "Track your requests",
-      text: "Monitor current submissions and future claim updates.",
+      text: "Monitor your activity and future claim updates.",
       icon: "📦",
       bg: "#ecfeff",
     },
+  ];
+
+  const details = [
+    { label: "Full Name", value: user?.fullName || "—", icon: "👤" },
+    { label: "Email", value: user?.email || "—", icon: "✉️" },
+    { label: "Phone", value: user?.phone || "—", icon: "📞" },
+    { label: "Student ID", value: user?.studentId || "—", icon: "🪪" },
+    { label: "Faculty", value: user?.faculty || "—", icon: "🏫" },
+    { label: "Department", value: user?.department || "—", icon: "🏷️" },
+    { label: "Batch", value: user?.batch || "—", icon: "📘" },
+    { label: "Role", value: user?.role || "member", icon: "🔐" },
   ];
 
   return (
@@ -122,24 +84,14 @@ function DashboardPage() {
           <div className="uf-db-hero-grid" />
           <div className="uf-db-hero-inner">
             <div className="uf-db-hero-avatar">{getInitials(user?.fullName)}</div>
-
             <div className="uf-db-hero-copy">
               <h1>
                 Welcome back, {user?.fullName?.split(" ")[0] || "Member"} 👋
               </h1>
               <p>
-                This is your UniFind control center. Manage your account, check your
-                activity, and continue reporting or claiming items with a cleaner,
-                faster workflow.
+                Your account is ready. You can now manage lost item reporting,
+                search found items, and view your member profile details here.
               </p>
-
-              <div
-                className="uf-db-role-badge"
-                style={{ background: badge.bg, color: badge.color }}
-              >
-                <span>{badge.icon}</span>
-                <span>{badge.label}</span>
-              </div>
             </div>
           </div>
         </section>
@@ -149,35 +101,8 @@ function DashboardPage() {
             <div className="uf-db-card">
               <div className="uf-db-card-header">
                 <div>
-                  <h3>Overview</h3>
-                  <p>A quick look at your current portal activity.</p>
-                </div>
-                <span className="uf-db-chip">Live session</span>
-              </div>
-
-              <div className="uf-db-stats">
-                {stats.map((stat) => (
-                  <div key={stat.label} className="uf-db-stat">
-                    <div className="uf-db-stat-top">
-                      <div
-                        className="uf-db-stat-icon"
-                        style={{ background: stat.bg, color: stat.iconColor }}
-                      >
-                        {stat.icon}
-                      </div>
-                    </div>
-                    <p className="uf-db-stat-value">{stat.value}</p>
-                    <p className="uf-db-stat-label">{stat.label}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="uf-db-card">
-              <div className="uf-db-card-header">
-                <div>
                   <h3>Quick Actions</h3>
-                  <p>Useful things you will do most often in the portal.</p>
+                  <p>Common things you may want to do next.</p>
                 </div>
                 <span className="uf-db-chip">Start here</span>
               </div>
@@ -201,7 +126,7 @@ function DashboardPage() {
 
               <div style={{ height: 14 }} />
 
-              <div className="uf-db-quick-actions">
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                 <button className="uf-db-btn primary" type="button">
                   Report Item
                 </button>
@@ -217,52 +142,20 @@ function DashboardPage() {
               <div className="uf-db-card-header">
                 <div>
                   <h3>Account Details</h3>
-                  <p>Your current member information.</p>
+                  <p>Your member profile information.</p>
                 </div>
               </div>
 
-              <div className="uf-db-info-list">
-                <div className="uf-db-info-row">
-                  <div className="uf-db-info-icon">👤</div>
-                  <div className="uf-db-info-copy">
-                    <label>Full Name</label>
-                    <span>{user?.fullName || "—"}</span>
+              <div className="uf-db-account-grid">
+                {details.map((item) => (
+                  <div key={item.label} className="uf-db-info-row">
+                    <div className="uf-db-info-icon">{item.icon}</div>
+                    <div className="uf-db-info-copy">
+                      <label>{item.label}</label>
+                      <span>{item.value}</span>
+                    </div>
                   </div>
-                </div>
-
-                <div className="uf-db-info-row">
-                  <div className="uf-db-info-icon">✉️</div>
-                  <div className="uf-db-info-copy">
-                    <label>Email Address</label>
-                    <span>{user?.email || "—"}</span>
-                  </div>
-                </div>
-
-                <div className="uf-db-info-row">
-                  <div className="uf-db-info-icon">🪪</div>
-                  <div className="uf-db-info-copy">
-                    <label>Role</label>
-                    <span>{badge.label}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="uf-db-card">
-              <div className="uf-db-card-header">
-                <div>
-                  <h3>Recent Activity</h3>
-                  <p>Your latest updates will appear here.</p>
-                </div>
-              </div>
-
-              <div className="uf-db-empty">
-                <div className="uf-db-empty-icon">📭</div>
-                <strong>No activity yet</strong>
-                <p>
-                  Once you report a lost item or submit a claim, your recent activity
-                  will appear in this space.
-                </p>
+                ))}
               </div>
             </div>
 

@@ -1,20 +1,89 @@
 import User from "../models/User.js";
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phoneRegex = /^\+?\d{10,15}$/;
+const studentIdRegex = /^[A-Za-z0-9/-]{4,20}$/;
+const passwordRegex =
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
+
+const sanitizeUser = (user) => ({
+  id: user._id,
+  fullName: user.fullName,
+  email: user.email,
+  phone: user.phone,
+  studentId: user.studentId,
+  faculty: user.faculty,
+  department: user.department,
+  batch: user.batch,
+  role: user.role,
+  createdAt: user.createdAt,
+  updatedAt: user.updatedAt,
+});
+
 export const registerUser = async (req, res) => {
   try {
-    console.log("REGISTER BODY:", req.body);
+    const {
+      fullName,
+      email,
+      phone,
+      studentId,
+      faculty,
+      department,
+      batch,
+      password,
+      confirmPassword,
+    } = req.body;
 
-    const { fullName, email, password, confirmPassword } = req.body;
-
-    if (!fullName || !email || !password || !confirmPassword) {
+    if (
+      !fullName ||
+      !email ||
+      !phone ||
+      !studentId ||
+      !faculty ||
+      !department ||
+      !batch ||
+      !password ||
+      !confirmPassword
+    ) {
       return res.status(400).json({
-        message: "Full name, email, password, and confirm password are required",
+        message: "All fields are required",
       });
     }
 
-    if (password.length < 6) {
+    if (fullName.trim().length < 3) {
       return res.status(400).json({
-        message: "Password must be at least 6 characters",
+        message: "Full name must be at least 3 characters",
+      });
+    }
+
+    if (!emailRegex.test(email.trim())) {
+      return res.status(400).json({
+        message: "Please enter a valid email address",
+      });
+    }
+
+    if (!phoneRegex.test(phone.trim())) {
+      return res.status(400).json({
+        message: "Please enter a valid phone number",
+      });
+    }
+
+    if (!studentIdRegex.test(studentId.trim())) {
+      return res.status(400).json({
+        message: "Student ID must be 4 to 20 characters and use only letters, numbers, / or -",
+      });
+    }
+
+    if (department.trim().length < 2) {
+      return res.status(400).json({
+        message: "Department must be at least 2 characters",
+      });
+    }
+
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        message:
+          "Password must be at least 8 characters and include uppercase, lowercase, number, and special character",
       });
     }
 
@@ -24,33 +93,46 @@ export const registerUser = async (req, res) => {
       });
     }
 
-    const normalizedEmail = email.toLowerCase().trim();
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedPhone = phone.trim();
+    const normalizedStudentId = studentId.trim().toUpperCase();
+    const normalizedFaculty = faculty.trim();
+    const normalizedDepartment = department.trim();
+    const normalizedBatch = batch.trim();
 
-    const existingUser = await User.findOne({ email: normalizedEmail });
-
-    if (existingUser) {
+    const existingEmail = await User.findOne({ email: normalizedEmail });
+    if (existingEmail) {
       return res.status(400).json({
-        message: "User already exists with this email",
+        message: "An account with this email already exists",
+      });
+    }
+
+    const existingStudentId = await User.findOne({
+      studentId: normalizedStudentId,
+    });
+    if (existingStudentId) {
+      return res.status(400).json({
+        message: "An account with this student ID already exists",
       });
     }
 
     const user = await User.create({
       fullName: fullName.trim(),
       email: normalizedEmail,
+      phone: normalizedPhone,
+      studentId: normalizedStudentId,
+      faculty: normalizedFaculty,
+      department: normalizedDepartment,
+      batch: normalizedBatch,
       password,
     });
 
     return res.status(201).json({
       message: "Account created successfully",
-      user: {
-        id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        role: user.role,
-      },
+      user: sanitizeUser(user),
     });
   } catch (error) {
-    console.error("REGISTER ERROR FULL:", error);
+    console.error("REGISTER ERROR:", error);
     return res.status(500).json({
       message: "Server error while registering user",
       error: error.message,
@@ -69,7 +151,7 @@ export const loginUser = async (req, res) => {
     }
 
     const user = await User.findOne({
-      email: email.toLowerCase().trim(),
+      email: email.trim().toLowerCase(),
     }).select("+password");
 
     if (!user) {
@@ -95,12 +177,7 @@ export const loginUser = async (req, res) => {
 
     return res.status(200).json({
       message: "Login successful",
-      user: {
-        id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        role: user.role,
-      },
+      user: sanitizeUser(user),
     });
   } catch (error) {
     console.error("LOGIN ERROR:", error);
@@ -152,12 +229,7 @@ export const getCurrentUser = async (req, res) => {
     }
 
     return res.status(200).json({
-      user: {
-        id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        role: user.role,
-      },
+      user: sanitizeUser(user),
     });
   } catch (error) {
     console.error("ME ERROR:", error);

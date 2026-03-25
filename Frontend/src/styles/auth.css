@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600;700&display=swap");
 
 *,
 *::before,
@@ -7,33 +7,32 @@
 }
 
 :root {
-  --uf-navy-950: #0e1627;
+  --uf-navy-950: #0d1728;
   --uf-navy-900: #13203a;
-  --uf-navy-800: #1a2b4e;
+  --uf-navy-800: #1a2d52;
   --uf-gold-500: #f4b223;
-  --uf-gold-600: #e89c12;
-  --uf-slate-50: #fafaf9;
-  --uf-slate-100: #f5f7fb;
-  --uf-slate-200: #e7ebf3;
-  --uf-slate-300: #d4dbe7;
-  --uf-slate-500: #6b7280;
-  --uf-slate-700: #374151;
-  --uf-slate-900: #111827;
-  --uf-green-50: #eefcf4;
+  --uf-gold-600: #e59d11;
+  --uf-white: #ffffff;
+  --uf-slate-50: #f8fafc;
+  --uf-slate-100: #f1f5f9;
+  --uf-slate-200: #e2e8f0;
+  --uf-slate-300: #cbd5e1;
+  --uf-slate-400: #94a3b8;
+  --uf-slate-500: #64748b;
+  --uf-slate-700: #334155;
+  --uf-slate-900: #0f172a;
+  --uf-green-50: #ecfdf5;
   --uf-green-600: #15803d;
-  --uf-red-50: #fff1f2;
+  --uf-red-50: #fef2f2;
   --uf-red-600: #b91c1c;
-  --uf-shadow-lg: 0 24px 60px rgba(15, 22, 36, 0.12);
-  --uf-shadow-md: 0 12px 28px rgba(15, 22, 36, 0.08);
-  --uf-radius-xl: 26px;
-  --uf-radius-lg: 18px;
-  --uf-radius-md: 12px;
+  --uf-shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.12);
+  --uf-shadow-md: 0 12px 30px rgba(15, 23, 42, 0.08);
 }
 
 body {
   margin: 0;
-  font-family: "DM Sans", sans-serif;
-  background: #e9edf3;
+  font-family: "Inter", sans-serif;
+  background: linear-gradient(180deg, #eef2f7 0%, #e9eef5 100%);
   color: var(--uf-slate-900);
 }
 
@@ -41,122 +40,76 @@ a {
   text-decoration: none;
 }
 
-.uf-auth-root {
+.uf-auth-page {
   min-height: 100vh;
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(420px, 520px);
-  background: linear-gradient(135deg, #edf2f7 0%, #e7edf5 100%);
+  padding: 24px;
 }
 
-.uf-auth-hero {
-  position: relative;
+.uf-auth-layout {
+  min-height: calc(100vh - 48px);
+  display: grid;
+  grid-template-columns: 0.92fr 1.08fr;
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: 30px;
   overflow: hidden;
-  padding: 56px;
+  box-shadow: var(--uf-shadow-lg);
+}
+
+.uf-auth-left {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 56px;
   background: linear-gradient(
     145deg,
     var(--uf-navy-950) 0%,
-    var(--uf-navy-900) 40%,
+    var(--uf-navy-900) 48%,
     var(--uf-navy-800) 100%
   );
 }
 
-.uf-auth-hero-overlay {
+.uf-auth-left-overlay {
   position: absolute;
   inset: 0;
   background:
-    radial-gradient(circle at 15% 80%, rgba(244, 178, 35, 0.16), transparent 34%),
-    radial-gradient(circle at 85% 18%, rgba(97, 153, 255, 0.14), transparent 26%);
+    radial-gradient(circle at 20% 80%, rgba(244, 178, 35, 0.14), transparent 30%),
+    radial-gradient(circle at 82% 18%, rgba(96, 165, 250, 0.14), transparent 24%);
 }
 
-.uf-auth-grid {
+.uf-auth-left-grid {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-  background-size: 44px 44px;
-  opacity: 0.6;
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 38px 38px;
 }
 
-.uf-auth-floaters span {
-  position: absolute;
-  opacity: 0.11;
-  font-size: 30px;
-  animation: ufFloat 8s ease-in-out infinite;
-  user-select: none;
-}
-
-.uf-auth-floaters span:nth-child(1) {
-  top: 10%;
-  left: 10%;
-}
-
-.uf-auth-floaters span:nth-child(2) {
-  top: 20%;
-  right: 13%;
-  animation-delay: 1s;
-}
-
-.uf-auth-floaters span:nth-child(3) {
-  bottom: 20%;
-  left: 12%;
-  animation-delay: 2s;
-}
-
-.uf-auth-floaters span:nth-child(4) {
-  bottom: 15%;
-  right: 10%;
-  animation-delay: 3s;
-}
-
-.uf-auth-floaters span:nth-child(5) {
-  top: 50%;
-  left: 18%;
-  animation-delay: 1.5s;
-}
-
-.uf-auth-floaters span:nth-child(6) {
-  top: 42%;
-  right: 8%;
-  animation-delay: 2.5s;
-}
-
-@keyframes ufFloat {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-14px) rotate(6deg);
-  }
-}
-
-.uf-auth-brand {
+.uf-auth-left-content {
   position: relative;
   z-index: 2;
-  width: min(100%, 560px);
+  width: min(100%, 520px);
   color: white;
 }
 
-.uf-auth-logo {
+.uf-auth-brand-row {
   display: flex;
   align-items: center;
   gap: 18px;
-  margin-bottom: 26px;
+  margin-bottom: 24px;
 }
 
-.uf-auth-logo-badge {
+.uf-auth-logo-box {
   width: 78px;
   height: 78px;
   border-radius: 24px;
   display: grid;
   place-items: center;
-  font-size: 36px;
+  font-size: 34px;
   background: linear-gradient(135deg, var(--uf-gold-500), var(--uf-gold-600));
-  box-shadow: 0 18px 35px rgba(244, 178, 35, 0.28);
+  box-shadow: 0 18px 35px rgba(244, 178, 35, 0.24);
+  flex-shrink: 0;
 }
 
 .uf-auth-mini {
@@ -164,110 +117,68 @@ a {
   font-size: 12px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.52);
+  color: rgba(255, 255, 255, 0.56);
 }
 
-.uf-auth-brand h1 {
+.uf-auth-left h1 {
   margin: 0;
   font-family: "Playfair Display", serif;
-  font-size: clamp(36px, 4vw, 52px);
+  font-size: clamp(36px, 4vw, 54px);
   line-height: 1.05;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.04em;
 }
 
-.uf-auth-brand h1 span {
+.uf-auth-left h1 span {
   color: var(--uf-gold-500);
 }
 
-.uf-auth-brand-text {
-  margin: 0 0 28px;
-  max-width: 520px;
+.uf-auth-lead {
+  margin: 0 0 24px;
+  max-width: 500px;
   font-size: 15px;
   line-height: 1.8;
-  color: rgba(255, 255, 255, 0.68);
+  color: rgba(255, 255, 255, 0.74);
 }
 
-.uf-auth-pills {
+.uf-auth-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 34px;
 }
 
-.uf-auth-pill {
-  padding: 8px 14px;
+.uf-auth-tag {
+  padding: 9px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.07);
-  color: rgba(255, 255, 255, 0.74);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.82);
   font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.02em;
 }
 
-.uf-auth-steps {
-  display: grid;
-  gap: 18px;
-  max-width: 520px;
-}
-
-.uf-auth-step {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-}
-
-.uf-auth-step-num {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--uf-gold-500);
-  border: 1px solid rgba(244, 178, 35, 0.34);
-  background: rgba(244, 178, 35, 0.12);
-}
-
-.uf-auth-step-copy strong {
-  display: block;
-  margin-bottom: 4px;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.92);
-}
-
-.uf-auth-step-copy span {
-  display: block;
-  font-size: 13px;
-  line-height: 1.55;
-  color: rgba(255, 255, 255, 0.52);
-}
-
-.uf-auth-form-side {
+.uf-auth-right {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px 32px;
+  padding: 36px;
+  background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
 }
 
-.uf-auth-form-card {
+.uf-auth-card {
   width: 100%;
-  max-width: 430px;
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  border-radius: var(--uf-radius-xl);
-  box-shadow: var(--uf-shadow-lg);
-  padding: 28px 28px 24px;
+  max-width: 760px;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 28px;
+  box-shadow: var(--uf-shadow-md);
+  padding: 30px 32px 24px;
 }
 
-.uf-auth-topline {
-  margin-bottom: 20px;
+.uf-auth-card-top {
+  margin-bottom: 18px;
 }
 
-.uf-auth-mobile-logo {
+.uf-auth-home-link {
   display: inline-flex;
   align-items: center;
   gap: 10px;
@@ -275,38 +186,48 @@ a {
   font-weight: 700;
 }
 
-.uf-auth-mobile-logo span {
+.uf-auth-home-link span {
+  width: 38px;
+  height: 38px;
   display: grid;
   place-items: center;
-  width: 36px;
-  height: 36px;
   border-radius: 12px;
   background: linear-gradient(135deg, var(--uf-gold-500), var(--uf-gold-600));
 }
 
-.uf-auth-header {
+.uf-auth-head {
   margin-bottom: 24px;
 }
 
-.uf-auth-header h2 {
+.uf-auth-head h2 {
   margin: 0 0 8px;
   font-family: "Playfair Display", serif;
-  font-size: 34px;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
+  font-size: 38px;
+  line-height: 1.08;
+  letter-spacing: -0.04em;
   color: var(--uf-slate-900);
 }
 
-.uf-auth-header p {
+.uf-auth-head p {
   margin: 0;
   color: var(--uf-slate-500);
-  line-height: 1.6;
   font-size: 14px;
+  line-height: 1.7;
 }
 
 .uf-form {
   display: grid;
   gap: 16px;
+}
+
+.uf-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.uf-span-2 {
+  grid-column: span 2;
 }
 
 .uf-field {
@@ -333,6 +254,10 @@ a {
   font-weight: 600;
 }
 
+.uf-inline-link.muted {
+  color: var(--uf-slate-500);
+}
+
 .uf-input-wrap {
   position: relative;
 }
@@ -342,34 +267,39 @@ a {
   left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: #94a3b8;
+  color: var(--uf-slate-400);
   display: inline-flex;
   pointer-events: none;
+  font-size: 14px;
 }
 
 .uf-input,
 .uf-select {
   width: 100%;
-  min-height: 50px;
+  min-height: 56px;
   border: 1.5px solid var(--uf-slate-300);
   border-radius: 14px;
   background: white;
   padding: 0 14px 0 44px;
-  font-size: 14.5px;
-  font-family: inherit;
+  font-size: 15px;
   color: var(--uf-slate-900);
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-family: inherit;
+}
+
+.uf-select {
+  appearance: none;
 }
 
 .uf-input:focus,
 .uf-select:focus {
   border-color: var(--uf-navy-800);
-  box-shadow: 0 0 0 4px rgba(26, 43, 78, 0.08);
+  box-shadow: 0 0 0 4px rgba(26, 45, 82, 0.08);
 }
 
 .uf-input.has-trailing {
-  padding-right: 48px;
+  padding-right: 50px;
 }
 
 .uf-toggle {
@@ -379,10 +309,9 @@ a {
   transform: translateY(-50%);
   border: none;
   background: transparent;
-  color: #94a3b8;
   cursor: pointer;
-  display: inline-flex;
-  padding: 4px;
+  color: var(--uf-slate-400);
+  font-size: 15px;
 }
 
 .uf-toggle:hover {
@@ -391,8 +320,8 @@ a {
 
 .uf-field-hint {
   font-size: 12px;
-  color: #94a3b8;
-  line-height: 1.5;
+  color: var(--uf-slate-500);
+  line-height: 1.55;
 }
 
 .uf-strength {
@@ -402,7 +331,7 @@ a {
 
 .uf-strength-bars {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 5px;
 }
 
@@ -410,7 +339,6 @@ a {
   height: 5px;
   border-radius: 999px;
   background: var(--uf-slate-200);
-  transition: background-color 0.25s ease;
 }
 
 .uf-strength-label {
@@ -423,46 +351,80 @@ a {
   font-weight: 700;
 }
 
+.uf-note-list {
+  display: grid;
+  gap: 6px;
+}
+
+.uf-note-item {
+  font-size: 12px;
+  color: var(--uf-slate-500);
+}
+
+.uf-note-item.ok {
+  color: var(--uf-green-600);
+  font-weight: 600;
+}
+
 .uf-checkbox-row {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  margin-top: 2px;
 }
 
 .uf-checkbox-row input {
-  margin-top: 3px;
+  margin-top: 4px;
 }
 
 .uf-checkbox-row label {
   font-size: 12.5px;
   color: var(--uf-slate-500);
+  line-height: 1.6;
+}
+
+.uf-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-size: 13.5px;
   line-height: 1.55;
 }
 
+.uf-alert.error {
+  color: var(--uf-red-600);
+  background: var(--uf-red-50);
+  border: 1px solid #fecaca;
+}
+
+.uf-alert.success {
+  color: var(--uf-green-600);
+  background: var(--uf-green-50);
+  border: 1px solid #bbf7d0;
+}
+
 .uf-submit {
-  margin-top: 6px;
-  min-height: 52px;
+  min-height: 56px;
   border: none;
   border-radius: 14px;
   background: linear-gradient(135deg, var(--uf-navy-800), var(--uf-navy-950));
   color: white;
   font-size: 15px;
   font-weight: 700;
-  font-family: inherit;
   cursor: pointer;
-  transition: transform 0.15s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.15s ease, opacity 0.2s ease;
   box-shadow: 0 12px 24px rgba(19, 32, 58, 0.18);
+  font-family: inherit;
 }
 
 .uf-submit:hover:not(:disabled) {
   transform: translateY(-1px);
-  opacity: 0.95;
 }
 
 .uf-submit:disabled {
-  cursor: not-allowed;
   opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .uf-submit-inner {
@@ -486,79 +448,74 @@ a {
   }
 }
 
-.uf-alert {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  font-size: 13.5px;
-  line-height: 1.55;
-}
-
-.uf-alert.error {
-  color: var(--uf-red-600);
-  background: var(--uf-red-50);
-  border: 1px solid #fecdd3;
-}
-
-.uf-alert.success {
-  color: var(--uf-green-600);
-  background: var(--uf-green-50);
-  border: 1px solid #bbf7d0;
-}
-
-.uf-auth-footer {
+.uf-auth-bottom {
   margin-top: 18px;
   text-align: center;
 }
 
-.uf-auth-footer p {
+.uf-auth-bottom p {
   margin: 0;
   font-size: 14px;
   color: var(--uf-slate-500);
 }
 
-.uf-auth-footer a {
+.uf-auth-bottom a {
   color: var(--uf-navy-800);
   font-weight: 700;
 }
 
-@media (max-width: 980px) {
-  .uf-auth-root {
+@media (max-width: 1180px) {
+  .uf-auth-layout {
     grid-template-columns: 1fr;
   }
 
-  .uf-auth-hero {
+  .uf-auth-left {
     display: none;
   }
 
-  .uf-auth-form-side {
-    min-height: 100vh;
-    padding: 24px;
+  .uf-auth-right {
+    min-height: calc(100vh - 48px);
   }
 
-  .uf-auth-form-card {
-    max-width: 520px;
+  .uf-auth-card {
+    max-width: 760px;
   }
 }
 
-@media (max-width: 560px) {
-  .uf-auth-form-side {
-    padding: 16px;
+@media (max-width: 760px) {
+  .uf-form-grid {
+    grid-template-columns: 1fr;
   }
 
-  .uf-auth-form-card {
+  .uf-span-2 {
+    grid-column: span 1;
+  }
+
+  .uf-auth-page {
+    padding: 12px;
+  }
+
+  .uf-auth-layout {
+    min-height: calc(100vh - 24px);
+    border-radius: 22px;
+  }
+
+  .uf-auth-right {
+    padding: 18px;
+  }
+
+  .uf-auth-card {
     padding: 22px 18px 20px;
     border-radius: 22px;
   }
 
-  .uf-auth-header h2 {
-    font-size: 28px;
+  .uf-auth-head h2 {
+    font-size: 30px;
   }
 
   .uf-input,
-  .uf-select {
-    min-height: 48px;
+  .uf-select,
+  .uf-submit {
+    min-height: 52px;
   }
 }
