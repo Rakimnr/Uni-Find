@@ -1,6 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiBell, FiSearch } from "react-icons/fi";
+import {
+  FiBell,
+  FiChevronDown,
+  FiLogOut,
+  FiSearch,
+  FiUser,
+} from "react-icons/fi";
 import { getFoundItems } from "../../api/foundApi";
 import FoundCard from "../../components/found/FoundCard";
 
@@ -12,6 +18,22 @@ const FoundListPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  const notificationRef = useRef(null);
+  const profileRef = useRef(null);
+
+  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const userName = storedUser?.name || storedUser?.username || "Hashini";
+  const userRole = storedUser?.role || "UniFind User";
+  const userInitial = userName.charAt(0).toUpperCase();
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
 
   const categories = [
     "All Categories",
@@ -39,6 +61,44 @@ const FoundListPage = () => {
     fetchItems();
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target)
+      ) {
+        setShowNotifications(false);
+      }
+
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setShowProfileMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const notifications = [
+    {
+      id: 1,
+      title: "Browse Items",
+      text: `There ${
+        items.length === 1 ? "is" : "are"
+      } ${items.length} found item${items.length !== 1 ? "s" : ""} available.`,
+    },
+    {
+      id: 2,
+      title: "Search Feature",
+      text: "Use search and category filters to quickly find your item.",
+    },
+    {
+      id: 3,
+      title: "System Notice",
+      text: "Items older than 30 days cannot be claimed online.",
+    },
+  ];
+
   const parseDate = (dateString) => {
     if (!dateString) return new Date(0);
 
@@ -61,7 +121,9 @@ const FoundListPage = () => {
           item.category === filteredCategory;
 
         const text =
-          `${item.title || ""} ${item.foundLocation || ""} ${item.category || ""}`.toLowerCase();
+          `${item.title || ""} ${item.foundLocation || ""} ${
+            item.category || ""
+          }`.toLowerCase();
 
         const matchesSearch = text.includes(searchTerm.toLowerCase());
 
@@ -98,16 +160,62 @@ const FoundListPage = () => {
             />
           </div>
 
-          <button style={styles.iconButton}>
-            <FiBell size={18} />
-          </button>
+          <div style={styles.menuWrap} ref={notificationRef}>
+            <button
+              style={styles.iconButton}
+              onClick={() => {
+                setShowNotifications((prev) => !prev);
+                setShowProfileMenu(false);
+              }}
+            >
+              <FiBell size={18} />
+            </button>
 
-          <div style={styles.profileBox}>
-            <div style={styles.avatar}>H</div>
-            <div>
-              <p style={styles.profileName}>Hashini</p>
-              <p style={styles.profileRole}>UniFind User</p>
-            </div>
+            {showNotifications && (
+              <div style={styles.dropdownMenu}>
+                <p style={styles.dropdownTitle}>Notifications</p>
+
+                {notifications.map((note) => (
+                  <div key={note.id} style={styles.dropdownItemBlock}>
+                    <p style={styles.dropdownItemTitle}>{note.title}</p>
+                    <p style={styles.dropdownItemText}>{note.text}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div style={styles.menuWrap} ref={profileRef}>
+            <button
+              style={styles.profileButton}
+              onClick={() => {
+                setShowProfileMenu((prev) => !prev);
+                setShowNotifications(false);
+              }}
+            >
+              <div style={styles.profileBox}>
+                <div style={styles.avatar}>{userInitial}</div>
+                <div style={styles.profileTextWrap}>
+                  <p style={styles.profileName}>{userName}</p>
+                  <p style={styles.profileRole}>{userRole}</p>
+                </div>
+                <FiChevronDown size={16} color="#6b7280" />
+              </div>
+            </button>
+
+            {showProfileMenu && (
+              <div style={styles.profileDropdown}>
+                <button style={styles.dropdownAction}>
+                  <FiUser size={16} />
+                  <span>My Profile</span>
+                </button>
+
+                <button style={styles.dropdownAction} onClick={handleLogout}>
+                  <FiLogOut size={16} />
+                  <span>Logout</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -203,6 +311,9 @@ const styles = {
     width: "100%",
     background: "transparent",
   },
+  menuWrap: {
+    position: "relative",
+  },
   iconButton: {
     width: "46px",
     height: "46px",
@@ -215,6 +326,12 @@ const styles = {
     cursor: "pointer",
     boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
   },
+  profileButton: {
+    border: "none",
+    background: "transparent",
+    padding: 0,
+    cursor: "pointer",
+  },
   profileBox: {
     display: "flex",
     alignItems: "center",
@@ -224,6 +341,11 @@ const styles = {
     borderRadius: "16px",
     padding: "8px 14px",
     boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
+  },
+  profileTextWrap: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
   },
   avatar: {
     width: "40px",
@@ -250,6 +372,66 @@ const styles = {
     fontSize: "12px",
     color: "#6b7280",
     lineHeight: 1.2,
+  },
+  dropdownMenu: {
+    position: "absolute",
+    top: "58px",
+    right: 0,
+    width: "290px",
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "16px",
+    boxShadow: "0 16px 40px rgba(0,0,0,0.08)",
+    padding: "14px",
+    zIndex: 100,
+  },
+  dropdownTitle: {
+    margin: "0 0 10px 0",
+    fontSize: "14px",
+    fontWeight: "700",
+    color: "#111827",
+  },
+  dropdownItemBlock: {
+    padding: "10px 0",
+    borderBottom: "1px solid #f1f5f9",
+  },
+  dropdownItemTitle: {
+    margin: 0,
+    fontSize: "13px",
+    fontWeight: "700",
+    color: "#111827",
+  },
+  dropdownItemText: {
+    margin: "4px 0 0 0",
+    fontSize: "12px",
+    color: "#6b7280",
+    lineHeight: 1.5,
+  },
+  profileDropdown: {
+    position: "absolute",
+    top: "64px",
+    right: 0,
+    width: "200px",
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "16px",
+    boxShadow: "0 16px 40px rgba(0,0,0,0.08)",
+    padding: "10px",
+    zIndex: 100,
+  },
+  dropdownAction: {
+    width: "100%",
+    border: "none",
+    backgroundColor: "#ffffff",
+    padding: "12px",
+    borderRadius: "12px",
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    cursor: "pointer",
+    color: "#374151",
+    fontSize: "14px",
+    fontWeight: "600",
   },
   tabs: {
     display: "flex",

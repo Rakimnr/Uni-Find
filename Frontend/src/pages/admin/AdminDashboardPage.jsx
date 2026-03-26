@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getFoundItems } from "../../api/foundApi";
 import { getAllClaims } from "../../api/claimApi";
@@ -12,6 +12,9 @@ import {
   FiCheckCircle,
   FiClock,
   FiXCircle,
+  FiChevronDown,
+  FiLogOut,
+  FiUser,
 } from "react-icons/fi";
 
 const AdminDashboardPage = () => {
@@ -32,6 +35,22 @@ const AdminDashboardPage = () => {
   const [recentClaims, setRecentClaims] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  const notificationRef = useRef(null);
+  const profileRef = useRef(null);
+
+  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const userName = storedUser?.name || storedUser?.username || "Admin";
+  const userRole = storedUser?.role || "UniFind Panel";
+  const userInitial = userName.charAt(0).toUpperCase();
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -41,6 +60,14 @@ const AdminDashboardPage = () => {
 
         const items = itemsRes.data || [];
         const claims = claimsRes.claims || [];
+
+        const sortedItems = [...items].sort(
+          (a, b) => new Date(b.createdAt || b.dateFound) - new Date(a.createdAt || a.dateFound)
+        );
+
+        const sortedClaims = [...claims].sort(
+          (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        );
 
         setStats({
           totalItems: items.length,
@@ -53,8 +80,8 @@ const AdminDashboardPage = () => {
           rejectedClaims: claims.filter((claim) => claim.status === "rejected").length,
         });
 
-        setRecentItems(items.slice(0, 5));
-        setRecentClaims(claims.slice(0, 5));
+        setRecentItems(sortedItems.slice(0, 5));
+        setRecentClaims(sortedClaims.slice(0, 5));
       } catch (error) {
         alert("Failed to load dashboard data");
       } finally {
@@ -63,6 +90,24 @@ const AdminDashboardPage = () => {
     };
 
     fetchDashboardData();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target)
+      ) {
+        setShowNotifications(false);
+      }
+
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setShowProfileMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const formatDate = (dateString) => {
@@ -166,6 +211,50 @@ const AdminDashboardPage = () => {
     },
   ];
 
+  const notifications = [];
+
+  if (stats.pendingClaims > 0) {
+    notifications.push({
+      id: 1,
+      title: "Pending Claims",
+      text: `You have ${stats.pendingClaims} pending claim${
+        stats.pendingClaims > 1 ? "s" : ""
+      } waiting for review.`,
+    });
+  }
+
+  if (stats.expiredItems > 0) {
+    notifications.push({
+      id: 2,
+      title: "Expired Items",
+      text: `${stats.expiredItems} item${
+        stats.expiredItems > 1 ? "s are" : " is"
+      } currently marked as expired.`,
+    });
+  }
+
+  if (recentClaims.length > 0) {
+    notifications.push({
+      id: 3,
+      title: "Latest Claim",
+      text: `Newest claim was submitted on ${formatDate(recentClaims[0]?.createdAt)}.`,
+    });
+  }
+
+  if (recentItems.length > 0) {
+    notifications.push({
+      id: 4,
+      title: "Latest Found Item",
+      text: `"${recentItems[0]?.title || "New item"}" was recently added.`,
+    });
+  }
+
+  notifications.push({
+    id: 5,
+    title: "System Notice",
+    text: "Items older than 30 days cannot be claimed online.",
+  });
+
   if (loading) {
     return <p style={styles.stateText}>Loading dashboard...</p>;
   }
@@ -175,7 +264,9 @@ const AdminDashboardPage = () => {
       <div style={styles.topBar}>
         <div>
           <h1 style={styles.heading}>Admin Dashboard</h1>
-          <p style={styles.subText}>Manage found items and claim activity from one place.</p>
+          <p style={styles.subText}>
+            Manage found items and claim activity from one place.
+          </p>
         </div>
 
         <div style={styles.topBarRight}>
@@ -190,16 +281,62 @@ const AdminDashboardPage = () => {
             />
           </div>
 
-          <button style={styles.iconButton}>
-            <FiBell size={18} />
-          </button>
+          <div style={styles.menuWrap} ref={notificationRef}>
+            <button
+              style={styles.iconButton}
+              onClick={() => {
+                setShowNotifications((prev) => !prev);
+                setShowProfileMenu(false);
+              }}
+            >
+              <FiBell size={18} />
+            </button>
 
-          <div style={styles.profileBox}>
-            <div style={styles.avatar}>A</div>
-            <div>
-              <p style={styles.profileName}>Admin</p>
-              <p style={styles.profileRole}>UniFind Panel</p>
-            </div>
+            {showNotifications && (
+              <div style={styles.dropdownMenu}>
+                <p style={styles.dropdownTitle}>Notifications</p>
+
+                {notifications.map((note) => (
+                  <div key={note.id} style={styles.dropdownItemBlock}>
+                    <p style={styles.dropdownItemTitle}>{note.title}</p>
+                    <p style={styles.dropdownItemText}>{note.text}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div style={styles.menuWrap} ref={profileRef}>
+            <button
+              style={styles.profileButton}
+              onClick={() => {
+                setShowProfileMenu((prev) => !prev);
+                setShowNotifications(false);
+              }}
+            >
+              <div style={styles.profileBox}>
+                <div style={styles.avatar}>{userInitial}</div>
+                <div style={styles.profileTextWrap}>
+                  <p style={styles.profileName}>{userName}</p>
+                  <p style={styles.profileRole}>{userRole}</p>
+                </div>
+                <FiChevronDown size={16} color="#6b7280" />
+              </div>
+            </button>
+
+            {showProfileMenu && (
+              <div style={styles.profileDropdown}>
+                <button style={styles.dropdownAction}>
+                  <FiUser size={16} />
+                  <span>My Profile</span>
+                </button>
+
+                <button style={styles.dropdownAction} onClick={handleLogout}>
+                  <FiLogOut size={16} />
+                  <span>Logout</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -414,6 +551,10 @@ const styles = {
     background: "transparent",
   },
 
+  menuWrap: {
+    position: "relative",
+  },
+
   iconButton: {
     width: "46px",
     height: "46px",
@@ -427,6 +568,52 @@ const styles = {
     boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
   },
 
+  dropdownMenu: {
+    position: "absolute",
+    top: "58px",
+    right: 0,
+    width: "300px",
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "16px",
+    boxShadow: "0 16px 40px rgba(0,0,0,0.08)",
+    padding: "14px",
+    zIndex: 100,
+  },
+
+  dropdownTitle: {
+    margin: "0 0 10px 0",
+    fontSize: "14px",
+    fontWeight: "700",
+    color: "#111827",
+  },
+
+  dropdownItemBlock: {
+    padding: "10px 0",
+    borderBottom: "1px solid #f1f5f9",
+  },
+
+  dropdownItemTitle: {
+    margin: 0,
+    fontSize: "13px",
+    fontWeight: "700",
+    color: "#111827",
+  },
+
+  dropdownItemText: {
+    margin: "4px 0 0 0",
+    fontSize: "12px",
+    color: "#6b7280",
+    lineHeight: 1.5,
+  },
+
+  profileButton: {
+    border: "none",
+    background: "transparent",
+    padding: 0,
+    cursor: "pointer",
+  },
+
   profileBox: {
     display: "flex",
     alignItems: "center",
@@ -436,6 +623,12 @@ const styles = {
     borderRadius: "16px",
     padding: "8px 14px",
     boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
+  },
+
+  profileTextWrap: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-start",
   },
 
   avatar: {
@@ -449,6 +642,7 @@ const styles = {
     justifyContent: "center",
     fontWeight: "700",
     fontSize: "16px",
+    flexShrink: 0,
   },
 
   profileName: {
@@ -464,6 +658,34 @@ const styles = {
     fontSize: "12px",
     color: "#6b7280",
     lineHeight: 1.2,
+  },
+
+  profileDropdown: {
+    position: "absolute",
+    top: "64px",
+    right: 0,
+    width: "200px",
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "16px",
+    boxShadow: "0 16px 40px rgba(0,0,0,0.08)",
+    padding: "10px",
+    zIndex: 100,
+  },
+
+  dropdownAction: {
+    width: "100%",
+    border: "none",
+    backgroundColor: "#ffffff",
+    padding: "12px",
+    borderRadius: "12px",
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    cursor: "pointer",
+    color: "#374151",
+    fontSize: "14px",
+    fontWeight: "600",
   },
 
   actionsRow: {
