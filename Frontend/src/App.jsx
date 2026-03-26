@@ -4,6 +4,7 @@ import MyLostReportsPage from "./pages/user/MyLostReportsPage.jsx";
 import LostItemDetailsPage from "./pages/user/LostItemDetailsPage.jsx";
 import EditLostItemPage from "./pages/user/EditLostItemPage.jsx";
 import AdminManageLostPage from "./pages/admin/AdminManageLostPage.jsx";
+import HomeBrowsePage from "./pages/common/HomeBrowsePage.jsx";
 
 const globalStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=Inter:wght@400;500;600;700;800&display=swap');
@@ -358,6 +359,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
+      <Route path="/homepage" element={<HomeBrowsePage />} />
       <Route path="/report-lost" element={<ReportLostItemPage />} />
       <Route path="/lost-reports" element={<MyLostReportsPage />} />
       <Route path="/lost-reports/:id" element={<LostItemDetailsPage />} />
