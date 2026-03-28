@@ -42,8 +42,9 @@ const AdminDashboardPage = () => {
   const profileRef = useRef(null);
 
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-  const userName = storedUser?.name || storedUser?.username || "Admin";
-  const userRole = storedUser?.role || "UniFind Panel";
+  const userName =
+    storedUser?.fullName || storedUser?.name || storedUser?.username || "Admin";
+  const userRole = storedUser?.role || "Admin";
   const userInitial = userName.charAt(0).toUpperCase();
 
   const handleLogout = () => {
@@ -62,7 +63,9 @@ const AdminDashboardPage = () => {
         const claims = claimsRes.claims || [];
 
         const sortedItems = [...items].sort(
-          (a, b) => new Date(b.createdAt || b.dateFound) - new Date(a.createdAt || a.dateFound)
+          (a, b) =>
+            new Date(b.createdAt || b.dateFound) -
+            new Date(a.createdAt || a.dateFound)
         );
 
         const sortedClaims = [...claims].sort(
@@ -71,13 +74,18 @@ const AdminDashboardPage = () => {
 
         setStats({
           totalItems: items.length,
-          availableItems: items.filter((item) => item.status === "available").length,
-          returnedItems: items.filter((item) => item.status === "returned").length,
+          availableItems: items.filter((item) => item.status === "available")
+            .length,
+          returnedItems: items.filter((item) => item.status === "returned")
+            .length,
           expiredItems: items.filter((item) => item.status === "expired").length,
           totalClaims: claims.length,
-          pendingClaims: claims.filter((claim) => claim.status === "pending").length,
-          approvedClaims: claims.filter((claim) => claim.status === "approved").length,
-          rejectedClaims: claims.filter((claim) => claim.status === "rejected").length,
+          pendingClaims: claims.filter((claim) => claim.status === "pending")
+            .length,
+          approvedClaims: claims.filter((claim) => claim.status === "approved")
+            .length,
+          rejectedClaims: claims.filter((claim) => claim.status === "rejected")
+            .length,
         });
 
         setRecentItems(sortedItems.slice(0, 5));
@@ -145,7 +153,9 @@ const AdminDashboardPage = () => {
 
   const formatStatusText = (status) => {
     if (!status) return "Unknown";
-    return status.replaceAll("_", " ").replace(/\b\w/g, (char) => char.toUpperCase());
+    return status
+      .replaceAll("_", " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
   const filteredRecentItems = recentItems.filter((item) =>
@@ -237,7 +247,9 @@ const AdminDashboardPage = () => {
     notifications.push({
       id: 3,
       title: "Latest Claim",
-      text: `Newest claim was submitted on ${formatDate(recentClaims[0]?.createdAt)}.`,
+      text: `Newest claim was submitted on ${formatDate(
+        recentClaims[0]?.createdAt
+      )}.`,
     });
   }
 
@@ -326,7 +338,13 @@ const AdminDashboardPage = () => {
 
             {showProfileMenu && (
               <div style={styles.profileDropdown}>
-                <button style={styles.dropdownAction}>
+                <button
+                  style={styles.dropdownAction}
+                  onClick={() => {
+                    navigate("/admin/profile");
+                    setShowProfileMenu(false);
+                  }}
+                >
                   <FiUser size={16} />
                   <span>My Profile</span>
                 </button>
@@ -400,11 +418,13 @@ const AdminDashboardPage = () => {
           <div style={styles.cardHeader}>
             <div>
               <h2 style={styles.sectionTitle}>Recent Found Items</h2>
-              <p style={styles.sectionSubtext}>Latest submitted found item records</p>
+              <p style={styles.sectionSubtext}>
+                Latest submitted found item records
+              </p>
             </div>
             <button
               style={styles.viewAllBtn}
-              onClick={() => navigate("/admin/manage-found-items")}
+              onClick={() => navigate("/admin/found-items")}
             >
               View All
             </button>
@@ -432,7 +452,12 @@ const AdminDashboardPage = () => {
                       <td style={styles.td}>{item.foundLocation || "N/A"}</td>
                       <td style={styles.td}>{formatDate(item.dateFound)}</td>
                       <td style={styles.td}>
-                        <span style={{ ...styles.badgeBase, ...getItemStatusStyle(item.status) }}>
+                        <span
+                          style={{
+                            ...styles.badgeBase,
+                            ...getItemStatusStyle(item.status),
+                          }}
+                        >
                           {formatStatusText(item.status)}
                         </span>
                       </td>
@@ -448,11 +473,13 @@ const AdminDashboardPage = () => {
           <div style={styles.cardHeader}>
             <div>
               <h2 style={styles.sectionTitle}>Recent Claims</h2>
-              <p style={styles.sectionSubtext}>Latest student claim requests</p>
+              <p style={styles.sectionSubtext}>
+                Latest student claim requests
+              </p>
             </div>
             <button
               style={styles.viewAllBtn}
-              onClick={() => navigate("/admin/claim-review")}
+              onClick={() => navigate("/admin/claims")}
             >
               View All
             </button>
@@ -474,11 +501,18 @@ const AdminDashboardPage = () => {
                 <tbody>
                   {recentClaims.map((claim) => (
                     <tr key={claim._id} style={styles.tr}>
-                      <td style={styles.tdStrong}>{claim.itemId?.title || "Unknown Item"}</td>
+                      <td style={styles.tdStrong}>
+                        {claim.itemId?.title || "Unknown Item"}
+                      </td>
                       <td style={styles.td}>{claim.fullName || "N/A"}</td>
                       <td style={styles.td}>{formatDate(claim.createdAt)}</td>
                       <td style={styles.td}>
-                        <span style={{ ...styles.badgeBase, ...getClaimStatusStyle(claim.status) }}>
+                        <span
+                          style={{
+                            ...styles.badgeBase,
+                            ...getClaimStatusStyle(claim.status),
+                          }}
+                        >
                           {formatStatusText(claim.status)}
                         </span>
                       </td>
@@ -658,6 +692,7 @@ const styles = {
     fontSize: "12px",
     color: "#6b7280",
     lineHeight: 1.2,
+    textTransform: "capitalize",
   },
 
   profileDropdown: {

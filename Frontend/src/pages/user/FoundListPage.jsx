@@ -9,9 +9,11 @@ import {
 } from "react-icons/fi";
 import { getFoundItems } from "../../api/foundApi";
 import FoundCard from "../../components/found/FoundCard";
+import { useAuth } from "../../context/AuthContext";
 
 const FoundListPage = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const [items, setItems] = useState([]);
   const [filteredCategory, setFilteredCategory] = useState("All Categories");
@@ -25,13 +27,16 @@ const FoundListPage = () => {
   const profileRef = useRef(null);
 
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-  const userName = storedUser?.name || storedUser?.username || "Hashini";
-  const userRole = storedUser?.role || "UniFind User";
-  const userInitial = userName.charAt(0).toUpperCase();
+  const userName =
+    storedUser?.fullName ||
+    storedUser?.name ||
+    storedUser?.username ||
+    "User";
+  const userRole = storedUser?.role || "member";
+  const userInitial = userName?.trim()?.charAt(0)?.toUpperCase() || "U";
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+  const handleLogout = async () => {
+    await logout();
     navigate("/login");
   };
 
@@ -205,10 +210,13 @@ const FoundListPage = () => {
 
             {showProfileMenu && (
               <div style={styles.profileDropdown}>
-                <button style={styles.dropdownAction}>
-                  <FiUser size={16} />
-                  <span>My Profile</span>
-                </button>
+                <button
+  style={styles.dropdownAction}
+  onClick={() => navigate("/profile")}
+>
+  <FiUser size={16} />
+  <span>My Profile</span>
+</button>
 
                 <button style={styles.dropdownAction} onClick={handleLogout}>
                   <FiLogOut size={16} />
@@ -372,6 +380,7 @@ const styles = {
     fontSize: "12px",
     color: "#6b7280",
     lineHeight: 1.2,
+    textTransform: "capitalize",
   },
   dropdownMenu: {
     position: "absolute",

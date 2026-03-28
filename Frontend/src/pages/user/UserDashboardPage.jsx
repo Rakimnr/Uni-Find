@@ -12,9 +12,11 @@ import {
   FiAlertCircle,
 } from "react-icons/fi";
 import { getMyClaims } from "../../api/claimApi";
+import { useAuth } from "../../context/AuthContext";
 
 const UserDashboardPage = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,13 +28,18 @@ const UserDashboardPage = () => {
   const profileRef = useRef(null);
 
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-  const userName = storedUser?.name || storedUser?.username || "Hashini";
-  const userRole = storedUser?.role || "UniFind User";
-  const userInitial = userName.charAt(0).toUpperCase();
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+  const userName =
+    storedUser?.fullName ||
+    storedUser?.name ||
+    storedUser?.username ||
+    "User";
+
+  const userRole = storedUser?.role || "UniFind User";
+  const userInitial = userName?.trim()?.charAt(0)?.toUpperCase() || "U";
+
+  const handleLogout = async () => {
+    await logout();
     navigate("/login");
   };
 
@@ -40,7 +47,7 @@ const UserDashboardPage = () => {
     const fetchClaims = async () => {
       try {
         const res = await getMyClaims();
-        setClaims(res.claims || []);
+        setClaims(res?.claims || []);
       } catch (error) {
         console.error("Failed to load user dashboard data", error);
         setError("Failed to load dashboard data.");
@@ -210,12 +217,16 @@ const UserDashboardPage = () => {
               <div style={styles.dropdownMenu}>
                 <p style={styles.dropdownTitle}>Notifications</p>
 
-                {notifications.map((note) => (
-                  <div key={note.id} style={styles.dropdownItemBlock}>
-                    <p style={styles.dropdownItemTitle}>{note.title}</p>
-                    <p style={styles.dropdownItemText}>{note.text}</p>
-                  </div>
-                ))}
+                {notifications.length === 0 ? (
+                  <p style={styles.dropdownEmpty}>No notifications yet.</p>
+                ) : (
+                  notifications.map((note) => (
+                    <div key={note.id} style={styles.dropdownItemBlock}>
+                      <p style={styles.dropdownItemTitle}>{note.title}</p>
+                      <p style={styles.dropdownItemText}>{note.text}</p>
+                    </div>
+                  ))
+                )}
               </div>
             )}
           </div>
@@ -240,10 +251,13 @@ const UserDashboardPage = () => {
 
             {showProfileMenu && (
               <div style={styles.profileDropdown}>
-                <button style={styles.dropdownAction}>
-                  <FiUser size={16} />
-                  <span>My Profile</span>
-                </button>
+                <button
+  style={styles.dropdownAction}
+  onClick={() => navigate("/profile")}
+>
+  <FiUser size={16} />
+  <span>My Profile</span>
+</button>
 
                 <button style={styles.dropdownAction} onClick={handleLogout}>
                   <FiLogOut size={16} />
@@ -478,6 +492,11 @@ const styles = {
     fontSize: "14px",
     fontWeight: "700",
     color: "#111827",
+  },
+  dropdownEmpty: {
+    margin: 0,
+    fontSize: "12px",
+    color: "#6b7280",
   },
   dropdownItemBlock: {
     padding: "10px 0",

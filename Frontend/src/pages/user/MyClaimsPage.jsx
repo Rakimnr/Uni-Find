@@ -7,9 +7,11 @@ import {
   FiLogOut,
   FiUser,
 } from "react-icons/fi";
+import { useAuth } from "../../context/AuthContext";
 
 const MyClaimsPage = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,13 +23,16 @@ const MyClaimsPage = () => {
   const profileRef = useRef(null);
 
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-  const userName = storedUser?.name || storedUser?.username || "Hashini";
-  const userRole = storedUser?.role || "Student • UniFind";
-  const userInitial = userName.charAt(0).toUpperCase();
+  const userName =
+    storedUser?.fullName ||
+    storedUser?.name ||
+    storedUser?.username ||
+    "User";
+  const userRole = storedUser?.role || "member";
+  const userInitial = userName?.trim()?.charAt(0)?.toUpperCase() || "U";
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+  const handleLogout = async () => {
+    await logout();
     navigate("/login");
   };
 
@@ -176,10 +181,13 @@ const MyClaimsPage = () => {
 
             {showProfileMenu && (
               <div style={styles.profileDropdown}>
-                <button style={styles.dropdownAction}>
-                  <FiUser size={16} />
-                  <span>My Profile</span>
-                </button>
+                <button
+  style={styles.dropdownAction}
+  onClick={() => navigate("/profile")}
+>
+  <FiUser size={16} />
+  <span>My Profile</span>
+</button>
 
                 <button style={styles.dropdownAction} onClick={handleLogout}>
                   <FiLogOut size={16} />
@@ -243,7 +251,8 @@ const MyClaimsPage = () => {
                   </p>
 
                   <p style={styles.reason}>
-                    <strong>Reason:</strong> {claim.reason || "No reason provided"}
+                    <strong>Reason:</strong>{" "}
+                    {claim.reason || "No reason provided"}
                   </p>
                 </div>
               </div>
@@ -333,6 +342,7 @@ const styles = {
     color: "#6b7280",
     lineHeight: 1.2,
     marginTop: "3px",
+    textTransform: "capitalize",
   },
   profileAvatar: {
     width: "40px",
