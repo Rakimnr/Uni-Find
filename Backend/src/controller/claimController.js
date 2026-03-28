@@ -33,7 +33,14 @@ export const createClaim = async (req, res) => {
       });
     }
 
+    if (!req.session || !req.session.user || !req.session.user.userId) {
+      return res.status(401).json({
+        message: "Access denied. Please login first.",
+      });
+    }
+
     const newClaim = new Claim({
+      userId: req.session.user.userId,
       itemId,
       fullName,
       studentId,
@@ -63,7 +70,15 @@ export const createClaim = async (req, res) => {
 
 export const getMyClaims = async (req, res) => {
   try {
-    const claims = await Claim.find()
+    if (!req.session || !req.session.user || !req.session.user.userId) {
+      return res.status(401).json({
+        message: "Access denied. Please login first.",
+      });
+    }
+
+    const claims = await Claim.find({
+      userId: req.session.user.userId,
+    })
       .populate("itemId", "title image foundLocation dateFound status")
       .sort({ createdAt: -1 });
 
