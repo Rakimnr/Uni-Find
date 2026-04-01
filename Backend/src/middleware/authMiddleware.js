@@ -1,9 +1,22 @@
-export const protectAdmin = (req, res, next) => {
-  const user = { role: "admin" };
+export const protect = (req, res, next) => {
+  if (!req.session || !req.session.user) {
+    return res.status(401).json({
+      message: "Access denied. Please login first.",
+    });
+  }
 
-  if (!user || user.role !== "admin") {
+  next();
+};
+
+export const protectAdmin = (req, res, next) => {
+  if (!req.session || !req.session.user) {
+    return res.status(401).json({
+      message: "Access denied. Please login first.",
+    });
+  }
+
+  if (req.session.user.role !== "admin") {
     return res.status(403).json({
-      success: false,
       message: "Access denied. Admin only.",
     });
   }
