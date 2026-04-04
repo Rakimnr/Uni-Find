@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import UserLayout from "./layouts/UserLayout";
 import AdminLayout from "./layouts/AdminLayout";
 
@@ -21,6 +21,13 @@ import RegisterPage from "./pages/RegisterPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminRoute from "./routes/AdminRoute";
 
+import ReportLostItemPage from "./pages/user/ReportLostItemPage.jsx";
+import MyLostReportsPage from "./pages/user/MyLostReportsPage.jsx";
+import LostItemDetailsPage from "./pages/user/LostItemDetailsPage.jsx";
+import EditLostItemPage from "./pages/user/EditLostItemPage.jsx";
+import AdminManageLostPage from "./pages/admin/AdminManageLostPage.jsx";
+import HomeBrowsePage from "./pages/common/HomeBrowsePage.jsx";
+
 function App() {
   return (
     <Routes>
@@ -28,7 +35,8 @@ function App() {
       <Route path="/register" element={<RegisterPage />} />
 
       <Route element={<UserLayout />}>
-        <Route path="/" element={<FoundListPage />} />
+        <Route path="/" element={<HomeBrowsePage />} />
+        <Route path="/homepage" element={<HomeBrowsePage />} />
         <Route path="/found-items" element={<FoundListPage />} />
 
         <Route
@@ -72,6 +80,42 @@ function App() {
           element={
             <ProtectedRoute>
               <MyProfilePage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/report-lost"
+          element={
+            <ProtectedRoute>
+              <ReportLostItemPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/lost-reports"
+          element={
+            <ProtectedRoute>
+              <MyLostReportsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/lost-reports/:id"
+          element={
+            <ProtectedRoute>
+              <LostItemDetailsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/lost-reports/edit/:id"
+          element={
+            <ProtectedRoute>
+              <EditLostItemPage />
             </ProtectedRoute>
           }
         />
@@ -131,7 +175,18 @@ function App() {
             </AdminRoute>
           }
         />
+
+        <Route
+          path="/admin/lost-items"
+          element={
+            <AdminRoute>
+              <AdminManageLostPage />
+            </AdminRoute>
+          }
+        />
       </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }
