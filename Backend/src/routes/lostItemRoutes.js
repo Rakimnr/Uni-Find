@@ -6,7 +6,7 @@ import {
   updateLostItem,
   updateLostItemStatus,
   deleteLostItem,
-} from "../controllers/lostItemController.js";
+} from "../controller/lostItemController.js";
 import upload from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();

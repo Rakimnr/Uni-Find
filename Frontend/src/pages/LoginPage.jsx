@@ -53,7 +53,7 @@ function LoginPage() {
       subtitle="Access your member dashboard and continue managing lost and found activity."
       footerText="Don’t have an account?"
       footerLinkText="Create one here"
-      footerLinkTo="/"
+      footerLinkTo="/register"
     >
       <form className="uf-form" onSubmit={handleSubmit}>
         <div className="uf-field">
