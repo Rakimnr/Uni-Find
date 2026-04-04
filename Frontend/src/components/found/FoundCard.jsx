@@ -127,23 +127,30 @@ const FoundCard = ({ item }) => {
 const styles = {
   card: {
     backgroundColor: "#ffffff",
-    borderRadius: "14px",
+    borderRadius: "16px",
     overflow: "hidden",
     border: "1px solid #e5e7eb",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
     transition: "0.2s ease",
   },
+
   imageWrapper: {
     position: "relative",
     height: "180px",
-    backgroundColor: "#f3f4f6",
+    backgroundColor: "#ffffff", // ✅ clean white instead of gray
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "12px", // ✅ spacing around image
+    borderBottom: "1px solid #f1f5f9", // subtle separation
   },
+
   image: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-    display: "block",
+    maxWidth: "100%",
+    maxHeight: "100%",
+    objectFit: "contain",
   },
+
   badge: {
     position: "absolute",
     top: "10px",
@@ -154,31 +161,36 @@ const styles = {
     borderRadius: "999px",
     zIndex: 1,
   },
+
   content: {
     padding: "14px",
   },
+
   title: {
     fontSize: "18px",
     fontWeight: "700",
     marginBottom: "10px",
     color: "#111827",
   },
+
   meta: {
     fontSize: "14px",
     color: "#6b7280",
     marginBottom: "6px",
   },
+
   button: {
     marginTop: "12px",
     width: "100%",
     backgroundColor: "#f97316",
     color: "white",
     border: "none",
-    borderRadius: "8px",
-    padding: "10px 12px",
+    borderRadius: "10px",
+    padding: "11px 12px",
     fontWeight: "600",
     cursor: "pointer",
   },
+
   disabledButton: {
     backgroundColor: "#d1d5db",
     color: "#4b5563",

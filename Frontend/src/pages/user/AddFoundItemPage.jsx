@@ -43,21 +43,51 @@ const AddFoundItemPage = () => {
     setImageFile(e.target.files[0]);
   };
 
+  const validateForm = () => {
+    if (
+      !formData.title.trim() ||
+      !formData.description.trim() ||
+      !formData.category.trim() ||
+      !formData.foundLocation.trim() ||
+      !formData.dateFound ||
+      !formData.storageLocation.trim()
+    ) {
+      return "Please fill all required fields.";
+    }
+
+    const selectedDate = new Date(formData.dateFound);
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+
+    if (selectedDate > today) {
+      return "Date found cannot be in the future.";
+    }
+
+    return "";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setMessage("");
     setError("");
+
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+
     setSubmitting(true);
 
     try {
       const data = new FormData();
 
-      data.append("title", formData.title);
-      data.append("description", formData.description);
+      data.append("title", formData.title.trim());
+      data.append("description", formData.description.trim());
       data.append("category", formData.category);
-      data.append("foundLocation", formData.foundLocation);
+      data.append("foundLocation", formData.foundLocation.trim());
       data.append("dateFound", formData.dateFound);
-      data.append("storageLocation", formData.storageLocation);
+      data.append("storageLocation", formData.storageLocation.trim());
       data.append("status", formData.status);
 
       if (imageFile) {
@@ -84,7 +114,9 @@ const AddFoundItemPage = () => {
         navigate("/");
       }, 1000);
     } catch (err) {
-      setError(err?.response?.data?.message || "Failed to add found item");
+      setError(
+        err?.response?.data?.message || "Failed to add found item"
+      );
     } finally {
       setSubmitting(false);
     }
