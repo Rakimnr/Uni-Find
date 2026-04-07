@@ -1,5 +1,30 @@
 import LostItem from "../models/LostItem.js";
 
+const normalizeEmail = (email = "") => email.trim().toLowerCase();
+
+const getSessionUser = (req) => req.session?.user || null;
+
+const isLegacyOwnerByEmail = (item, sessionUser) => {
+  if (!item?.contactEmail || !sessionUser?.email) {
+    return false;
+  }
+
+  return normalizeEmail(item.contactEmail) === normalizeEmail(sessionUser.email);
+};
+
+const canManageLostItem = (item, sessionUser) => {
+  if (!item || !sessionUser) {
+    return false;
+  }
+
+  const isAdmin = sessionUser.role === "admin";
+  const isOwnerById =
+    item.reportedBy && item.reportedBy.toString() === sessionUser.userId;
+  const isOwnerByEmail = isLegacyOwnerByEmail(item, sessionUser);
+
+  return isAdmin || isOwnerById || isOwnerByEmail;
+};
+
 export const getLostItems = async (req, res) => {
   try {
     const lostItems = await LostItem.find().sort({ createdAt: -1 });
@@ -13,6 +38,47 @@ export const getLostItems = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to fetch lost items",
+      error: error.message,
+    });
+  }
+};
+
+export const getMyLostItems = async (req, res) => {
+  try {
+    const sessionUser = getSessionUser(req);
+
+    if (!sessionUser) {
+      return res.status(401).json({
+        success: false,
+        message: "Please login first",
+      });
+    }
+
+    const normalizedEmail = normalizeEmail(sessionUser.email || "");
+
+    const lostItems = await LostItem.find({
+      $or: [
+        { reportedBy: sessionUser.userId },
+        {
+          reportedBy: { $exists: false },
+          contactEmail: normalizedEmail,
+        },
+        {
+          reportedBy: null,
+          contactEmail: normalizedEmail,
+        },
+      ],
+    }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      count: lostItems.length,
+      data: lostItems,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch your lost items",
       error: error.message,
     });
   }
@@ -44,9 +110,19 @@ export const getLostItemById = async (req, res) => {
 
 export const createLostItem = async (req, res) => {
   try {
+    const sessionUser = getSessionUser(req);
+
+    if (!sessionUser) {
+      return res.status(401).json({
+        success: false,
+        message: "Please login first",
+      });
+    }
+
     const imagePath = req.file ? `/uploads/${req.file.filename}` : "";
 
     const newLostItem = await LostItem.create({
+      reportedBy: sessionUser.userId,
       title: req.body.title,
       description: req.body.description,
       category: req.body.category,
@@ -54,7 +130,7 @@ export const createLostItem = async (req, res) => {
       dateLost: req.body.dateLost,
       uniqueFeatures: req.body.uniqueFeatures,
       contactName: req.body.contactName,
-      contactEmail: req.body.contactEmail,
+      contactEmail: normalizeEmail(req.body.contactEmail),
       contactPhone: req.body.contactPhone,
       status: req.body.status || "open",
       image: imagePath,
@@ -76,12 +152,28 @@ export const createLostItem = async (req, res) => {
 
 export const updateLostItem = async (req, res) => {
   try {
+    const sessionUser = getSessionUser(req);
+
+    if (!sessionUser) {
+      return res.status(401).json({
+        success: false,
+        message: "Please login first",
+      });
+    }
+
     const existingItem = await LostItem.findById(req.params.id);
 
     if (!existingItem) {
       return res.status(404).json({
         success: false,
         message: "Lost item not found",
+      });
+    }
+
+    if (!canManageLostItem(existingItem, sessionUser)) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only update your own lost reports",
       });
     }
 
@@ -93,7 +185,7 @@ export const updateLostItem = async (req, res) => {
       dateLost: req.body.dateLost,
       uniqueFeatures: req.body.uniqueFeatures,
       contactName: req.body.contactName,
-      contactEmail: req.body.contactEmail,
+      contactEmail: normalizeEmail(req.body.contactEmail),
       contactPhone: req.body.contactPhone,
       status: req.body.status || existingItem.status,
     };
@@ -105,7 +197,10 @@ export const updateLostItem = async (req, res) => {
     const updatedItem = await LostItem.findByIdAndUpdate(
       req.params.id,
       updatedData,
-      { new: true, runValidators: true }
+      {
+        new: true,
+        runValidators: true,
+      }
     );
 
     res.status(200).json({
@@ -124,7 +219,32 @@ export const updateLostItem = async (req, res) => {
 
 export const updateLostItemStatus = async (req, res) => {
   try {
+    const sessionUser = getSessionUser(req);
+
+    if (!sessionUser) {
+      return res.status(401).json({
+        success: false,
+        message: "Please login first",
+      });
+    }
+
     const { status } = req.body;
+
+    const existingItem = await LostItem.findById(req.params.id);
+
+    if (!existingItem) {
+      return res.status(404).json({
+        success: false,
+        message: "Lost item not found",
+      });
+    }
+
+    if (!canManageLostItem(existingItem, sessionUser)) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only update your own lost reports",
+      });
+    }
 
     const updatedItem = await LostItem.findByIdAndUpdate(
       req.params.id,
@@ -134,13 +254,6 @@ export const updateLostItemStatus = async (req, res) => {
         runValidators: true,
       }
     );
-
-    if (!updatedItem) {
-      return res.status(404).json({
-        success: false,
-        message: "Lost item not found",
-      });
-    }
 
     res.status(200).json({
       success: true,
@@ -158,19 +271,37 @@ export const updateLostItemStatus = async (req, res) => {
 
 export const deleteLostItem = async (req, res) => {
   try {
-    const deletedItem = await LostItem.findByIdAndDelete(req.params.id);
+    const sessionUser = getSessionUser(req);
 
-    if (!deletedItem) {
+    if (!sessionUser) {
+      return res.status(401).json({
+        success: false,
+        message: "Please login first",
+      });
+    }
+
+    const existingItem = await LostItem.findById(req.params.id);
+
+    if (!existingItem) {
       return res.status(404).json({
         success: false,
         message: "Lost item not found",
       });
     }
 
+    if (!canManageLostItem(existingItem, sessionUser)) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only delete your own lost reports",
+      });
+    }
+
+    await LostItem.findByIdAndDelete(req.params.id);
+
     res.status(200).json({
       success: true,
       message: "Lost item deleted successfully",
-      data: deletedItem,
+      data: existingItem,
     });
   } catch (error) {
     res.status(500).json({

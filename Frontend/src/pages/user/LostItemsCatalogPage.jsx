@@ -325,23 +325,6 @@ const LostItemsCatalogPage = () => {
         </div>
       </div>
 
-      <div style={styles.tabs}>
-        <button
-          type="button"
-          style={{ ...styles.tabButton, ...styles.activeTab }}
-        >
-          Lost Items
-        </button>
-
-        <button
-          type="button"
-          style={styles.tabButton}
-          onClick={() => navigate("/lost-reports")}
-        >
-          My Lost Reports
-        </button>
-      </div>
-
       <div style={styles.filters}>
         {categories.map((category) => (
           <button
@@ -543,26 +526,6 @@ const styles = {
     color: "#374151",
     fontSize: "14px",
     fontWeight: "600",
-  },
-  tabs: {
-    display: "flex",
-    gap: "10px",
-    marginBottom: "18px",
-    flexWrap: "wrap",
-  },
-  tabButton: {
-    border: "none",
-    backgroundColor: "#f1f5f9",
-    padding: "11px 16px",
-    borderRadius: "12px",
-    cursor: "pointer",
-    fontWeight: "600",
-    color: "#374151",
-    fontSize: "15px",
-  },
-  activeTab: {
-    backgroundColor: "#fff7ed",
-    color: "#f97316",
   },
   filters: {
     display: "flex",
