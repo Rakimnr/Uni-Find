@@ -8,6 +8,7 @@ import ClaimItemPage from "./pages/user/ClaimItemPage";
 import MyClaimsPage from "./pages/user/MyClaimsPage";
 import UserDashboardPage from "./pages/user/UserDashboardPage";
 import MyProfilePage from "./pages/user/MyProfilePage";
+import LostItemsCatalogPage from "./pages/user/LostItemsCatalogPage.jsx";
 
 import AdminClaimReviewPage from "./pages/admin/AdminClaimReviewPage";
 import AdminClaimReportPage from "./pages/admin/AdminClaimReportPage";
@@ -43,6 +44,7 @@ function App() {
       {/* user layout routes */}
       <Route element={<UserLayout />}>
         <Route path="/found-items" element={<FoundListPage />} />
+        <Route path="/lost-items" element={<LostItemsCatalogPage />} />
 
         <Route
           path="/report-found-item"

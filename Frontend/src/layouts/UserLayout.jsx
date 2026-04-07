@@ -11,13 +11,13 @@ const UserLayout = () => {
     location.pathname.startsWith("/report-found-item") ||
     location.pathname.startsWith("/claims/new");
 
-  const isLostReportsPage =
+  const isLostItemsPage =
+    location.pathname === "/lost-items" ||
     location.pathname === "/report-lost" ||
     location.pathname === "/lost-reports" ||
     location.pathname.startsWith("/lost-reports/");
 
   const isClaimsPage = location.pathname.startsWith("/my-claims");
-
 
   return (
     <div style={styles.page}>
@@ -25,6 +25,7 @@ const UserLayout = () => {
         <div>
           <div style={styles.logoBox} onClick={() => navigate("/")}>
             <div style={styles.logoCircle}>U</div>
+
             <div>
               <h2 style={styles.logoText}>UniFind</h2>
               <p style={styles.logoSub}>University Portal</p>
@@ -53,10 +54,10 @@ const UserLayout = () => {
             </div>
 
             <div
-              onClick={() => navigate("/lost-reports")}
+              onClick={() => navigate("/lost-items")}
               style={{
                 ...styles.navItem,
-                ...(isLostReportsPage ? styles.activeNavItem : {}),
+                ...(isLostItemsPage ? styles.activeNavItem : {}),
               }}
             >
               Lost Items
@@ -76,6 +77,7 @@ const UserLayout = () => {
 
         <div style={styles.bottomActions}>
           <button
+            type="button"
             style={styles.reportFoundButton}
             onClick={() => navigate("/report-found-item")}
           >
@@ -83,6 +85,7 @@ const UserLayout = () => {
           </button>
 
           <button
+            type="button"
             style={styles.reportLostButton}
             onClick={() => navigate("/report-lost")}
           >
