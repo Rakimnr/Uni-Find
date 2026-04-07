@@ -31,12 +31,14 @@ import HomeBrowsePage from "./pages/common/HomeBrowsePage.jsx";
 function App() {
   return (
     <Routes>
+      {/* public routes */}
+      <Route path="/" element={<HomeBrowsePage />} />
+      <Route path="/homepage" element={<HomeBrowsePage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
+      {/* user layout routes */}
       <Route element={<UserLayout />}>
-        <Route path="/" element={<HomeBrowsePage />} />
-        <Route path="/homepage" element={<HomeBrowsePage />} />
         <Route path="/found-items" element={<FoundListPage />} />
 
         <Route
@@ -121,6 +123,7 @@ function App() {
         />
       </Route>
 
+      {/* admin layout routes */}
       <Route element={<AdminLayout />}>
         <Route
           path="/admin/claims"

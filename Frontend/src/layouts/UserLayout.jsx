@@ -7,10 +7,9 @@ const UserLayout = () => {
   const isDashboard = location.pathname === "/dashboard";
 
   const isItemsPage =
-    location.pathname === "/" ||
+    location.pathname === "/found-items" ||
     location.pathname.startsWith("/report-found-item") ||
-    location.pathname.startsWith("/claims/new") ||
-    location.pathname.startsWith("/found");
+    location.pathname.startsWith("/claims/new");
 
   const isClaimsPage = location.pathname.startsWith("/my-claims");
 
@@ -38,7 +37,7 @@ const UserLayout = () => {
             </div>
 
             <div
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/found-items")}
               style={{
                 ...styles.navItem,
                 ...(isItemsPage ? styles.activeNavItem : {}),
