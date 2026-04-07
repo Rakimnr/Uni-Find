@@ -28,6 +28,7 @@ import LostItemDetailsPage from "./pages/user/LostItemDetailsPage.jsx";
 import EditLostItemPage from "./pages/user/EditLostItemPage.jsx";
 import AdminManageLostPage from "./pages/admin/AdminManageLostPage.jsx";
 import HomeBrowsePage from "./pages/common/HomeBrowsePage.jsx";
+import AboutUsPage from "./pages/common/AboutUsPage.jsx";
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
       {/* public routes */}
       <Route path="/" element={<HomeBrowsePage />} />
       <Route path="/homepage" element={<HomeBrowsePage />} />
+      <Route path="/about" element={<AboutUsPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
 
