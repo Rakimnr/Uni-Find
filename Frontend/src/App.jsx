@@ -10,6 +10,7 @@ import UserDashboardPage from "./pages/user/UserDashboardPage";
 import MyProfilePage from "./pages/user/MyProfilePage";
 
 import AdminClaimReviewPage from "./pages/admin/AdminClaimReviewPage";
+import AdminClaimReportPage from "./pages/admin/AdminClaimReportPage";
 import AdminManageFoundPage from "./pages/admin/AdminManageFoundPage";
 import AdminAddFoundPage from "./pages/admin/AdminAddFoundPage";
 import AdminExpiredItemsPage from "./pages/admin/AdminExpiredItemsPage";
@@ -126,6 +127,15 @@ function App() {
       {/* admin layout routes */}
       <Route element={<AdminLayout />}>
         <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminDashboardPage />
+            </AdminRoute>
+          }
+        />
+
+        <Route
           path="/admin/claims"
           element={
             <AdminRoute>
@@ -135,10 +145,28 @@ function App() {
         />
 
         <Route
+          path="/admin/claim-report"
+          element={
+            <AdminRoute>
+              <AdminClaimReportPage />
+            </AdminRoute>
+          }
+        />
+
+        <Route
           path="/admin/found-items"
           element={
             <AdminRoute>
               <AdminManageFoundPage />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/lost-items"
+          element={
+            <AdminRoute>
+              <AdminManageLostPage />
             </AdminRoute>
           }
         />
@@ -166,24 +194,6 @@ function App() {
           element={
             <AdminRoute>
               <AdminProfilePage />
-            </AdminRoute>
-          }
-        />
-
-        <Route
-          path="/admin"
-          element={
-            <AdminRoute>
-              <AdminDashboardPage />
-            </AdminRoute>
-          }
-        />
-
-        <Route
-          path="/admin/lost-items"
-          element={
-            <AdminRoute>
-              <AdminManageLostPage />
             </AdminRoute>
           }
         />

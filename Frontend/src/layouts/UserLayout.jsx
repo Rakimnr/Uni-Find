@@ -6,18 +6,24 @@ const UserLayout = () => {
 
   const isDashboard = location.pathname === "/dashboard";
 
-  const isItemsPage =
+  const isFoundItemsPage =
     location.pathname === "/found-items" ||
     location.pathname.startsWith("/report-found-item") ||
     location.pathname.startsWith("/claims/new");
 
+  const isLostReportsPage =
+    location.pathname === "/report-lost" ||
+    location.pathname === "/lost-reports" ||
+    location.pathname.startsWith("/lost-reports/");
+
   const isClaimsPage = location.pathname.startsWith("/my-claims");
+
 
   return (
     <div style={styles.page}>
       <aside style={styles.sidebar}>
         <div>
-          <div style={styles.logoBox}>
+          <div style={styles.logoBox} onClick={() => navigate("/")}>
             <div style={styles.logoCircle}>U</div>
             <div>
               <h2 style={styles.logoText}>UniFind</h2>
@@ -40,10 +46,20 @@ const UserLayout = () => {
               onClick={() => navigate("/found-items")}
               style={{
                 ...styles.navItem,
-                ...(isItemsPage ? styles.activeNavItem : {}),
+                ...(isFoundItemsPage ? styles.activeNavItem : {}),
               }}
             >
-              Items
+              Found Items
+            </div>
+
+            <div
+              onClick={() => navigate("/lost-reports")}
+              style={{
+                ...styles.navItem,
+                ...(isLostReportsPage ? styles.activeNavItem : {}),
+              }}
+            >
+              Lost Items
             </div>
 
             <div
@@ -53,17 +69,26 @@ const UserLayout = () => {
                 ...(isClaimsPage ? styles.activeNavItem : {}),
               }}
             >
-              Claims
+              My Claims
             </div>
           </nav>
         </div>
 
-        <button
-          style={styles.reportButton}
-          onClick={() => navigate("/report-found-item")}
-        >
-          + Report Found Item
-        </button>
+        <div style={styles.bottomActions}>
+          <button
+            style={styles.reportFoundButton}
+            onClick={() => navigate("/report-found-item")}
+          >
+            + Report Found Item
+          </button>
+
+          <button
+            style={styles.reportLostButton}
+            onClick={() => navigate("/report-lost")}
+          >
+            + Report Lost Item
+          </button>
+        </div>
       </aside>
 
       <main style={styles.main}>
@@ -83,8 +108,8 @@ const styles = {
     boxSizing: "border-box",
   },
   sidebar: {
-    width: "260px",
-    minWidth: "260px",
+    width: "270px",
+    minWidth: "270px",
     backgroundColor: "#ffffff",
     borderRight: "1px solid #e5e7eb",
     padding: "20px",
@@ -98,10 +123,11 @@ const styles = {
     alignItems: "center",
     gap: "12px",
     marginBottom: "34px",
+    cursor: "pointer",
   },
   logoCircle: {
-    width: "44px",
-    height: "44px",
+    width: "46px",
+    height: "46px",
     borderRadius: "14px",
     backgroundColor: "#f97316",
     color: "white",
@@ -110,11 +136,13 @@ const styles = {
     justifyContent: "center",
     fontWeight: "700",
     fontSize: "22px",
+    flexShrink: 0,
   },
   logoText: {
     margin: 0,
     fontSize: "20px",
     color: "#111827",
+    fontWeight: "700",
   },
   logoSub: {
     margin: "4px 0 0 0",
@@ -133,15 +161,34 @@ const styles = {
     cursor: "pointer",
     fontWeight: "500",
     fontSize: "15px",
+    transition: "0.2s ease",
   },
   activeNavItem: {
     backgroundColor: "#fff7ed",
     color: "#f97316",
+    fontWeight: "700",
   },
-  reportButton: {
+  bottomActions: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+    marginTop: "20px",
+  },
+  reportFoundButton: {
     backgroundColor: "#f97316",
     color: "#fff",
     border: "none",
+    borderRadius: "14px",
+    padding: "14px 18px",
+    fontWeight: "700",
+    cursor: "pointer",
+    width: "100%",
+    fontSize: "15px",
+  },
+  reportLostButton: {
+    backgroundColor: "#ffffff",
+    color: "#f97316",
+    border: "1px solid #f97316",
     borderRadius: "14px",
     padding: "14px 18px",
     fontWeight: "700",

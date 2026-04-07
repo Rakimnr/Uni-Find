@@ -15,6 +15,11 @@ export const getAllClaims = async () => {
   return response.data;
 };
 
+export const getClaimReport = async () => {
+  const response = await axiosInstance.get("/claims/report");
+  return response.data;
+};
+
 export const updateClaimStatus = async (claimId, status) => {
   const response = await axiosInstance.patch(`/claims/${claimId}/status`, {
     status,

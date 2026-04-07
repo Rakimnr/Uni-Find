@@ -6,9 +6,12 @@ const AdminLayout = () => {
 
   const isDashboard = location.pathname === "/admin";
   const isClaimReview = location.pathname.startsWith("/admin/claims");
+  const isClaimReport = location.pathname.startsWith("/admin/claim-report");
   const isManageFound = location.pathname.startsWith("/admin/found-items");
+  const isManageLost = location.pathname.startsWith("/admin/lost-items");
   const isAddFound = location.pathname.startsWith("/admin/add-found-item");
   const isExpired = location.pathname.startsWith("/admin/expired-items");
+  
 
   return (
     <div style={styles.page}>
@@ -46,11 +49,31 @@ const AdminLayout = () => {
             <div
               style={{
                 ...styles.navItem,
+                ...(isClaimReport ? styles.activeNavItem : {}),
+              }}
+              onClick={() => navigate("/admin/claim-report")}
+            >
+              Claim Report
+            </div>
+
+            <div
+              style={{
+                ...styles.navItem,
                 ...(isManageFound ? styles.activeNavItem : {}),
               }}
               onClick={() => navigate("/admin/found-items")}
             >
               Manage Found Items
+            </div>
+
+            <div
+              style={{
+                ...styles.navItem,
+                ...(isManageLost ? styles.activeNavItem : {}),
+              }}
+              onClick={() => navigate("/admin/lost-items")}
+            >
+              Manage Lost Items
             </div>
 
             <div
@@ -76,7 +99,7 @@ const AdminLayout = () => {
         </div>
 
         <button style={styles.backButton} onClick={() => navigate("/")}>
-          Log Out 
+          Log Out
         </button>
       </aside>
 
@@ -128,6 +151,7 @@ const styles = {
     margin: 0,
     fontSize: "20px",
     color: "#111827",
+    fontWeight: "700",
   },
   logoSub: {
     margin: "4px 0 0 0",
@@ -150,6 +174,7 @@ const styles = {
   activeNavItem: {
     backgroundColor: "#fff7ed",
     color: "#f97316",
+    fontWeight: "700",
   },
   backButton: {
     backgroundColor: "#f97316",
