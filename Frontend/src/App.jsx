@@ -176,6 +176,15 @@ function App() {
         />
 
         <Route
+          path="/admin/lost-items/:id"
+          element={
+            <AdminRoute>
+              <LostItemDetailsPage />
+            </AdminRoute>
+          }
+        />
+
+        <Route
           path="/admin/add-found-item"
           element={
             <AdminRoute>

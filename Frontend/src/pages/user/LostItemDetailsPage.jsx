@@ -1,12 +1,35 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { getLostItemById } from "../../api/lostApi.js";
 
 function LostItemDetailsPage() {
   const { id } = useParams();
+  const location = useLocation();
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const navigationState = location.state || {};
+  const isAdminView =
+    navigationState.dashboardTo === "/admin" ||
+    location.pathname.startsWith("/admin/");
+
+  const backTo =
+    navigationState.backTo || (isAdminView ? "/admin/lost-items" : "/lost-items");
+
+  const dashboardTo =
+    navigationState.dashboardTo || (isAdminView ? "/admin" : "/dashboard");
+
+  const backLabel =
+    navigationState.backLabel ||
+    (backTo === "/admin/lost-items"
+      ? "Back to Manage Lost Items"
+      : backTo === "/lost-reports"
+      ? "Back to My Reports"
+      : "Back to Gallery");
+
+  const dashboardLabel =
+    navigationState.dashboardLabel || (isAdminView ? "Admin Dashboard" : "Dashboard");
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -75,12 +98,12 @@ function LostItemDetailsPage() {
     <div style={styles.pageContainer}>
       <div style={styles.mainWrapper}>
         <nav style={styles.navBar}>
-          <Link to="/lost-items" style={styles.backBtn}>
-            <span style={{ fontSize: "18px" }}>←</span> Back to Gallery
+          <Link to={backTo} style={styles.backBtn}>
+            <span style={{ fontSize: "18px" }}>←</span> {backLabel}
           </Link>
 
-          <Link to="/dashboard" style={styles.homeBtn}>
-            Dashboard
+          <Link to={dashboardTo} style={styles.homeBtn}>
+            {dashboardLabel}
           </Link>
         </nav>
 

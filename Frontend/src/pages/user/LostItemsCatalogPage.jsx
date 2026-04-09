@@ -46,10 +46,13 @@ const LostCatalogCard = ({ item }) => {
 
   const formatDate = (dateString) => {
     if (!dateString) return "No date";
+
     if (typeof dateString === "string" && dateString.includes("/")) {
       return dateString;
     }
-    return new Date(dateString).toLocaleDateString();
+
+    const date = new Date(dateString);
+    return Number.isNaN(date.getTime()) ? "No date" : date.toLocaleDateString();
   };
 
   const imageSrc = item?.image?.trim()
@@ -59,26 +62,37 @@ const LostCatalogCard = ({ item }) => {
   return (
     <div style={styles.card}>
       <div style={styles.imageWrapper}>
-        <span style={{ ...styles.badge, ...getBadgeStyle(item.status) }}>
+        <span
+          style={{
+            ...styles.badge,
+            ...getBadgeStyle(item.status),
+          }}
+        >
           {getStatusLabel(item.status)}
         </span>
 
-        <img src={imageSrc} alt={item.title} style={styles.image} />
+        <img
+          src={imageSrc}
+          alt={item.title || "Lost Item"}
+          style={styles.image}
+        />
       </div>
 
       <div style={styles.content}>
         <h3 style={styles.title}>{item.title || "Untitled Item"}</h3>
 
-        <div style={styles.metaRow}>
-          <FiMapPin size={14} color="#ec4899" />
-          <span style={styles.metaText}>
-            {item.lostLocation || "Unknown location"}
-          </span>
-        </div>
+        <div style={styles.metaGroup}>
+          <div style={styles.metaRow}>
+            <FiMapPin size={15} style={styles.metaIcon} />
+            <span style={styles.locationText}>
+              {item.lostLocation || "Unknown location"}
+            </span>
+          </div>
 
-        <div style={styles.metaRow}>
-          <FiCalendar size={14} color="#6b7280" />
-          <span style={styles.metaText}>{formatDate(item.dateLost)}</span>
+          <div style={styles.metaRow}>
+            <FiCalendar size={15} style={styles.metaIcon} />
+            <span style={styles.metaText}>{formatDate(item.dateLost)}</span>
+          </div>
         </div>
 
         <p style={styles.description}>
@@ -86,9 +100,17 @@ const LostCatalogCard = ({ item }) => {
         </p>
 
         <button
-          type="button"
           style={styles.actionButton}
-          onClick={() => navigate(`/lost-reports/${item._id}`)}
+          onClick={() =>
+            navigate(`/lost-reports/${item._id}`, {
+              state: {
+                backTo: "/lost-items",
+                backLabel: "Back to Gallery",
+                dashboardTo: "/dashboard",
+                dashboardLabel: "Dashboard",
+              },
+            })
+          }
         >
           <FiEye size={16} />
           View Report
@@ -115,10 +137,7 @@ const LostItemsCatalogPage = () => {
 
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const userName =
-    storedUser?.fullName ||
-    storedUser?.name ||
-    storedUser?.username ||
-    "User";
+    storedUser?.fullName || storedUser?.name || storedUser?.username || "User";
   const userRole = storedUser?.role || "member";
   const userInitial = userName?.trim()?.charAt(0)?.toUpperCase() || "U";
 
@@ -174,7 +193,7 @@ const LostItemsCatalogPage = () => {
   const parseDate = (dateString) => {
     if (!dateString) return new Date(0);
 
-    if (dateString.includes("/")) {
+    if (typeof dateString === "string" && dateString.includes("/")) {
       const parts = dateString.split("/");
       if (parts.length === 3) {
         const [day, month, year] = parts;
@@ -207,9 +226,9 @@ const LostItemsCatalogPage = () => {
     {
       id: 1,
       title: "Lost Reports",
-      text: `There ${
-        items.length === 1 ? "is" : "are"
-      } ${items.length} lost report${items.length !== 1 ? "s" : ""} available.`,
+      text: `There ${items.length === 1 ? "is" : "are"} ${items.length} lost report${
+        items.length !== 1 ? "s" : ""
+      } available.`,
     },
     {
       id: 2,
@@ -243,7 +262,7 @@ const LostItemsCatalogPage = () => {
 
         <div style={styles.topBarRight}>
           <div style={styles.searchBox}>
-            <FiSearch size={18} color="#6b7280" />
+            <FiSearch size={18} color="#9ca3af" />
             <input
               type="text"
               placeholder="Search by item name, location..."
@@ -255,22 +274,30 @@ const LostItemsCatalogPage = () => {
 
           <div style={styles.menuWrap} ref={notificationRef}>
             <button
-              type="button"
               style={styles.iconButton}
               onClick={() => {
                 setShowNotifications((prev) => !prev);
                 setShowProfileMenu(false);
               }}
             >
-              <FiBell size={20} color="#111827" />
+              <FiBell size={18} />
             </button>
 
             {showNotifications && (
               <div style={styles.dropdownMenu}>
                 <p style={styles.dropdownTitle}>Notifications</p>
 
-                {notifications.map((note) => (
-                  <div key={note.id} style={styles.dropdownItemBlock}>
+                {notifications.map((note, index) => (
+                  <div
+                    key={note.id}
+                    style={{
+                      ...styles.dropdownItemBlock,
+                      borderBottom:
+                        index === notifications.length - 1
+                          ? "none"
+                          : "1px solid #f1f5f9",
+                    }}
+                  >
                     <p style={styles.dropdownItemTitle}>{note.title}</p>
                     <p style={styles.dropdownItemText}>{note.text}</p>
                   </div>
@@ -281,7 +308,6 @@ const LostItemsCatalogPage = () => {
 
           <div style={styles.menuWrap} ref={profileRef}>
             <button
-              type="button"
               style={styles.profileButton}
               onClick={() => {
                 setShowProfileMenu((prev) => !prev);
@@ -296,28 +322,23 @@ const LostItemsCatalogPage = () => {
                   <p style={styles.profileRole}>{userRole}</p>
                 </div>
 
-                <FiChevronDown size={18} color="#6b7280" />
+                <FiChevronDown size={16} color="#6b7280" />
               </div>
             </button>
 
             {showProfileMenu && (
               <div style={styles.profileDropdown}>
                 <button
-                  type="button"
                   style={styles.dropdownAction}
                   onClick={() => navigate("/profile")}
                 >
                   <FiUser size={16} />
-                  My Profile
+                  <span>My Profile</span>
                 </button>
 
-                <button
-                  type="button"
-                  style={styles.dropdownAction}
-                  onClick={handleLogout}
-                >
+                <button style={styles.dropdownAction} onClick={handleLogout}>
                   <FiLogOut size={16} />
-                  Logout
+                  <span>Logout</span>
                 </button>
               </div>
             )}
@@ -329,7 +350,6 @@ const LostItemsCatalogPage = () => {
         {categories.map((category) => (
           <button
             key={category}
-            type="button"
             onClick={() => setFilteredCategory(category)}
             style={{
               ...styles.filterButton,
@@ -342,7 +362,7 @@ const LostItemsCatalogPage = () => {
       </div>
 
       {filteredItems.length === 0 ? (
-        <div style={styles.stateText}>No lost items available.</div>
+        <div style={styles.emptyBox}>No lost items available.</div>
       ) : (
         <div style={styles.grid}>
           {filteredItems.map((item) => (
@@ -358,6 +378,7 @@ const styles = {
   page: {
     padding: "0",
   },
+
   topBar: {
     display: "flex",
     justifyContent: "space-between",
@@ -366,12 +387,14 @@ const styles = {
     flexWrap: "wrap",
     marginBottom: "24px",
   },
+
   topBarRight: {
     display: "flex",
     alignItems: "center",
     gap: "14px",
     flexWrap: "wrap",
   },
+
   heading: {
     margin: 0,
     fontSize: "32px",
@@ -379,11 +402,13 @@ const styles = {
     color: "#111827",
     marginBottom: "8px",
   },
+
   subText: {
     margin: 0,
     fontSize: "15px",
     color: "#6b7280",
   },
+
   searchBox: {
     display: "flex",
     alignItems: "center",
@@ -396,6 +421,7 @@ const styles = {
     minWidth: "320px",
     boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
   },
+
   searchInput: {
     border: "none",
     outline: "none",
@@ -404,9 +430,11 @@ const styles = {
     width: "100%",
     background: "transparent",
   },
+
   menuWrap: {
     position: "relative",
   },
+
   iconButton: {
     width: "46px",
     height: "46px",
@@ -419,12 +447,14 @@ const styles = {
     cursor: "pointer",
     boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
   },
+
   profileButton: {
     border: "none",
     background: "transparent",
     padding: 0,
     cursor: "pointer",
   },
+
   profileBox: {
     display: "flex",
     alignItems: "center",
@@ -435,11 +465,13 @@ const styles = {
     padding: "8px 14px",
     boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
   },
+
   profileTextWrap: {
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
   },
+
   avatar: {
     width: "40px",
     height: "40px",
@@ -453,6 +485,7 @@ const styles = {
     fontSize: "16px",
     flexShrink: 0,
   },
+
   profileName: {
     margin: 0,
     fontSize: "14px",
@@ -460,6 +493,7 @@ const styles = {
     color: "#111827",
     lineHeight: 1.2,
   },
+
   profileRole: {
     margin: "3px 0 0 0",
     fontSize: "12px",
@@ -467,6 +501,7 @@ const styles = {
     lineHeight: 1.2,
     textTransform: "capitalize",
   },
+
   dropdownMenu: {
     position: "absolute",
     top: "58px",
@@ -479,28 +514,32 @@ const styles = {
     padding: "14px",
     zIndex: 100,
   },
+
   dropdownTitle: {
     margin: "0 0 10px 0",
     fontSize: "14px",
     fontWeight: "700",
     color: "#111827",
   },
+
   dropdownItemBlock: {
     padding: "10px 0",
-    borderBottom: "1px solid #f1f5f9",
   },
+
   dropdownItemTitle: {
     margin: 0,
     fontSize: "13px",
     fontWeight: "700",
     color: "#111827",
   },
+
   dropdownItemText: {
     margin: "4px 0 0 0",
     fontSize: "12px",
     color: "#6b7280",
     lineHeight: 1.5,
   },
+
   profileDropdown: {
     position: "absolute",
     top: "64px",
@@ -513,6 +552,7 @@ const styles = {
     padding: "10px",
     zIndex: 100,
   },
+
   dropdownAction: {
     width: "100%",
     border: "none",
@@ -527,12 +567,14 @@ const styles = {
     fontSize: "14px",
     fontWeight: "600",
   },
+
   filters: {
     display: "flex",
     flexWrap: "wrap",
     gap: "10px",
     marginBottom: "26px",
   },
+
   filterButton: {
     border: "1px solid #e5e7eb",
     backgroundColor: "#ffffff",
@@ -543,24 +585,38 @@ const styles = {
     fontWeight: "500",
     fontSize: "14px",
   },
+
   activeFilter: {
     backgroundColor: "#f97316",
     color: "white",
     border: "1px solid #f97316",
   },
+
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fill, minmax(260px, 260px))",
+    gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
     gap: "20px",
     width: "100%",
-    alignItems: "start",
-    justifyContent: "start",
+    alignItems: "stretch",
   },
+
   stateText: {
     padding: "40px",
     fontSize: "18px",
     color: "#6b7280",
   },
+
+  emptyBox: {
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "16px",
+    padding: "36px 20px",
+    textAlign: "center",
+    color: "#6b7280",
+    fontSize: "16px",
+    fontWeight: "500",
+  },
+
   card: {
     backgroundColor: "#ffffff",
     borderRadius: "16px",
@@ -568,7 +624,11 @@ const styles = {
     border: "1px solid #e5e7eb",
     boxShadow: "0 4px 12px rgba(0,0,0,0.06)",
     transition: "0.2s ease",
+    display: "flex",
+    flexDirection: "column",
+    minHeight: "100%",
   },
+
   imageWrapper: {
     position: "relative",
     height: "180px",
@@ -579,11 +639,13 @@ const styles = {
     padding: "12px",
     borderBottom: "1px solid #f1f5f9",
   },
+
   image: {
-    maxWidth: "100%",
-    maxHeight: "100%",
+    width: "100%",
+    height: "100%",
     objectFit: "contain",
   },
+
   badge: {
     position: "absolute",
     top: "10px",
@@ -594,35 +656,75 @@ const styles = {
     borderRadius: "999px",
     zIndex: 1,
   },
+
   content: {
     padding: "14px",
+    display: "flex",
+    flexDirection: "column",
+    flex: 1,
   },
+
   title: {
     fontSize: "18px",
     fontWeight: "700",
-    marginBottom: "10px",
+    margin: "0 0 12px 0",
     color: "#111827",
+    lineHeight: "1.35",
+    minHeight: "48px",
+    display: "-webkit-box",
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden",
   },
+
+  metaGroup: {
+    minHeight: "52px",
+  },
+
   metaRow: {
     display: "flex",
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: "8px",
     marginBottom: "8px",
   },
+
+  metaIcon: {
+    color: "#f97316",
+    marginTop: "2px",
+    flexShrink: 0,
+  },
+
   metaText: {
     fontSize: "14px",
     color: "#6b7280",
+    lineHeight: "1.45",
   },
+
+  locationText: {
+    fontSize: "14px",
+    color: "#6b7280",
+    lineHeight: "1.45",
+    display: "-webkit-box",
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden",
+    minHeight: "40px",
+  },
+
   description: {
     fontSize: "14px",
     color: "#6b7280",
     lineHeight: 1.55,
-    minHeight: "44px",
-    marginTop: "10px",
-    marginBottom: "12px",
+    minHeight: "66px",
+    margin: "8px 0 14px 0",
+    display: "-webkit-box",
+    WebkitLineClamp: 3,
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden",
   },
+
   actionButton: {
-    marginTop: "6px",
+    marginTop: "auto",
     width: "100%",
     backgroundColor: "#f97316",
     color: "white",

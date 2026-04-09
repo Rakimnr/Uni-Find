@@ -322,7 +322,16 @@ const MyLostReportsPage = () => {
                   <button
                     type="button"
                     style={styles.viewButton}
-                    onClick={() => navigate(`/lost-reports/${item._id}`)}
+                    onClick={() =>
+                      navigate(`/lost-reports/${item._id}`, {
+                        state: {
+                          backTo: "/lost-reports",
+                          backLabel: "Back to My Reports",
+                          dashboardTo: "/dashboard",
+                          dashboardLabel: "Dashboard",
+                        },
+                      })
+                    }
                   >
                     <FiEye size={16} />
                     View
