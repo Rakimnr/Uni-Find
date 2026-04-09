@@ -12,6 +12,8 @@ import {
   FiLayers,
   FiBriefcase,
   FiEdit2,
+  FiFileText,
+  FiSearch,
 } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
 
@@ -38,10 +40,9 @@ const MyProfilePage = () => {
   const notificationRef = useRef(null);
   const profileRef = useRef(null);
 
-  const userName =
-    user?.fullName || user?.name || user?.username || "User";
+  const userName = user?.fullName || user?.name || user?.username || "User";
   const userRole = user?.role || "member";
-  const userInitial = userName?.trim()?.charAt(0)?.toUpperCase() || "U";
+  const userInitial = userName.trim().charAt(0).toUpperCase() || "U";
 
   const handleLogout = async () => {
     await logout();
@@ -84,6 +85,7 @@ const MyProfilePage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -165,6 +167,7 @@ const MyProfilePage = () => {
         <div style={styles.topBarRight}>
           <div style={styles.menuWrap} ref={notificationRef}>
             <button
+              type="button"
               style={styles.iconButton}
               onClick={() => {
                 setShowNotifications((prev) => !prev);
@@ -178,8 +181,17 @@ const MyProfilePage = () => {
               <div style={styles.dropdownMenu}>
                 <p style={styles.dropdownTitle}>Notifications</p>
 
-                {notifications.map((note) => (
-                  <div key={note.id} style={styles.dropdownItemBlock}>
+                {notifications.map((note, index) => (
+                  <div
+                    key={note.id}
+                    style={{
+                      ...styles.dropdownItemBlock,
+                      borderBottom:
+                        index === notifications.length - 1
+                          ? "none"
+                          : "1px solid #f1f5f9",
+                    }}
+                  >
                     <p style={styles.dropdownItemTitle}>{note.title}</p>
                     <p style={styles.dropdownItemText}>{note.text}</p>
                   </div>
@@ -190,6 +202,7 @@ const MyProfilePage = () => {
 
           <div style={styles.menuWrap} ref={profileRef}>
             <button
+              type="button"
               style={styles.profileButton}
               onClick={() => {
                 setShowProfileMenu((prev) => !prev);
@@ -198,10 +211,12 @@ const MyProfilePage = () => {
             >
               <div style={styles.profileBox}>
                 <div style={styles.avatar}>{userInitial}</div>
+
                 <div style={styles.profileTextWrap}>
                   <p style={styles.profileName}>{userName}</p>
                   <p style={styles.profileRole}>{userRole}</p>
                 </div>
+
                 <FiChevronDown size={16} color="#6b7280" />
               </div>
             </button>
@@ -209,6 +224,7 @@ const MyProfilePage = () => {
             {showProfileMenu && (
               <div style={styles.profileDropdown}>
                 <button
+                  type="button"
                   style={styles.dropdownAction}
                   onClick={() => navigate("/profile")}
                 >
@@ -216,7 +232,11 @@ const MyProfilePage = () => {
                   <span>My Profile</span>
                 </button>
 
-                <button style={styles.dropdownAction} onClick={handleLogout}>
+                <button
+                  type="button"
+                  style={styles.dropdownAction}
+                  onClick={handleLogout}
+                >
                   <FiLogOut size={16} />
                   <span>Logout</span>
                 </button>
@@ -229,16 +249,15 @@ const MyProfilePage = () => {
       <div style={styles.heroCard}>
         <div style={styles.heroLeft}>
           <div style={styles.heroAvatar}>{userInitial}</div>
+
           <div>
-            <h2 style={styles.heroName}>{user?.fullName || "User"}</h2>
-            <p style={styles.heroRole}>
-              {(user?.role || "member").toUpperCase()}
-            </p>
+            <h2 style={styles.heroName}>{user?.fullName || userName}</h2>
+            <p style={styles.heroRole}>{(user?.role || "member").toUpperCase()}</p>
             <p style={styles.heroEmail}>{user?.email || "No email"}</p>
           </div>
         </div>
 
-        <button style={styles.editButton} onClick={handleEditClick}>
+        <button type="button" style={styles.editButton} onClick={handleEditClick}>
           <FiEdit2 size={16} />
           Edit Profile
         </button>
@@ -423,9 +442,23 @@ const MyProfilePage = () => {
                 <button
                   type="button"
                   style={styles.secondaryAction}
-                  onClick={() => navigate("/")}
+                  onClick={() => navigate("/lost-reports")}
                 >
-                  Browse Items
+                  <span style={styles.actionIcon}>
+                    <FiFileText size={15} />
+                  </span>
+                  My Lost Reports
+                </button>
+
+                <button
+                  type="button"
+                  style={styles.secondaryAction}
+                  onClick={() => navigate("/lost-items")}
+                >
+                  <span style={styles.actionIcon}>
+                    <FiSearch size={15} />
+                  </span>
+                  Browse Lost Items
                 </button>
               </>
             )}
@@ -439,6 +472,15 @@ const MyProfilePage = () => {
 const styles = {
   page: {
     padding: "8px 0 24px 0",
+  },
+  stateText: {
+    minHeight: "60vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "#6b7280",
+    fontSize: "16px",
+    fontWeight: "600",
   },
   topBar: {
     display: "flex",
@@ -549,7 +591,6 @@ const styles = {
   },
   dropdownItemBlock: {
     padding: "10px 0",
-    borderBottom: "1px solid #f1f5f9",
   },
   dropdownItemTitle: {
     margin: 0,
@@ -637,6 +678,7 @@ const styles = {
     margin: "8px 0 0 0",
     fontSize: "14px",
     color: "#6b7280",
+    wordBreak: "break-word",
   },
   editButton: {
     border: "none",
@@ -741,10 +783,10 @@ const styles = {
     boxShadow: "0 8px 24px rgba(15, 23, 42, 0.04)",
   },
   actionsRow: {
+    marginTop: "16px",
     display: "flex",
     gap: "12px",
     flexWrap: "wrap",
-    marginTop: "16px",
   },
   primaryAction: {
     border: "none",
@@ -755,6 +797,7 @@ const styles = {
     fontWeight: "700",
     cursor: "pointer",
     fontSize: "14px",
+    minHeight: "44px",
   },
   secondaryAction: {
     border: "1px solid #e5e7eb",
@@ -762,14 +805,18 @@ const styles = {
     color: "#374151",
     padding: "12px 18px",
     borderRadius: "14px",
-    fontWeight: "700",
+    fontWeight: "600",
     cursor: "pointer",
     fontSize: "14px",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    minHeight: "44px",
   },
-  stateText: {
-    fontSize: "18px",
-    color: "#6b7280",
-    padding: "30px 0",
+  actionIcon: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
 };
 
