@@ -1,5 +1,5 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import logo from "../assets/logo.jpeg"; // ✅ add this
+import logo from "../assets/logo.jpeg";
 
 const UserLayout = () => {
   const navigate = useNavigate();
@@ -14,9 +14,11 @@ const UserLayout = () => {
     <div style={styles.page}>
       <aside style={styles.sidebar}>
         <div>
-          {/* ✅ FIXED LOGO */}
+          {/* LOGO */}
           <div style={styles.logoBox} onClick={() => navigate("/")}>
-            <img src={logo} alt="logo" style={styles.logoImage} />
+            <div style={styles.logoWrap}>
+              <img src={logo} alt="logo" style={styles.logoImage} />
+            </div>
 
             <div>
               <h2 style={styles.logoText}>UniFind</h2>
@@ -24,6 +26,7 @@ const UserLayout = () => {
             </div>
           </div>
 
+          {/* NAVIGATION */}
           <nav style={styles.nav}>
             <div
               style={{
@@ -67,7 +70,8 @@ const UserLayout = () => {
           </nav>
         </div>
 
-        <div>
+        {/* 🔥 CLEAN BUTTONS (NO BOX) */}
+        <div style={styles.actions}>
           <button
             style={styles.primaryBtn}
             onClick={() => navigate("/report-found-item")}
@@ -95,14 +99,15 @@ const styles = {
   page: {
     display: "flex",
     minHeight: "100vh",
-    backgroundColor: "#f6f7fb",
+    background:
+      "linear-gradient(180deg, #fff7ed 0%, #f8fafc 220px, #f8fafc 100%)",
   },
 
   sidebar: {
-    width: "270px",
+    width: "260px",
     backgroundColor: "#ffffff",
     borderRight: "1px solid #e5e7eb",
-    padding: "20px",
+    padding: "22px 18px",
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
@@ -112,42 +117,57 @@ const styles = {
     display: "flex",
     alignItems: "center",
     gap: "12px",
-    marginBottom: "34px",
+    marginBottom: "30px",
     cursor: "pointer",
   },
 
+  logoWrap: {
+    width: "52px",
+    height: "52px",
+    borderRadius: "14px",
+    background: "linear-gradient(135deg, #fff7ed 0%, #ffffff 100%)",
+    border: "1px solid rgba(249,115,22,0.12)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
   logoImage: {
-    width: "46px",
-    height: "46px",
+    width: "36px",
+    height: "36px",
     objectFit: "contain",
-    borderRadius: "12px",
-    backgroundColor: "#ffffff",
-    padding: "4px",
-    border: "1px solid #e5e7eb",
+    borderRadius: "8px",
   },
 
   logoText: {
     margin: 0,
     fontSize: "20px",
-    fontWeight: "700",
+    fontWeight: "800",
+    color: "#111827",
   },
 
   logoSub: {
     margin: "4px 0 0 0",
-    fontSize: "13px",
+    fontSize: "11px",
     color: "#6b7280",
+    letterSpacing: "0.1em",
+    textTransform: "uppercase",
+    fontWeight: "700",
   },
 
   nav: {
     display: "flex",
     flexDirection: "column",
-    gap: "12px",
+    gap: "10px",
   },
 
   navItem: {
-    padding: "14px 16px",
+    padding: "13px 14px",
     borderRadius: "12px",
     cursor: "pointer",
+    color: "#374151",
+    fontWeight: "600",
+    fontSize: "14px",
   },
 
   activeNavItem: {
@@ -156,23 +176,36 @@ const styles = {
     fontWeight: "700",
   },
 
+  /* 🔥 CLEAN BUTTONS */
+  actions: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+  },
+
   primaryBtn: {
-    backgroundColor: "#f97316",
+    width: "100%",
+    background: "linear-gradient(135deg, #f97316 0%, #ea580c 100%)",
     color: "#fff",
     border: "none",
-    borderRadius: "14px",
-    padding: "14px",
-    marginBottom: "10px",
+    borderRadius: "12px",
+    padding: "12px",
     cursor: "pointer",
+    fontWeight: "700",
+    fontSize: "14px",
+    boxShadow: "0 8px 18px rgba(249,115,22,0.25)",
   },
 
   outlineBtn: {
-    backgroundColor: "#fff",
+    width: "100%",
+    background: "transparent",
     color: "#f97316",
-    border: "1px solid #f97316",
-    borderRadius: "14px",
-    padding: "14px",
+    border: "1.5px solid #f97316",
+    borderRadius: "12px",
+    padding: "12px",
     cursor: "pointer",
+    fontWeight: "600",
+    fontSize: "14px",
   },
 
   main: {
