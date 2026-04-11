@@ -8,10 +8,11 @@ import {
   FiUser,
 } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 
 const MyClaimsPage = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
 
   const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,14 +23,12 @@ const MyClaimsPage = () => {
   const notificationRef = useRef(null);
   const profileRef = useRef(null);
 
-  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const userName =
-    storedUser?.fullName ||
-    storedUser?.name ||
-    storedUser?.username ||
+    user?.fullName ||
+    user?.name ||
+    user?.username ||
     "User";
-  const userRole = storedUser?.role || "member";
-  const userInitial = userName?.trim()?.charAt(0)?.toUpperCase() || "U";
+  const userRole = user?.role || "member";
 
   const handleLogout = async () => {
     await logout();
@@ -136,6 +135,7 @@ const MyClaimsPage = () => {
         <div style={styles.headerRight}>
           <div style={styles.menuWrap} ref={notificationRef}>
             <button
+              type="button"
               style={styles.notificationButton}
               onClick={() => {
                 setShowNotifications((prev) => !prev);
@@ -149,8 +149,17 @@ const MyClaimsPage = () => {
               <div style={styles.dropdownMenu}>
                 <p style={styles.dropdownTitle}>Notifications</p>
 
-                {notifications.map((note) => (
-                  <div key={note.id} style={styles.dropdownItemBlock}>
+                {notifications.map((note, index) => (
+                  <div
+                    key={note.id}
+                    style={{
+                      ...styles.dropdownItemBlock,
+                      borderBottom:
+                        index === notifications.length - 1
+                          ? "none"
+                          : "1px solid #f1f5f9",
+                    }}
+                  >
                     <p style={styles.dropdownItemTitle}>{note.title}</p>
                     <p style={styles.dropdownItemText}>{note.text}</p>
                   </div>
@@ -161,6 +170,7 @@ const MyClaimsPage = () => {
 
           <div style={styles.menuWrap} ref={profileRef}>
             <button
+              type="button"
               style={styles.profileButton}
               onClick={() => {
                 setShowProfileMenu((prev) => !prev);
@@ -168,7 +178,7 @@ const MyClaimsPage = () => {
               }}
             >
               <div style={styles.profileBox}>
-                <div style={styles.profileAvatar}>{userInitial}</div>
+                <ProfileAvatar user={user} size={40} />
 
                 <div style={styles.profileTextBox}>
                   <span style={styles.profileName}>{userName}</span>
@@ -182,14 +192,19 @@ const MyClaimsPage = () => {
             {showProfileMenu && (
               <div style={styles.profileDropdown}>
                 <button
-  style={styles.dropdownAction}
-  onClick={() => navigate("/profile")}
->
-  <FiUser size={16} />
-  <span>My Profile</span>
-</button>
+                  type="button"
+                  style={styles.dropdownAction}
+                  onClick={() => navigate("/profile")}
+                >
+                  <FiUser size={16} />
+                  <span>My Profile</span>
+                </button>
 
-                <button style={styles.dropdownAction} onClick={handleLogout}>
+                <button
+                  type="button"
+                  style={styles.dropdownAction}
+                  onClick={handleLogout}
+                >
                   <FiLogOut size={16} />
                   <span>Logout</span>
                 </button>
@@ -344,19 +359,6 @@ const styles = {
     marginTop: "3px",
     textTransform: "capitalize",
   },
-  profileAvatar: {
-    width: "40px",
-    height: "40px",
-    borderRadius: "50%",
-    backgroundColor: "#f97316",
-    color: "#ffffff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: "700",
-    fontSize: "16px",
-    flexShrink: 0,
-  },
   dropdownMenu: {
     position: "absolute",
     top: "58px",
@@ -377,7 +379,6 @@ const styles = {
   },
   dropdownItemBlock: {
     padding: "10px 0",
-    borderBottom: "1px solid #f1f5f9",
   },
   dropdownItemTitle: {
     margin: 0,

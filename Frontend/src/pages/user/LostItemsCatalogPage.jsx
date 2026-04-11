@@ -12,6 +12,7 @@ import {
 } from "react-icons/fi";
 import { getLostItems } from "../../api/lostApi";
 import { useAuth } from "../../context/AuthContext";
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 
 const LostCatalogCard = ({ item }) => {
   const navigate = useNavigate();
@@ -100,6 +101,7 @@ const LostCatalogCard = ({ item }) => {
         </p>
 
         <button
+          type="button"
           style={styles.actionButton}
           onClick={() =>
             navigate(`/lost-reports/${item._id}`, {
@@ -122,7 +124,7 @@ const LostCatalogCard = ({ item }) => {
 
 const LostItemsCatalogPage = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
 
   const [items, setItems] = useState([]);
   const [filteredCategory, setFilteredCategory] = useState("All Categories");
@@ -135,11 +137,9 @@ const LostItemsCatalogPage = () => {
   const notificationRef = useRef(null);
   const profileRef = useRef(null);
 
-  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const userName =
-    storedUser?.fullName || storedUser?.name || storedUser?.username || "User";
-  const userRole = storedUser?.role || "member";
-  const userInitial = userName?.trim()?.charAt(0)?.toUpperCase() || "U";
+    user?.fullName || user?.name || user?.username || "User";
+  const userRole = user?.role || "member";
 
   const categories = [
     "All Categories",
@@ -274,6 +274,7 @@ const LostItemsCatalogPage = () => {
 
           <div style={styles.menuWrap} ref={notificationRef}>
             <button
+              type="button"
               style={styles.iconButton}
               onClick={() => {
                 setShowNotifications((prev) => !prev);
@@ -308,6 +309,7 @@ const LostItemsCatalogPage = () => {
 
           <div style={styles.menuWrap} ref={profileRef}>
             <button
+              type="button"
               style={styles.profileButton}
               onClick={() => {
                 setShowProfileMenu((prev) => !prev);
@@ -315,7 +317,7 @@ const LostItemsCatalogPage = () => {
               }}
             >
               <div style={styles.profileBox}>
-                <div style={styles.avatar}>{userInitial}</div>
+                <ProfileAvatar user={user} size={40} />
 
                 <div style={styles.profileTextWrap}>
                   <p style={styles.profileName}>{userName}</p>
@@ -329,6 +331,7 @@ const LostItemsCatalogPage = () => {
             {showProfileMenu && (
               <div style={styles.profileDropdown}>
                 <button
+                  type="button"
                   style={styles.dropdownAction}
                   onClick={() => navigate("/profile")}
                 >
@@ -336,7 +339,11 @@ const LostItemsCatalogPage = () => {
                   <span>My Profile</span>
                 </button>
 
-                <button style={styles.dropdownAction} onClick={handleLogout}>
+                <button
+                  type="button"
+                  style={styles.dropdownAction}
+                  onClick={handleLogout}
+                >
                   <FiLogOut size={16} />
                   <span>Logout</span>
                 </button>
@@ -350,6 +357,7 @@ const LostItemsCatalogPage = () => {
         {categories.map((category) => (
           <button
             key={category}
+            type="button"
             onClick={() => setFilteredCategory(category)}
             style={{
               ...styles.filterButton,
@@ -470,20 +478,6 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
-  },
-
-  avatar: {
-    width: "40px",
-    height: "40px",
-    borderRadius: "50%",
-    backgroundColor: "#f97316",
-    color: "#ffffff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: "700",
-    fontSize: "16px",
-    flexShrink: 0,
   },
 
   profileName: {

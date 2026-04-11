@@ -13,10 +13,11 @@ import {
 } from "react-icons/fi";
 import { getMyClaims } from "../../api/claimApi";
 import { useAuth } from "../../context/AuthContext";
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 
 const UserDashboardPage = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
 
   const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -27,16 +28,13 @@ const UserDashboardPage = () => {
   const notificationRef = useRef(null);
   const profileRef = useRef(null);
 
-  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-
   const userName =
-    storedUser?.fullName ||
-    storedUser?.name ||
-    storedUser?.username ||
+    user?.fullName ||
+    user?.name ||
+    user?.username ||
     "User";
 
-  const userRole = storedUser?.role || "UniFind User";
-  const userInitial = userName?.trim()?.charAt(0)?.toUpperCase() || "U";
+  const userRole = user?.role || "member";
 
   const handleLogout = async () => {
     await logout();
@@ -204,6 +202,7 @@ const UserDashboardPage = () => {
         <div style={styles.topBarRight}>
           <div style={styles.menuWrap} ref={notificationRef}>
             <button
+              type="button"
               style={styles.iconButton}
               onClick={() => {
                 setShowNotifications((prev) => !prev);
@@ -220,8 +219,17 @@ const UserDashboardPage = () => {
                 {notifications.length === 0 ? (
                   <p style={styles.dropdownEmpty}>No notifications yet.</p>
                 ) : (
-                  notifications.map((note) => (
-                    <div key={note.id} style={styles.dropdownItemBlock}>
+                  notifications.map((note, index) => (
+                    <div
+                      key={note.id}
+                      style={{
+                        ...styles.dropdownItemBlock,
+                        borderBottom:
+                          index === notifications.length - 1
+                            ? "none"
+                            : "1px solid #f1f5f9",
+                      }}
+                    >
                       <p style={styles.dropdownItemTitle}>{note.title}</p>
                       <p style={styles.dropdownItemText}>{note.text}</p>
                     </div>
@@ -233,6 +241,7 @@ const UserDashboardPage = () => {
 
           <div style={styles.menuWrap} ref={profileRef}>
             <button
+              type="button"
               style={styles.profileButton}
               onClick={() => {
                 setShowProfileMenu((prev) => !prev);
@@ -240,11 +249,13 @@ const UserDashboardPage = () => {
               }}
             >
               <div style={styles.profileBox}>
-                <div style={styles.avatar}>{userInitial}</div>
+                <ProfileAvatar user={user} size={40} />
+
                 <div style={styles.profileTextWrap}>
                   <p style={styles.profileName}>{userName}</p>
                   <p style={styles.profileRole}>{userRole}</p>
                 </div>
+
                 <FiChevronDown size={16} color="#6b7280" />
               </div>
             </button>
@@ -252,14 +263,19 @@ const UserDashboardPage = () => {
             {showProfileMenu && (
               <div style={styles.profileDropdown}>
                 <button
-  style={styles.dropdownAction}
-  onClick={() => navigate("/profile")}
->
-  <FiUser size={16} />
-  <span>My Profile</span>
-</button>
+                  type="button"
+                  style={styles.dropdownAction}
+                  onClick={() => navigate("/profile")}
+                >
+                  <FiUser size={16} />
+                  <span>My Profile</span>
+                </button>
 
-                <button style={styles.dropdownAction} onClick={handleLogout}>
+                <button
+                  type="button"
+                  style={styles.dropdownAction}
+                  onClick={handleLogout}
+                >
                   <FiLogOut size={16} />
                   <span>Logout</span>
                 </button>
@@ -279,11 +295,16 @@ const UserDashboardPage = () => {
       </div>
 
       <div style={styles.actionsRow}>
-        <button style={styles.primaryAction} onClick={() => navigate("/")}>
+        <button
+          type="button"
+          style={styles.primaryAction}
+          onClick={() => navigate("/found-items")}
+        >
           Browse Found Items
         </button>
 
         <button
+          type="button"
           style={styles.secondaryAction}
           onClick={() => navigate("/my-claims")}
         >
@@ -291,6 +312,7 @@ const UserDashboardPage = () => {
         </button>
 
         <button
+          type="button"
           style={styles.secondaryAction}
           onClick={() => navigate("/report-found-item")}
         >
@@ -336,6 +358,7 @@ const UserDashboardPage = () => {
             <p style={styles.sectionSubtext}>Your latest submitted claims</p>
           </div>
           <button
+            type="button"
             style={styles.viewAllBtn}
             onClick={() => navigate("/my-claims")}
           >
@@ -449,19 +472,6 @@ const styles = {
     flexDirection: "column",
     alignItems: "flex-start",
   },
-  avatar: {
-    width: "40px",
-    height: "40px",
-    borderRadius: "50%",
-    backgroundColor: "#f97316",
-    color: "#ffffff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: "700",
-    fontSize: "16px",
-    flexShrink: 0,
-  },
   profileName: {
     margin: 0,
     fontSize: "14px",
@@ -474,6 +484,7 @@ const styles = {
     fontSize: "12px",
     color: "#6b7280",
     lineHeight: 1.2,
+    textTransform: "capitalize",
   },
   dropdownMenu: {
     position: "absolute",
@@ -500,7 +511,6 @@ const styles = {
   },
   dropdownItemBlock: {
     padding: "10px 0",
-    borderBottom: "1px solid #f1f5f9",
   },
   dropdownItemTitle: {
     margin: 0,

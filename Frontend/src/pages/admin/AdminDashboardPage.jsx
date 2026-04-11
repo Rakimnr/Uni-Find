@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getFoundItems } from "../../api/foundApi";
 import { getAllClaims } from "../../api/claimApi";
+import { useAuth } from "../../context/AuthContext";
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 import {
   FiSearch,
   FiBell,
@@ -19,6 +21,7 @@ import {
 
 const AdminDashboardPage = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const [stats, setStats] = useState({
     totalItems: 0,
@@ -41,15 +44,12 @@ const AdminDashboardPage = () => {
   const notificationRef = useRef(null);
   const profileRef = useRef(null);
 
-  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const userName =
-    storedUser?.fullName || storedUser?.name || storedUser?.username || "Admin";
-  const userRole = storedUser?.role || "Admin";
-  const userInitial = userName.charAt(0).toUpperCase();
+    user?.fullName || user?.name || user?.username || "Admin";
+  const userRole = user?.role || "admin";
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
+  const handleLogout = async () => {
+    await logout();
     navigate("/login");
   };
 
@@ -295,6 +295,7 @@ const AdminDashboardPage = () => {
 
           <div style={styles.menuWrap} ref={notificationRef}>
             <button
+              type="button"
               style={styles.iconButton}
               onClick={() => {
                 setShowNotifications((prev) => !prev);
@@ -308,8 +309,17 @@ const AdminDashboardPage = () => {
               <div style={styles.dropdownMenu}>
                 <p style={styles.dropdownTitle}>Notifications</p>
 
-                {notifications.map((note) => (
-                  <div key={note.id} style={styles.dropdownItemBlock}>
+                {notifications.map((note, index) => (
+                  <div
+                    key={note.id}
+                    style={{
+                      ...styles.dropdownItemBlock,
+                      borderBottom:
+                        index === notifications.length - 1
+                          ? "none"
+                          : "1px solid #f1f5f9",
+                    }}
+                  >
                     <p style={styles.dropdownItemTitle}>{note.title}</p>
                     <p style={styles.dropdownItemText}>{note.text}</p>
                   </div>
@@ -320,6 +330,7 @@ const AdminDashboardPage = () => {
 
           <div style={styles.menuWrap} ref={profileRef}>
             <button
+              type="button"
               style={styles.profileButton}
               onClick={() => {
                 setShowProfileMenu((prev) => !prev);
@@ -327,7 +338,7 @@ const AdminDashboardPage = () => {
               }}
             >
               <div style={styles.profileBox}>
-                <div style={styles.avatar}>{userInitial}</div>
+                <ProfileAvatar user={user} size={40} />
                 <div style={styles.profileTextWrap}>
                   <p style={styles.profileName}>{userName}</p>
                   <p style={styles.profileRole}>{userRole}</p>
@@ -339,6 +350,7 @@ const AdminDashboardPage = () => {
             {showProfileMenu && (
               <div style={styles.profileDropdown}>
                 <button
+                  type="button"
                   style={styles.dropdownAction}
                   onClick={() => {
                     navigate("/admin/profile");
@@ -349,7 +361,11 @@ const AdminDashboardPage = () => {
                   <span>My Profile</span>
                 </button>
 
-                <button style={styles.dropdownAction} onClick={handleLogout}>
+                <button
+                  type="button"
+                  style={styles.dropdownAction}
+                  onClick={handleLogout}
+                >
                   <FiLogOut size={16} />
                   <span>Logout</span>
                 </button>
@@ -361,6 +377,7 @@ const AdminDashboardPage = () => {
 
       <div style={styles.actionsRow}>
         <button
+          type="button"
           style={styles.primaryAction}
           onClick={() => navigate("/admin/add-found-item")}
         >
@@ -369,6 +386,7 @@ const AdminDashboardPage = () => {
         </button>
 
         <button
+          type="button"
           style={styles.secondaryAction}
           onClick={() => navigate("/admin/claims")}
         >
@@ -377,6 +395,7 @@ const AdminDashboardPage = () => {
         </button>
 
         <button
+          type="button"
           style={styles.secondaryAction}
           onClick={() => navigate("/admin/found-items")}
         >
@@ -385,6 +404,7 @@ const AdminDashboardPage = () => {
         </button>
 
         <button
+          type="button"
           style={styles.secondaryAction}
           onClick={() => navigate("/admin/expired-items")}
         >
@@ -423,6 +443,7 @@ const AdminDashboardPage = () => {
               </p>
             </div>
             <button
+              type="button"
               style={styles.viewAllBtn}
               onClick={() => navigate("/admin/found-items")}
             >
@@ -478,6 +499,7 @@ const AdminDashboardPage = () => {
               </p>
             </div>
             <button
+              type="button"
               style={styles.viewAllBtn}
               onClick={() => navigate("/admin/claims")}
             >
@@ -624,7 +646,6 @@ const styles = {
 
   dropdownItemBlock: {
     padding: "10px 0",
-    borderBottom: "1px solid #f1f5f9",
   },
 
   dropdownItemTitle: {
@@ -663,20 +684,6 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
-  },
-
-  avatar: {
-    width: "40px",
-    height: "40px",
-    borderRadius: "50%",
-    backgroundColor: "#f97316",
-    color: "#ffffff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: "700",
-    fontSize: "16px",
-    flexShrink: 0,
   },
 
   profileName: {

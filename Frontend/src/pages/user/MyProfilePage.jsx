@@ -14,12 +14,14 @@ import {
   FiEdit2,
   FiFileText,
   FiSearch,
+  FiUpload,
 } from "react-icons/fi";
 import { useAuth } from "../../context/AuthContext";
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 
 const MyProfilePage = () => {
   const navigate = useNavigate();
-  const { user, logout, updateProfile } = useAuth();
+  const { user, logout, updateProfile, uploadProfileImage } = useAuth();
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -31,6 +33,9 @@ const MyProfilePage = () => {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [showNotifications, setShowNotifications] = useState(false);
@@ -42,7 +47,6 @@ const MyProfilePage = () => {
 
   const userName = user?.fullName || user?.name || user?.username || "User";
   const userRole = user?.role || "member";
-  const userInitial = userName.trim().charAt(0).toUpperCase() || "U";
 
   const handleLogout = async () => {
     await logout();
@@ -82,6 +86,14 @@ const MyProfilePage = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -125,6 +137,49 @@ const MyProfilePage = () => {
       setError(err?.response?.data?.message || "Failed to update profile.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
+    setSelectedImage(file);
+    setImagePreview(URL.createObjectURL(file));
+    setError("");
+    setSuccess("");
+  };
+
+  const handleImageUpload = async () => {
+    if (!selectedImage) {
+      setError("Please choose an image first.");
+      return;
+    }
+
+    try {
+      setUploadingImage(true);
+      setError("");
+      setSuccess("");
+
+      const response = await uploadProfileImage(selectedImage);
+
+      setSuccess(response?.message || "Profile image uploaded successfully.");
+      setSelectedImage(null);
+
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+      setImagePreview("");
+    } catch (err) {
+      setError(
+        err?.response?.data?.message || "Failed to upload profile image."
+      );
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -210,7 +265,7 @@ const MyProfilePage = () => {
               }}
             >
               <div style={styles.profileBox}>
-                <div style={styles.avatar}>{userInitial}</div>
+                <ProfileAvatar user={user} size={40} />
 
                 <div style={styles.profileTextWrap}>
                   <p style={styles.profileName}>{userName}</p>
@@ -248,7 +303,43 @@ const MyProfilePage = () => {
 
       <div style={styles.heroCard}>
         <div style={styles.heroLeft}>
-          <div style={styles.heroAvatar}>{userInitial}</div>
+          <div style={styles.avatarUploadColumn}>
+            {imagePreview ? (
+              <img
+                src={imagePreview}
+                alt="Preview"
+                style={styles.heroPreviewImage}
+              />
+            ) : (
+              <ProfileAvatar user={user} size={74} />
+            )}
+
+            <label style={styles.fileLabel}>
+              Choose Image
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                style={styles.hiddenFileInput}
+              />
+            </label>
+
+            <button
+              type="button"
+              style={styles.uploadButton}
+              onClick={handleImageUpload}
+              disabled={uploadingImage}
+            >
+              <FiUpload size={14} />
+              {uploadingImage ? "Uploading..." : "Upload Image"}
+            </button>
+
+            {selectedImage ? (
+              <p style={styles.fileName}>{selectedImage.name}</p>
+            ) : (
+              <p style={styles.fileHint}>Optional profile photo</p>
+            )}
+          </div>
 
           <div>
             <h2 style={styles.heroName}>{user?.fullName || userName}</h2>
@@ -257,7 +348,11 @@ const MyProfilePage = () => {
           </div>
         </div>
 
-        <button type="button" style={styles.editButton} onClick={handleEditClick}>
+        <button
+          type="button"
+          style={styles.editButton}
+          onClick={handleEditClick}
+        >
           <FiEdit2 size={16} />
           Edit Profile
         </button>
@@ -544,19 +639,6 @@ const styles = {
     flexDirection: "column",
     alignItems: "flex-start",
   },
-  avatar: {
-    width: "40px",
-    height: "40px",
-    borderRadius: "50%",
-    backgroundColor: "#f97316",
-    color: "#ffffff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: "700",
-    fontSize: "16px",
-    flexShrink: 0,
-  },
   profileName: {
     margin: 0,
     fontSize: "14px",
@@ -648,18 +730,62 @@ const styles = {
     gap: "18px",
     flexWrap: "wrap",
   },
-  heroAvatar: {
+  avatarUploadColumn: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "8px",
+  },
+  heroPreviewImage: {
     width: "74px",
     height: "74px",
     borderRadius: "50%",
-    backgroundColor: "#f97316",
-    color: "#ffffff",
-    display: "flex",
+    objectFit: "cover",
+    border: "2px solid #f97316",
+    display: "block",
+  },
+  fileLabel: {
+    display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
-    fontWeight: "800",
-    fontSize: "28px",
-    flexShrink: 0,
+    backgroundColor: "#ffffff",
+    color: "#374151",
+    border: "1px solid #e5e7eb",
+    borderRadius: "10px",
+    padding: "8px 12px",
+    fontSize: "12px",
+    fontWeight: "700",
+    cursor: "pointer",
+  },
+  hiddenFileInput: {
+    display: "none",
+  },
+  uploadButton: {
+    border: "none",
+    backgroundColor: "#f97316",
+    color: "#ffffff",
+    padding: "10px 12px",
+    borderRadius: "10px",
+    fontWeight: "700",
+    cursor: "pointer",
+    fontSize: "12px",
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+  },
+  fileName: {
+    margin: 0,
+    fontSize: "11px",
+    color: "#6b7280",
+    maxWidth: "120px",
+    textAlign: "center",
+    wordBreak: "break-word",
+  },
+  fileHint: {
+    margin: 0,
+    fontSize: "11px",
+    color: "#94a3b8",
+    textAlign: "center",
   },
   heroName: {
     margin: 0,

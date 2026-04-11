@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getLostItems } from "../../api/lostApi.js";
+import Navbar from "../../components/common/Navbar";
+import Footer from "../../components/common/Footer";
 
 import campusHero from "../../assets/campus-hero.jpg";
 import campusLibrary from "../../assets/campus-library.jpg";
 import campusStudents from "../../assets/campus-students.jpg";
 import campusBuilding from "../../assets/campus-building.jpg";
-import logo from "../../assets/logo.jpeg";
 
 function HomeBrowsePage() {
   const navigate = useNavigate();
@@ -77,17 +78,6 @@ function HomeBrowsePage() {
     loadItems();
   }, []);
 
-  const stats = useMemo(() => {
-    const total = items.length;
-    const open = items.filter((item) => item.status === "open").length;
-    const possible = items.filter(
-      (item) => item.status === "possible_match"
-    ).length;
-    const returned = items.filter((item) => item.status === "closed").length;
-
-    return { total, open, possible, returned };
-  }, [items]);
-
   const recentItems = useMemo(() => {
     return [...items].slice(0, 6);
   }, [items]);
@@ -124,7 +114,7 @@ function HomeBrowsePage() {
     return (
       <div style={styles.loadingPage}>
         <div style={styles.loadingCard}>
-          <div style={styles.loadingDot}></div>
+          <div style={styles.loadingSpinner}></div>
           <span>Loading homepage...</span>
         </div>
       </div>
@@ -133,76 +123,29 @@ function HomeBrowsePage() {
 
   return (
     <div style={styles.page}>
-      <header style={styles.header}>
-        <div style={styles.headerInner}>
-          <div style={styles.logoBox} onClick={() => navigate("/")}>
-            <img src={logo} alt="UniFind Logo" style={styles.logoImage} />
-            <div>
-              <h1 style={styles.logoText}>UniFind</h1>
-              <p style={styles.logoSub}>University Lost & Found Portal</p>
-            </div>
-          </div>
-
-          <nav style={styles.nav}>
-            <button
-              style={styles.activeNavButton}
-              onClick={() => navigate("/")}
-            >
-              Home
-            </button>
-
-            <button
-              style={styles.navButton}
-              onClick={() => navigate("/found-items")}
-            >
-              Found Portal
-            </button>
-
-            <button
-              style={styles.navButton}
-              onClick={() => navigate("/lost-reports")}
-            >
-              Lost Portal
-            </button>
-          </nav>
-
-          <div style={styles.headerActions}>
-            <button
-              style={styles.secondaryButton}
-              onClick={() => navigate("/login")}
-            >
-              Login
-            </button>
-
-            <button
-              style={styles.primaryButton}
-              onClick={() => navigate("/report-lost")}
-            >
-              + Report Lost
-            </button>
-          </div>
-        </div>
-      </header>
+      <Navbar active="home" />
 
       <main style={styles.main}>
         <section style={styles.heroSection}>
-          <div style={styles.heroContent}>
-            <div style={styles.heroBadge}>Smart campus lost & found</div>
+          <div style={styles.heroGlowOne}></div>
+          <div style={styles.heroGlowTwo}></div>
 
-            <h2 style={styles.heroTitle}>
-              Recover lost belongings in a simpler, safer, more student-friendly
-              way.
-            </h2>
+          <div style={styles.heroLeft}>
+            <div style={styles.heroBadge}>Smart Campus Lost & Found Platform</div>
+
+            <h1 style={styles.heroTitle}>
+              Find What Matters With A Cleaner And Smarter Campus Experience.
+            </h1>
 
             <p style={styles.heroText}>
-              UniFind helps students and staff report lost items, browse
-              possible matches, and manage recovery in one clean university
-              portal. It is designed to reduce confusion and make item tracking
-              easier on campus.
+              UniFind helps students and staff report missing belongings, browse
+              possible matches, and recover items through one modern and
+              trusted university platform.
             </p>
 
             <div style={styles.heroButtons}>
               <button
+                type="button"
                 style={styles.primaryLargeButton}
                 onClick={() => navigate("/report-lost")}
               >
@@ -210,145 +153,153 @@ function HomeBrowsePage() {
               </button>
 
               <button
-                style={styles.outlineLargeButton}
+                type="button"
+                style={styles.secondaryLargeButton}
                 onClick={() => navigate("/found-items")}
               >
                 Browse Found Items
               </button>
             </div>
+
+            <div style={styles.heroStatsRow}>
+              <div style={styles.heroStatCard}>
+                <h3 style={styles.heroStatNumber}>24/7</h3>
+                <p style={styles.heroStatLabel}>Accessible online portal</p>
+              </div>
+
+              <div style={styles.heroStatCard}>
+                <h3 style={styles.heroStatNumber}>Fast</h3>
+                <p style={styles.heroStatLabel}>Simple reports and matching</p>
+              </div>
+
+              <div style={styles.heroStatCard}>
+                <h3 style={styles.heroStatNumber}>Safe</h3>
+                <p style={styles.heroStatLabel}>Ownership verification flow</p>
+              </div>
+            </div>
           </div>
 
-          <div style={styles.heroImageWrap}>
-            <img
-              src={campusHero}
-              alt="University campus"
-              style={styles.heroImage}
-            />
-            <div style={styles.heroImageGlow}></div>
+          <div style={styles.heroRight}>
+            <div style={styles.heroImageCard}>
+              <img src={campusHero} alt="University campus" style={styles.heroImage} />
+
+              <div style={styles.heroFloatingCardTop}>
+                <span style={styles.heroFloatingLabel}>Trusted Campus Service</span>
+                <strong>Report, track, recover</strong>
+              </div>
+
+              <div style={styles.heroFloatingCardBottom}>
+                <div style={styles.heroMiniDot}></div>
+                <span>Helping students reconnect with their belongings</span>
+              </div>
+            </div>
           </div>
         </section>
 
         {error ? <div style={styles.notice}>{error}</div> : null}
 
-        <section style={styles.statsSection}>
-          <div style={styles.statCard}>
-            <div style={styles.statNumber}>{stats.total}</div>
-            <div style={styles.statLabel}>Total Reports</div>
-          </div>
-
-          <div style={styles.statCard}>
-            <div style={styles.statNumber}>{stats.open}</div>
-            <div style={styles.statLabel}>Open Reports</div>
-          </div>
-
-          <div style={styles.statCard}>
-            <div style={styles.statNumber}>{stats.possible}</div>
-            <div style={styles.statLabel}>Possible Matches</div>
-          </div>
-
-          <div style={styles.statCard}>
-            <div style={styles.statNumber}>{stats.returned}</div>
-            <div style={styles.statLabel}>Returned Items</div>
-          </div>
-        </section>
-
         <section style={styles.section}>
-          <div style={styles.sectionHeader}>
+          <div style={styles.sectionHeaderRow}>
             <div>
               <p style={styles.sectionTag}>Why UniFind</p>
-              <h3 style={styles.sectionTitle}>Made for real campus use</h3>
+              <h2 style={styles.sectionTitle}>Designed For Real Campus Life</h2>
             </div>
+            <p style={styles.sectionSubText}>
+              A polished and student-friendly experience for reporting, browsing,
+              and recovering lost items.
+            </p>
           </div>
 
           <div style={styles.featureGrid}>
             <div style={styles.featureCard}>
-              <div style={styles.featureIcon}>📝</div>
-              <h4 style={styles.featureTitle}>Easy reporting</h4>
+              <div style={styles.featureIconWrap}>📝</div>
+              <h3 style={styles.featureTitle}>Quick reporting</h3>
               <p style={styles.featureText}>
-                Students can create lost item reports quickly with clear
-                details, locations, dates, and descriptions.
+                Submit lost item reports with category, date, place, and unique
+                item details in one clean flow.
               </p>
             </div>
 
             <div style={styles.featureCard}>
-              <div style={styles.featureIcon}>🔎</div>
-              <h4 style={styles.featureTitle}>Smart browsing</h4>
+              <div style={styles.featureIconWrap}>🔎</div>
+              <h3 style={styles.featureTitle}>Easy browsing</h3>
               <p style={styles.featureText}>
-                Browse item lists clearly and identify possible matches faster
-                using simple, organized pages.
+                Explore recent item reports in a better organized interface to
+                identify likely matches faster.
               </p>
             </div>
 
             <div style={styles.featureCard}>
-              <div style={styles.featureIcon}>🛡️</div>
-              <h4 style={styles.featureTitle}>Safer verification</h4>
+              <div style={styles.featureIconWrap}>🛡️</div>
+              <h3 style={styles.featureTitle}>Safer verification</h3>
               <p style={styles.featureText}>
-                Stronger descriptions and item details help reduce false claims
-                and improve trust during recovery.
+                Stronger claim details help staff confirm rightful ownership and
+                reduce false claims.
               </p>
             </div>
 
             <div style={styles.featureCard}>
-              <div style={styles.featureIcon}>🤝</div>
-              <h4 style={styles.featureTitle}>Student-friendly process</h4>
+              <div style={styles.featureIconWrap}>📍</div>
+              <h3 style={styles.featureTitle}>Campus-focused system</h3>
               <p style={styles.featureText}>
-                A more structured portal is easier than random chats, notices,
-                or searching manually around campus.
+                Built for universities where items are often lost in lecture
+                halls, libraries, cafeterias, and common spaces.
               </p>
             </div>
           </div>
         </section>
 
         <section style={styles.section}>
-          <div style={styles.sectionHeader}>
-            <div>
-              <p style={styles.sectionTag}>Campus view</p>
-              <h3 style={styles.sectionTitle}>
-                University life, beautifully presented
-              </h3>
-            </div>
-          </div>
+          <div style={styles.showcaseSection}>
+            <div style={styles.showcaseTextSide}>
+              <p style={styles.sectionTag}>Campus Experience</p>
+              <h2 style={styles.sectionTitle}>A Homepage That Feels Modern</h2>
+              <p style={styles.showcaseText}>
+                This layout uses stronger spacing, premium cards, cleaner
+                section flow, and better content balance so the homepage feels
+                closer to a real-world product.
+              </p>
 
-          <div style={styles.imageGrid}>
-            <div style={styles.imageCard}>
-              <img
-                src={campusLibrary}
-                alt="Campus library"
-                style={styles.gridImage}
-              />
-              <div style={styles.imageCaption}>Library and study spaces</div>
-            </div>
-
-            <div style={styles.imageCard}>
-              <img
-                src={campusStudents}
-                alt="Students on campus"
-                style={styles.gridImage}
-              />
-              <div style={styles.imageCaption}>
-                Student-friendly environment
+              <div style={styles.showcaseChecklist}>
+                <div style={styles.checkItem}>✓ Strong visual hierarchy</div>
+                <div style={styles.checkItem}>✓ Better first impression</div>
+                <div style={styles.checkItem}>✓ Cleaner section structure</div>
+                <div style={styles.checkItem}>✓ More professional footer</div>
               </div>
             </div>
 
-            <div style={styles.imageCard}>
-              <img
-                src={campusBuilding}
-                alt="University building"
-                style={styles.gridImage}
-              />
-              <div style={styles.imageCaption}>
-                Safe and organized campus support
+            <div style={styles.imageGrid}>
+              <div style={styles.imageCardTall}>
+                <img src={campusLibrary} alt="Campus library" style={styles.gridImageTall} />
+                <div style={styles.imageOverlayLabel}>Libraries & study areas</div>
+              </div>
+
+              <div style={styles.imageCardSmall}>
+                <img src={campusStudents} alt="Students on campus" style={styles.gridImageSmall} />
+                <div style={styles.imageOverlayLabel}>Student-friendly design</div>
+              </div>
+
+              <div style={styles.imageCardSmall}>
+                <img src={campusBuilding} alt="University building" style={styles.gridImageSmall} />
+                <div style={styles.imageOverlayLabel}>Organized support system</div>
               </div>
             </div>
           </div>
         </section>
 
         <section style={styles.section}>
-          <div style={styles.sectionHeader}>
+          <div style={styles.sectionHeaderRow}>
             <div>
-              <p style={styles.sectionTag}>Recent reports</p>
-              <h3 style={styles.sectionTitle}>Latest lost item activity</h3>
+              <p style={styles.sectionTag}>Recent Reports</p>
+              <h2 style={styles.sectionTitle}>Latest Lost Item Activity</h2>
             </div>
+            <button
+              type="button"
+              style={styles.viewAllButton}
+              onClick={() => navigate("/lost-items")}
+            >
+              View All
+            </button>
           </div>
 
           <div style={styles.reportGrid}>
@@ -359,15 +310,9 @@ function HomeBrowsePage() {
                 <div key={item._id} style={styles.reportCard}>
                   <div style={styles.reportImageWrap}>
                     {imageUrl ? (
-                      <img
-                        src={imageUrl}
-                        alt={item.title}
-                        style={styles.reportImage}
-                      />
+                      <img src={imageUrl} alt={item.title} style={styles.reportImage} />
                     ) : (
-                      <div style={styles.reportImagePlaceholder}>
-                        No image uploaded
-                      </div>
+                      <div style={styles.reportImagePlaceholder}>No image uploaded</div>
                     )}
 
                     <div style={styles.reportImageOverlay}>
@@ -379,7 +324,7 @@ function HomeBrowsePage() {
                   </div>
 
                   <div style={styles.reportBody}>
-                    <h4 style={styles.reportTitle}>{item.title}</h4>
+                    <h3 style={styles.reportTitle}>{item.title}</h3>
 
                     <p style={styles.reportMeta}>
                       <strong>Location:</strong> {item.lostLocation}
@@ -388,6 +333,14 @@ function HomeBrowsePage() {
                     <p style={styles.reportMeta}>
                       <strong>Date:</strong> {formatDate(item.dateLost)}
                     </p>
+
+                    <button
+                      type="button"
+                      style={styles.reportActionButton}
+                      onClick={() => navigate("/lost-items")}
+                    >
+                      View Details
+                    </button>
                   </div>
                 </div>
               );
@@ -396,167 +349,146 @@ function HomeBrowsePage() {
         </section>
 
         <section style={styles.section}>
-          <div style={styles.sectionHeader}>
+          <div style={styles.sectionHeaderRow}>
             <div>
-              <p style={styles.sectionTag}>How it works</p>
-              <h3 style={styles.sectionTitle}>Simple recovery process</h3>
+              <p style={styles.sectionTag}>How It Works</p>
+              <h2 style={styles.sectionTitle}>Simple Recovery Journey</h2>
             </div>
           </div>
 
           <div style={styles.stepsGrid}>
             <div style={styles.stepCard}>
               <div style={styles.stepNumber}>1</div>
-              <h4 style={styles.stepTitle}>Report the item</h4>
+              <h3 style={styles.stepTitle}>Report the item</h3>
               <p style={styles.stepText}>
-                Add the name, date, place, and special features of the lost
-                item.
+                Add the item name, location, date, and identifying details.
               </p>
             </div>
 
             <div style={styles.stepCard}>
               <div style={styles.stepNumber}>2</div>
-              <h4 style={styles.stepTitle}>Browse matching records</h4>
+              <h3 style={styles.stepTitle}>Browse possible matches</h3>
               <p style={styles.stepText}>
-                Check found items and compare with your report details.
+                Check recent reports and found item records across campus.
               </p>
             </div>
 
             <div style={styles.stepCard}>
               <div style={styles.stepNumber}>3</div>
-              <h4 style={styles.stepTitle}>Verify ownership</h4>
+              <h3 style={styles.stepTitle}>Verify ownership</h3>
               <p style={styles.stepText}>
-                Provide item-specific details to confirm the rightful owner.
+                Provide unique item details so the return process stays safe.
               </p>
             </div>
 
             <div style={styles.stepCard}>
               <div style={styles.stepNumber}>4</div>
-              <h4 style={styles.stepTitle}>Receive the item</h4>
+              <h3 style={styles.stepTitle}>Recover successfully</h3>
               <p style={styles.stepText}>
-                Once approved, the item can be returned safely through the
-                process.
+                Once approved, the item is returned through the proper process.
               </p>
             </div>
           </div>
         </section>
 
-        <section style={styles.faqSection}>
-          <div style={styles.sectionHeader}>
-            <div>
+        <section style={styles.section}>
+          <div style={styles.faqShell}>
+            <div style={styles.faqLeft}>
               <p style={styles.sectionTag}>FAQ</p>
-              <h3 style={styles.sectionTitle}>Common questions</h3>
-            </div>
-          </div>
-
-          <div style={styles.faqGrid}>
-            <div style={styles.faqCard}>
-              <h4 style={styles.faqQuestion}>How do I report a lost item?</h4>
-              <p style={styles.faqAnswer}>
-                Use the Report Lost button and provide clear item details such
-                as name, location, date, and identifying features.
+              <h2 style={styles.sectionTitle}>Common questions</h2>
+              <p style={styles.showcaseText}>
+                Helpful information for students and staff using the platform.
               </p>
             </div>
 
-            <div style={styles.faqCard}>
-              <h4 style={styles.faqQuestion}>Can I manage my reports later?</h4>
-              <p style={styles.faqAnswer}>
-                Yes. You can open My Lost Reports and review or update your lost
-                item information later.
-              </p>
-            </div>
+            <div style={styles.faqGrid}>
+              <div style={styles.faqCard}>
+                <h3 style={styles.faqQuestion}>How do I report a lost item?</h3>
+                <p style={styles.faqAnswer}>
+                  Click the report button and enter the item details, lost
+                  location, date, and special identifying features.
+                </p>
+              </div>
 
-            <div style={styles.faqCard}>
-              <h4 style={styles.faqQuestion}>
-                Where can I browse found items?
-              </h4>
-              <p style={styles.faqAnswer}>
-                Use the Found Portal button on the top navigation to open the
-                found items section.
-              </p>
-            </div>
+              <div style={styles.faqCard}>
+                <h3 style={styles.faqQuestion}>Can I review my reports later?</h3>
+                <p style={styles.faqAnswer}>
+                  Yes. Your submitted reports can be managed later through the
+                  user side of the system.
+                </p>
+              </div>
 
-            <div style={styles.faqCard}>
-              <h4 style={styles.faqQuestion}>
-                Why is this useful for our university?
-              </h4>
-              <p style={styles.faqAnswer}>
-                It gives students and staff one proper digital place to report,
-                browse, and track lost-and-found activity.
-              </p>
+              <div style={styles.faqCard}>
+                <h3 style={styles.faqQuestion}>Where can I browse found items?</h3>
+                <p style={styles.faqAnswer}>
+                  Use the Found Items page from the navigation bar to explore
+                  the available found item list.
+                </p>
+              </div>
+
+              <div style={styles.faqCard}>
+                <h3 style={styles.faqQuestion}>Why is UniFind useful?</h3>
+                <p style={styles.faqAnswer}>
+                  It gives the university one organized place to report, browse,
+                  verify, and recover lost belongings.
+                </p>
+              </div>
             </div>
           </div>
         </section>
 
         <section style={styles.ctaSection}>
-          <h3 style={styles.ctaTitle}>Lost something important on campus?</h3>
-          <p style={styles.ctaText}>
-            Create a report now and let the university community help you
-            recover it faster.
-          </p>
+          <div style={styles.ctaContent}>
+            <p style={styles.ctaMini}>Start now</p>
+            <h2 style={styles.ctaTitle}>Lost something important on campus?</h2>
+            <p style={styles.ctaText}>
+              Create a report now and let the university community help you
+              recover it faster with a cleaner and safer process.
+            </p>
 
-          <div style={styles.ctaButtons}>
-            <button
-              style={styles.primaryLargeButton}
-              onClick={() => navigate("/report-lost")}
-            >
-              Create Lost Report
-            </button>
+            <div style={styles.ctaButtons}>
+              <button
+                type="button"
+                style={styles.ctaPrimaryButton}
+                onClick={() => navigate("/report-lost")}
+              >
+                Create Lost Report
+              </button>
 
-            <button
-              style={styles.outlineDarkButton}
-              onClick={() => navigate("/found-items")}
-            >
-              Check Found Portal
-            </button>
+              <button
+                type="button"
+                style={styles.ctaOutlineButton}
+                onClick={() => navigate("/found-items")}
+              >
+                Check Found Portal
+              </button>
+            </div>
           </div>
         </section>
 
-        <footer style={styles.footer}>
-          <div style={styles.footerBrand}>
-            <img src={logo} alt="UniFind Logo" style={styles.footerLogoImage} />
-            <h3 style={styles.footerLogo}>UniFind</h3>
-            <p style={styles.footerText}>
-              A cleaner university lost & found experience for students and
-              staff.
-            </p>
-          </div>
-
-          <div style={styles.footerLinks}>
-            <button
-              style={styles.footerLink}
-              onClick={() => navigate("/report-lost")}
-            >
-              Report Lost Item
-            </button>
-            <button
-              style={styles.footerLink}
-              onClick={() => navigate("/lost-reports")}
-            >
-              My Lost Reports
-            </button>
-            <button
-              style={styles.footerLink}
-              onClick={() => navigate("/found-items")}
-            >
-              Found Portal
-            </button>
-          </div>
-
-          <div style={styles.footerBottom}>
-            © 2026 UniFind • University Lost & Found Portal
-          </div>
-        </footer>
+        <Footer />
       </main>
     </div>
   );
 }
 
+const ORANGE = "#f97316";
+const ORANGE_DARK = "#ea580c";
+const ORANGE_SOFT = "#fff7ed";
+const NAVY = "#0f172a";
+const NAVY_LIGHT = "#1e293b";
+const BORDER = "#e5e7eb";
+const TEXT = "#0f172a";
+const MUTED = "#64748b";
+const PAGE_BG = "#f8fafc";
+const CARD_BG = "#ffffff";
+
 const styles = {
   page: {
     minHeight: "100vh",
     background:
-      "radial-gradient(circle at top left, #fff9f1 0%, #f8f5ef 42%, #f4eee4 100%)",
-    color: "#2d1f12",
+      "linear-gradient(180deg, #fff7ed 0%, #f8fafc 240px, #f8fafc 100%)",
+    color: TEXT,
     fontFamily: "Arial, sans-serif",
   },
 
@@ -565,200 +497,105 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    background:
-      "radial-gradient(circle at top left, #fff9f1 0%, #f8f5ef 42%, #f4eee4 100%)",
+    backgroundColor: PAGE_BG,
   },
 
   loadingCard: {
-    background: "rgba(255,255,255,0.92)",
-    padding: "18px 26px",
+    backgroundColor: CARD_BG,
+    padding: "18px 24px",
     borderRadius: "18px",
-    boxShadow: "0 16px 40px rgba(0,0,0,0.08)",
+    border: `1px solid ${BORDER}`,
+    boxShadow: "0 12px 30px rgba(15, 23, 42, 0.08)",
     fontWeight: "700",
+    color: TEXT,
     display: "flex",
     alignItems: "center",
     gap: "12px",
-    color: "#5b4634",
-    border: "1px solid rgba(216,198,177,0.5)",
   },
 
-  loadingDot: {
-    width: "12px",
-    height: "12px",
+  loadingSpinner: {
+    width: "14px",
+    height: "14px",
     borderRadius: "50%",
-    background: "linear-gradient(135deg, #c86f10, #efac41)",
-  },
-
-  header: {
-    position: "sticky",
-    top: 0,
-    zIndex: 20,
-    background: "rgba(255, 250, 243, 0.86)",
-    backdropFilter: "blur(14px)",
-    borderBottom: "1px solid rgba(234,223,207,0.85)",
-    boxShadow: "0 8px 24px rgba(43,31,18,0.04)",
-  },
-
-  headerInner: {
-    maxWidth: "1320px",
-    margin: "0 auto",
-    padding: "18px 24px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: "18px",
-    flexWrap: "wrap",
-  },
-
-  logoBox: {
-    display: "flex",
-    alignItems: "center",
-    gap: "14px",
-    cursor: "pointer",
-    minWidth: "220px",
-  },
-
-  logoImage: {
-    width: "58px",
-    height: "58px",
-    objectFit: "contain",
-    borderRadius: "14px",
-    background: "#fff",
-    padding: "4px",
-    boxShadow: "0 10px 24px rgba(214,123,16,0.14)",
-  },
-
-  logoText: {
-    margin: 0,
-    fontSize: "24px",
-    fontWeight: "800",
-    color: "#2d1f12",
-    letterSpacing: "-0.02em",
-  },
-
-  logoSub: {
-    margin: "5px 0 0 0",
-    fontSize: "11px",
-    color: "#7a6652",
-    textTransform: "uppercase",
-    letterSpacing: "0.14em",
-    fontWeight: "700",
-  },
-
-  nav: {
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    background: "rgba(243,234,220,0.9)",
-    padding: "7px",
-    borderRadius: "999px",
-    border: "1px solid #eadfcf",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.7)",
-    flexWrap: "wrap",
-  },
-
-  navButton: {
-    border: "none",
-    background: "transparent",
-    color: "#5d4734",
-    padding: "12px 20px",
-    borderRadius: "999px",
-    cursor: "pointer",
-    fontWeight: "700",
-    fontSize: "14px",
-    transition: "all 0.2s ease",
-  },
-
-  activeNavButton: {
-    border: "none",
-    background: "linear-gradient(135deg, #c86f10, #e8a13b)",
-    color: "#fff",
-    padding: "12px 20px",
-    borderRadius: "999px",
-    cursor: "pointer",
-    fontWeight: "700",
-    fontSize: "14px",
-    boxShadow: "0 8px 18px rgba(214,123,16,0.28)",
-  },
-
-  headerActions: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    flexWrap: "wrap",
-  },
-
-  secondaryButton: {
-    border: "1px solid #d8c6b1",
-    background: "rgba(255,255,255,0.92)",
-    color: "#5d4734",
-    padding: "12px 18px",
-    borderRadius: "999px",
-    cursor: "pointer",
-    fontWeight: "700",
-    boxShadow: "0 8px 18px rgba(0,0,0,0.03)",
-  },
-
-  primaryButton: {
-    border: "none",
-    background: "linear-gradient(135deg, #c86f10, #e49a2e)",
-    color: "#fff",
-    padding: "12px 20px",
-    borderRadius: "999px",
-    cursor: "pointer",
-    fontWeight: "700",
-    boxShadow: "0 12px 28px rgba(214,123,16,0.26)",
+    backgroundColor: ORANGE,
   },
 
   main: {
-    maxWidth: "1320px",
+    maxWidth: "1380px",
     margin: "0 auto",
-    padding: "32px 24px 60px",
+    padding: "34px 24px 70px",
   },
 
   heroSection: {
+    position: "relative",
     display: "grid",
     gridTemplateColumns: "1.08fr 0.92fr",
-    gap: "30px",
+    gap: "28px",
     alignItems: "center",
-    background: "rgba(253,250,245,0.88)",
-    border: "1px solid rgba(234,223,207,0.95)",
-    borderRadius: "34px",
-    padding: "36px",
-    boxShadow: "0 20px 50px rgba(45,31,18,0.06)",
-    position: "relative",
+    background: "linear-gradient(135deg, #fff7ed 0%, #ffffff 45%, #ffffff 100%)",
+    border: `1px solid rgba(249, 115, 22, 0.15)`,
+    borderRadius: "32px",
+    padding: "42px",
     overflow: "hidden",
+    boxShadow: "0 24px 60px rgba(15, 23, 42, 0.08)",
   },
 
-  heroContent: {
+  heroGlowOne: {
+    position: "absolute",
+    top: "-80px",
+    right: "-70px",
+    width: "260px",
+    height: "260px",
+    borderRadius: "50%",
+    background: "rgba(249, 115, 22, 0.10)",
+    filter: "blur(20px)",
+  },
+
+  heroGlowTwo: {
+    position: "absolute",
+    bottom: "-80px",
+    left: "-70px",
+    width: "220px",
+    height: "220px",
+    borderRadius: "50%",
+    background: "rgba(251, 146, 60, 0.10)",
+    filter: "blur(20px)",
+  },
+
+  heroLeft: {
+    position: "relative",
+    zIndex: 2,
     display: "flex",
     flexDirection: "column",
+  },
+
+  heroRight: {
     position: "relative",
     zIndex: 2,
   },
 
   heroBadge: {
     display: "inline-block",
-    background: "#fff1dc",
-    color: "#c86f10",
-    border: "1px solid #f0d4ad",
-    padding: "8px 14px",
+    width: "fit-content",
+    backgroundColor: "#ffffff",
+    color: ORANGE,
+    border: "1px solid #fed7aa",
+    padding: "9px 15px",
     borderRadius: "999px",
     fontWeight: "700",
     fontSize: "12px",
     textTransform: "uppercase",
-    letterSpacing: "0.06em",
-    width: "fit-content",
-    boxShadow: "0 6px 14px rgba(200,111,16,0.08)",
+    letterSpacing: "0.08em",
+    boxShadow: "0 8px 18px rgba(249, 115, 22, 0.08)",
   },
 
   heroTitle: {
-    fontSize: "58px",
-    lineHeight: 1.04,
-    margin: "20px 0 0 0",
+    fontSize: "62px",
+    lineHeight: 1.02,
+    margin: "22px 0 0 0",
     fontWeight: "800",
-    letterSpacing: "-0.03em",
-    color: "#2c1d11",
+    letterSpacing: "-0.04em",
+    color: NAVY,
     maxWidth: "760px",
   },
 
@@ -766,211 +603,350 @@ const styles = {
     marginTop: "18px",
     fontSize: "18px",
     lineHeight: 1.85,
-    color: "#6f5b47",
-    maxWidth: "700px",
+    color: MUTED,
+    maxWidth: "690px",
   },
 
   heroButtons: {
     display: "flex",
     gap: "14px",
     flexWrap: "wrap",
-    marginTop: "26px",
+    marginTop: "28px",
   },
 
   primaryLargeButton: {
     border: "none",
-    background: "linear-gradient(135deg, #c86f10, #e49a2e)",
-    color: "#fff",
-    padding: "15px 24px",
-    borderRadius: "999px",
+    background: "linear-gradient(135deg, #f97316 0%, #ea580c 100%)",
+    color: "#ffffff",
+    padding: "16px 24px",
+    borderRadius: "14px",
     cursor: "pointer",
     fontWeight: "700",
     fontSize: "15px",
-    boxShadow: "0 12px 28px rgba(214,123,16,0.26)",
+    boxShadow: "0 12px 24px rgba(249, 115, 22, 0.28)",
   },
 
-  outlineLargeButton: {
-    border: "1px solid #d8c6b1",
-    background: "rgba(255,255,255,0.95)",
-    color: "#5d4734",
-    padding: "15px 24px",
-    borderRadius: "999px",
+  secondaryLargeButton: {
+    border: "1px solid #e2e8f0",
+    backgroundColor: "#ffffff",
+    color: NAVY,
+    padding: "16px 24px",
+    borderRadius: "14px",
     cursor: "pointer",
     fontWeight: "700",
     fontSize: "15px",
-    boxShadow: "0 8px 20px rgba(0,0,0,0.03)",
+    boxShadow: "0 6px 18px rgba(15, 23, 42, 0.05)",
   },
 
-  heroImageWrap: {
-    height: "100%",
-    minHeight: "440px",
-    borderRadius: "28px",
-    overflow: "hidden",
-    background: "#efe5d7",
-    position: "relative",
-    boxShadow: "0 18px 40px rgba(0,0,0,0.08)",
+  heroStatsRow: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: "14px",
+    marginTop: "30px",
   },
 
-  heroImage: {
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-    position: "relative",
-    zIndex: 1,
+  heroStatCard: {
+    background: "rgba(255, 255, 255, 0.86)",
+    border: "1px solid #f1f5f9",
+    borderRadius: "20px",
+    padding: "18px",
+    boxShadow: "0 10px 24px rgba(15, 23, 42, 0.05)",
+    backdropFilter: "blur(8px)",
   },
 
-  heroImageGlow: {
+  heroStatNumber: {
+    margin: 0,
+    fontSize: "26px",
+    fontWeight: "800",
+    color: ORANGE,
+  },
+
+  heroStatLabel: {
+    margin: "8px 0 0 0",
+    fontSize: "13px",
+    lineHeight: 1.6,
+    color: MUTED,
+    fontWeight: "600",
+  },
+
+heroImageCard: {
+  position: "relative",
+  height: "520px",   
+  borderRadius: "28px",
+  overflow: "hidden",
+  border: `1px solid ${BORDER}`,
+  boxShadow: "0 20px 45px rgba(15, 23, 42, 0.10)",
+  backgroundColor: "#e2e8f0",
+},
+
+heroImage: {
+  position: "absolute",  
+  top: 0,
+  left: 0,
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+},
+
+  heroFloatingCardTop: {
     position: "absolute",
-    inset: 0,
-    background:
-      "linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(0,0,0,0.08) 100%)",
-    zIndex: 2,
-    pointerEvents: "none",
+    top: "20px",
+    left: "20px",
+    backgroundColor: "rgba(255, 255, 255, 0.92)",
+    padding: "14px 16px",
+    borderRadius: "18px",
+    boxShadow: "0 12px 28px rgba(15, 23, 42, 0.12)",
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
+    color: NAVY,
+  },
+
+  heroFloatingLabel: {
+    fontSize: "12px",
+    color: ORANGE,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+  },
+
+  heroFloatingCardBottom: {
+    position: "absolute",
+    bottom: "20px",
+    right: "20px",
+    backgroundColor: "rgba(15, 23, 42, 0.82)",
+    color: "#ffffff",
+    padding: "14px 16px",
+    borderRadius: "18px",
+    boxShadow: "0 12px 28px rgba(15, 23, 42, 0.18)",
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    maxWidth: "270px",
+    lineHeight: 1.5,
+    fontSize: "13px",
+    fontWeight: "600",
+  },
+
+  heroMiniDot: {
+    width: "10px",
+    height: "10px",
+    borderRadius: "50%",
+    backgroundColor: ORANGE,
+    flexShrink: 0,
   },
 
   notice: {
     marginTop: "18px",
-    background: "#fff7ec",
-    color: "#8a5b1f",
-    border: "1px solid #f0d4ad",
+    backgroundColor: ORANGE_SOFT,
+    color: ORANGE_DARK,
+    border: "1px solid #fed7aa",
     borderRadius: "16px",
     padding: "14px 18px",
     fontWeight: "600",
-    boxShadow: "0 8px 20px rgba(240,212,173,0.22)",
-  },
-
-  statsSection: {
-    display: "grid",
-    gridTemplateColumns: "repeat(4, 1fr)",
-    gap: "18px",
-    marginTop: "30px",
-  },
-
-  statCard: {
-    background: "rgba(255,255,255,0.92)",
-    border: "1px solid #eadfcf",
-    borderRadius: "24px",
-    padding: "24px",
-    boxShadow: "0 12px 28px rgba(0,0,0,0.04)",
-  },
-
-  statNumber: {
-    fontSize: "36px",
-    fontWeight: "800",
-    color: "#d67b10",
-    letterSpacing: "-0.02em",
-  },
-
-  statLabel: {
-    marginTop: "8px",
-    fontSize: "13px",
-    color: "#6f5b47",
-    fontWeight: "700",
-    textTransform: "uppercase",
-    letterSpacing: "0.08em",
   },
 
   section: {
-    marginTop: "42px",
+    marginTop: "50px",
   },
 
-  sectionHeader: {
-    marginBottom: "18px",
+  sectionHeaderRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "end",
+    gap: "20px",
+    marginBottom: "22px",
+    flexWrap: "wrap",
   },
 
   sectionTag: {
     margin: 0,
-    color: "#c86f10",
-    fontWeight: "700",
+    color: ORANGE,
+    fontWeight: "800",
     textTransform: "uppercase",
     letterSpacing: "0.08em",
     fontSize: "12px",
   },
 
   sectionTitle: {
-    margin: "8px 0 0 0",
-    fontSize: "34px",
+    margin: "10px 0 0 0",
+    fontSize: "38px",
     fontWeight: "800",
-    letterSpacing: "-0.02em",
+    letterSpacing: "-0.03em",
+    color: NAVY,
+    lineHeight: 1.1,
+  },
+
+  sectionSubText: {
+    margin: 0,
+    color: MUTED,
+    fontSize: "15px",
+    lineHeight: 1.7,
+    maxWidth: "420px",
   },
 
   featureGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(4, 1fr)",
-    gap: "18px",
+    gap: "20px",
   },
 
   featureCard: {
-    background: "rgba(255,255,255,0.94)",
+    backgroundColor: CARD_BG,
     borderRadius: "24px",
-    padding: "24px",
-    border: "1px solid #eadfcf",
-    boxShadow: "0 10px 24px rgba(0,0,0,0.04)",
+    padding: "26px",
+    border: `1px solid ${BORDER}`,
+    boxShadow: "0 14px 35px rgba(15, 23, 42, 0.05)",
   },
 
-  featureIcon: {
-    fontSize: "30px",
-    marginBottom: "12px",
+  featureIconWrap: {
+    width: "58px",
+    height: "58px",
+    borderRadius: "16px",
+    background: "linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "25px",
+    marginBottom: "16px",
+    boxShadow: "0 8px 20px rgba(249, 115, 22, 0.08)",
   },
 
   featureTitle: {
     margin: 0,
     fontSize: "20px",
-    fontWeight: "700",
+    fontWeight: "800",
+    color: NAVY,
   },
 
   featureText: {
     marginTop: "10px",
-    lineHeight: 1.75,
-    color: "#6f5b47",
+    lineHeight: 1.8,
+    color: MUTED,
+    fontSize: "14px",
+  },
+
+  showcaseSection: {
+    display: "grid",
+    gridTemplateColumns: "0.9fr 1.1fr",
+    gap: "24px",
+    alignItems: "stretch",
+  },
+
+  showcaseTextSide: {
+    backgroundColor: "#ffffff",
+    border: `1px solid ${BORDER}`,
+    borderRadius: "28px",
+    padding: "30px",
+    boxShadow: "0 14px 35px rgba(15, 23, 42, 0.05)",
+  },
+
+  showcaseText: {
+    marginTop: "16px",
+    color: MUTED,
     fontSize: "15px",
+    lineHeight: 1.9,
+  },
+
+  showcaseChecklist: {
+    display: "grid",
+    gap: "12px",
+    marginTop: "24px",
+  },
+
+  checkItem: {
+    backgroundColor: ORANGE_SOFT,
+    color: NAVY_LIGHT,
+    border: "1px solid #fed7aa",
+    borderRadius: "14px",
+    padding: "12px 14px",
+    fontWeight: "700",
+    fontSize: "14px",
   },
 
   imageGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
+    gridTemplateColumns: "1.15fr 1fr",
+    gridTemplateRows: "repeat(2, 1fr)",
     gap: "18px",
+    minHeight: "500px",
   },
 
-  imageCard: {
-    background: "rgba(255,255,255,0.94)",
-    borderRadius: "24px",
+  imageCardTall: {
+    position: "relative",
+    gridRow: "1 / span 2",
+    borderRadius: "26px",
     overflow: "hidden",
-    border: "1px solid #eadfcf",
-    boxShadow: "0 10px 24px rgba(0,0,0,0.04)",
+    border: `1px solid ${BORDER}`,
+    boxShadow: "0 14px 35px rgba(15, 23, 42, 0.06)",
   },
 
-  gridImage: {
+  imageCardSmall: {
+    position: "relative",
+    borderRadius: "26px",
+    overflow: "hidden",
+    border: `1px solid ${BORDER}`,
+    boxShadow: "0 14px 35px rgba(15, 23, 42, 0.06)",
+  },
+
+  gridImageTall: {
     width: "100%",
-    height: "260px",
+    height: "100%",
     objectFit: "cover",
+    display: "block",
   },
 
-  imageCaption: {
-    padding: "16px 18px",
+  gridImageSmall: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    display: "block",
+  },
+
+  imageOverlayLabel: {
+    position: "absolute",
+    left: "16px",
+    bottom: "16px",
+    backgroundColor: "rgba(15, 23, 42, 0.78)",
+    color: "#ffffff",
+    padding: "10px 14px",
+    borderRadius: "14px",
     fontWeight: "700",
-    color: "#4a3828",
+    fontSize: "13px",
+    backdropFilter: "blur(6px)",
+  },
+
+  viewAllButton: {
+    border: "1px solid #e2e8f0",
+    backgroundColor: "#ffffff",
+    color: NAVY,
+    padding: "12px 18px",
+    borderRadius: "12px",
+    cursor: "pointer",
+    fontWeight: "700",
+    fontSize: "14px",
+    boxShadow: "0 6px 16px rgba(15, 23, 42, 0.04)",
   },
 
   reportGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(3, 1fr)",
-    gap: "18px",
+    gap: "20px",
   },
 
   reportCard: {
-    background: "rgba(255,255,255,0.95)",
-    borderRadius: "22px",
+    backgroundColor: CARD_BG,
+    borderRadius: "24px",
     overflow: "hidden",
-    border: "1px solid #eadfcf",
-    boxShadow: "0 12px 26px rgba(0,0,0,0.05)",
+    border: `1px solid ${BORDER}`,
+    boxShadow: "0 14px 35px rgba(15, 23, 42, 0.05)",
   },
 
   reportImageWrap: {
     position: "relative",
     width: "100%",
-    height: "210px",
-    background: "#efe5d7",
+    height: "240px",
+    backgroundColor: "#f1f5f9",
   },
 
   reportImage: {
@@ -985,10 +961,10 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: "#8a7764",
+    color: MUTED,
     fontWeight: "700",
     fontSize: "15px",
-    background: "#f3eadc",
+    backgroundColor: "#f8fafc",
   },
 
   reportImageOverlay: {
@@ -998,89 +974,115 @@ const styles = {
     right: "14px",
     display: "flex",
     justifyContent: "space-between",
-    gap: "12px",
+    gap: "10px",
     flexWrap: "wrap",
   },
 
   reportBody: {
-    padding: "20px",
+    padding: "22px",
   },
 
   reportCategory: {
-    background: "#fff1dc",
-    color: "#c86f10",
-    padding: "6px 12px",
+    backgroundColor: ORANGE_SOFT,
+    color: ORANGE,
+    padding: "7px 12px",
     borderRadius: "999px",
     fontSize: "12px",
-    fontWeight: "700",
-    boxShadow: "0 6px 12px rgba(200,111,16,0.1)",
+    fontWeight: "800",
+    border: "1px solid #fed7aa",
   },
 
   reportStatus: {
-    background: "#f2efe9",
-    color: "#6f5b47",
-    padding: "6px 12px",
+    backgroundColor: "#ffffff",
+    color: NAVY,
+    padding: "7px 12px",
     borderRadius: "999px",
     fontSize: "12px",
-    fontWeight: "700",
+    fontWeight: "800",
+    border: "1px solid #e2e8f0",
   },
 
   reportTitle: {
     margin: 0,
     fontSize: "22px",
-    fontWeight: "700",
+    fontWeight: "800",
+    color: NAVY,
   },
 
   reportMeta: {
     margin: "10px 0 0 0",
-    color: "#6f5b47",
-    lineHeight: 1.6,
+    color: MUTED,
+    lineHeight: 1.7,
+    fontSize: "14px",
+  },
+
+  reportActionButton: {
+    marginTop: "18px",
+    border: "none",
+    backgroundColor: NAVY,
+    color: "#ffffff",
+    padding: "12px 16px",
+    borderRadius: "12px",
+    cursor: "pointer",
+    fontWeight: "700",
     fontSize: "14px",
   },
 
   stepsGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(4, 1fr)",
-    gap: "18px",
+    gap: "20px",
   },
 
   stepCard: {
-    background: "rgba(255,255,255,0.94)",
+    backgroundColor: CARD_BG,
     borderRadius: "24px",
-    padding: "24px",
-    border: "1px solid #eadfcf",
-    boxShadow: "0 10px 24px rgba(0,0,0,0.04)",
+    padding: "26px",
+    border: `1px solid ${BORDER}`,
+    boxShadow: "0 14px 35px rgba(15, 23, 42, 0.05)",
   },
 
   stepNumber: {
-    width: "42px",
-    height: "42px",
-    borderRadius: "50%",
-    background: "linear-gradient(135deg, #d67b10, #e9a43c)",
-    color: "#fff",
+    width: "48px",
+    height: "48px",
+    borderRadius: "14px",
+    background: "linear-gradient(135deg, #f97316 0%, #ea580c 100%)",
+    color: "#ffffff",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     fontWeight: "800",
-    marginBottom: "14px",
-    boxShadow: "0 10px 20px rgba(214,123,16,0.2)",
+    marginBottom: "16px",
+    boxShadow: "0 10px 18px rgba(249, 115, 22, 0.22)",
   },
 
   stepTitle: {
     margin: 0,
-    fontSize: "18px",
-    fontWeight: "700",
+    fontSize: "19px",
+    fontWeight: "800",
+    color: NAVY,
   },
 
   stepText: {
     marginTop: "10px",
-    color: "#6f5b47",
-    lineHeight: 1.7,
+    color: MUTED,
+    lineHeight: 1.8,
     fontSize: "14px",
   },
 
-  faqSection: {
-    marginTop: "42px",
+  faqShell: {
+    display: "grid",
+    gridTemplateColumns: "0.8fr 1.2fr",
+    gap: "24px",
+    alignItems: "start",
+  },
+
+  faqLeft: {
+    backgroundColor: "#ffffff",
+    border: `1px solid ${BORDER}`,
+    borderRadius: "28px",
+    padding: "30px",
+    boxShadow: "0 14px 35px rgba(15, 23, 42, 0.05)",
   },
 
   faqGrid: {
@@ -1090,48 +1092,63 @@ const styles = {
   },
 
   faqCard: {
-    background: "rgba(255,255,255,0.94)",
-    borderRadius: "24px",
+    backgroundColor: CARD_BG,
+    borderRadius: "22px",
     padding: "24px",
-    border: "1px solid #eadfcf",
-    boxShadow: "0 10px 24px rgba(0,0,0,0.04)",
+    border: `1px solid ${BORDER}`,
+    boxShadow: "0 10px 24px rgba(15, 23, 42, 0.04)",
   },
 
   faqQuestion: {
     margin: 0,
     fontSize: "18px",
-    fontWeight: "700",
+    fontWeight: "800",
+    color: NAVY,
   },
 
   faqAnswer: {
     marginTop: "10px",
-    color: "#6f5b47",
-    lineHeight: 1.7,
+    color: MUTED,
+    lineHeight: 1.75,
     fontSize: "14px",
   },
 
   ctaSection: {
-    marginTop: "44px",
-    background: "linear-gradient(135deg, #2d1f12, #5f4227)",
-    borderRadius: "32px",
-    padding: "42px 28px",
+    marginTop: "52px",
+    background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+    borderRadius: "30px",
+    padding: "54px 30px",
     textAlign: "center",
-    color: "#fff",
-    boxShadow: "0 20px 40px rgba(45,31,18,0.18)",
+    boxShadow: "0 22px 50px rgba(15, 23, 42, 0.14)",
+  },
+
+  ctaContent: {
+    maxWidth: "820px",
+    margin: "0 auto",
+  },
+
+  ctaMini: {
+    margin: 0,
+    color: "#fdba74",
+    fontWeight: "800",
+    textTransform: "uppercase",
+    letterSpacing: "0.08em",
+    fontSize: "12px",
   },
 
   ctaTitle: {
-    margin: 0,
-    fontSize: "38px",
+    margin: "14px 0 0 0",
+    fontSize: "42px",
     fontWeight: "800",
-    letterSpacing: "-0.02em",
+    letterSpacing: "-0.03em",
+    color: "#ffffff",
   },
 
   ctaText: {
-    margin: "14px auto 0",
+    margin: "16px auto 0",
     maxWidth: "700px",
-    lineHeight: 1.8,
-    color: "rgba(255,255,255,0.82)",
+    lineHeight: 1.9,
+    color: "#cbd5e1",
     fontSize: "16px",
   },
 
@@ -1140,73 +1157,31 @@ const styles = {
     justifyContent: "center",
     gap: "14px",
     flexWrap: "wrap",
-    marginTop: "24px",
+    marginTop: "28px",
   },
 
-  outlineDarkButton: {
-    border: "1px solid rgba(255,255,255,0.25)",
-    background: "transparent",
-    color: "#fff",
+  ctaPrimaryButton: {
+    border: "none",
+    background: "linear-gradient(135deg, #f97316 0%, #ea580c 100%)",
+    color: "#ffffff",
     padding: "15px 24px",
-    borderRadius: "999px",
+    borderRadius: "14px",
     cursor: "pointer",
     fontWeight: "700",
     fontSize: "15px",
+    boxShadow: "0 12px 22px rgba(249, 115, 22, 0.28)",
   },
 
-  footer: {
-    marginTop: "44px",
-    paddingTop: "34px",
-    borderTop: "1px solid #eadfcf",
-  },
-
-  footerBrand: {
-    textAlign: "center",
-  },
-
-  footerLogoImage: {
-    width: "62px",
-    height: "62px",
-    objectFit: "contain",
-    marginBottom: "10px",
-  },
-
-  footerLogo: {
-    margin: 0,
-    fontSize: "28px",
-    fontWeight: "800",
-  },
-
-  footerText: {
-    marginTop: "10px",
-    color: "#6f5b47",
-    lineHeight: 1.7,
-  },
-
-  footerLinks: {
-    display: "flex",
-    justifyContent: "center",
-    gap: "16px",
-    flexWrap: "wrap",
-    marginTop: "20px",
-  },
-
-  footerLink: {
-    border: "none",
-    background: "transparent",
-    color: "#6f5b47",
-    fontWeight: "700",
+  ctaOutlineButton: {
+    border: "1px solid rgba(255, 255, 255, 0.18)",
+    backgroundColor: "rgba(255, 255, 255, 0.06)",
+    color: "#ffffff",
+    padding: "15px 24px",
+    borderRadius: "14px",
     cursor: "pointer",
-    fontSize: "14px",
-  },
-
-  footerBottom: {
-    textAlign: "center",
-    marginTop: "24px",
-    paddingTop: "18px",
-    borderTop: "1px solid #f0e6d8",
-    color: "#8a7764",
-    fontSize: "13px",
+    fontWeight: "700",
+    fontSize: "15px",
+    backdropFilter: "blur(8px)",
   },
 };
 

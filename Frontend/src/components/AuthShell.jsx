@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import logo from "../assets/logo.jpeg";
 
 function AuthShell({
   mode = "login",
@@ -14,29 +15,29 @@ function AuthShell({
       ? {
           heading: (
             <>
-              Create your <span>UniFind</span> account
+              Create Your <span>UniFind</span> Account
             </>
           ),
           text:
             "Register once and manage lost item reports, found item searches, and account activity from one secure place.",
           points: [
-            "Simple sign up",
-            "Secure member access",
-            "Easy lost & found workflow",
+            "Simple Sign Up",
+            "Secure Member Access",
+            "Easy Lost & Found Workflow",
           ],
         }
       : {
           heading: (
             <>
-              Welcome back to <span>UniFind</span>
+              Welcome Back to <span>UniFind</span>
             </>
           ),
           text:
             "Sign in quickly and continue managing your lost and found activity with a cleaner and easier experience.",
           points: [
-            "Fast sign in",
-            "Protected session",
-            "Simple dashboard access",
+            "Fast Sign In",
+            "Protected Session",
+            "Simple Dashboard Access",
           ],
         };
 
@@ -49,7 +50,14 @@ function AuthShell({
 
           <div className="uf-auth-left-content">
             <div className="uf-auth-brand-row">
-              <div className="uf-auth-logo-box">🔍</div>
+              <div className="uf-auth-logo-box">
+                <img
+                  src={logo}
+                  alt="UniFind logo"
+                  className="uf-auth-logo-img"
+                />
+              </div>
+
               <div>
                 <p className="uf-auth-mini">Lost &amp; Found Portal</p>
                 <h1>{content.heading}</h1>
@@ -72,7 +80,13 @@ function AuthShell({
           <div className="uf-auth-card">
             <div className="uf-auth-card-top">
               <Link to="/" className="uf-auth-home-link">
-                <span>🔍</span>
+                <span className="uf-auth-home-logo">
+                  <img
+                    src={logo}
+                    alt="UniFind logo"
+                    className="uf-auth-home-logo-img"
+                  />
+                </span>
                 <strong>UniFind</strong>
               </Link>
             </div>

@@ -49,7 +49,7 @@ function LoginPage() {
   return (
     <AuthShell
       mode="login"
-      title="Sign in to your account"
+      title="Sign In to Your Account"
       subtitle="Access your member dashboard and continue managing lost and found activity."
       footerText="Don’t have an account?"
       footerLinkText="Create one here"
@@ -70,7 +70,7 @@ function LoginPage() {
               name="email"
               type="email"
               className="uf-input"
-              placeholder="you@example.com"
+              placeholder="Enter your email address"
               value={formData.email}
               onChange={handleChange}
               autoComplete="email"
@@ -133,7 +133,7 @@ function LoginPage() {
         <button type="submit" className="uf-submit" disabled={loading}>
           <span className="uf-submit-inner">
             {loading && <span className="uf-spinner" />}
-            {loading ? "Signing in…" : "Sign In"}
+            {loading ? "Signing In..." : "Sign In"}
           </span>
         </button>
       </form>

@@ -57,10 +57,7 @@ function RegisterPage() {
 
     setFormData((prev) => ({
       ...prev,
-      [name]:
-        name === "studentId"
-          ? value.toUpperCase()
-          : value,
+      [name]: name === "studentId" ? value.toUpperCase() : value,
     }));
   };
 
@@ -195,7 +192,9 @@ function RegisterPage() {
               />
             </div>
             {formData.phone && !phoneRegex.test(formData.phone.trim()) && (
-              <span className="uf-field-hint">Use 10 to 15 digits, with optional + sign.</span>
+              <span className="uf-field-hint">
+                Use 10 to 15 digits, with optional + sign.
+              </span>
             )}
           </div>
 
@@ -291,9 +290,13 @@ function RegisterPage() {
           </div>
 
           <div className="uf-field uf-span-2">
-            <label className="uf-label" htmlFor="password">
-              Password
-            </label>
+            <div className="uf-label-row">
+              <label className="uf-label" htmlFor="password">
+                Password
+              </label>
+              <span className="uf-inline-link muted">Create a secure password</span>
+            </div>
+
             <div className="uf-input-wrap">
               <span className="uf-input-icon">🔒</span>
               <input
@@ -392,8 +395,7 @@ function RegisterPage() {
 
             {formData.confirmPassword && (
               <span
-                className="uf-match"
-                style={{ color: passwordsMatch ? "#15803d" : "#b91c1c" }}
+                className={`uf-match ${passwordsMatch ? "success" : "error"}`}
               >
                 {passwordsMatch ? "✓ Passwords match" : "✗ Passwords do not match"}
               </span>
@@ -424,14 +426,14 @@ function RegisterPage() {
         {message && (
           <div className="uf-alert success" role="status">
             <span>✅</span>
-            <span>{message} Redirecting…</span>
+            <span>{message} Redirecting...</span>
           </div>
         )}
 
         <button type="submit" className="uf-submit" disabled={loading || !isFormValid}>
           <span className="uf-submit-inner">
             {loading && <span className="uf-spinner" />}
-            {loading ? "Creating account…" : "Create Account"}
+            {loading ? "Creating Account..." : "Create Account"}
           </span>
         </button>
       </form>

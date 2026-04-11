@@ -12,7 +12,8 @@ import {
   FaShieldAlt,
   FaUsers,
 } from "react-icons/fa";
-import logo from "../../assets/logo.jpeg";
+import Navbar from "../../components/common/Navbar";
+import Footer from "../../components/common/Footer";
 import campusBuilding from "../../assets/campus-building.jpg";
 import campusLibrary from "../../assets/campus-library.jpg";
 import campusStudents from "../../assets/campus-students.jpg";
@@ -24,247 +25,122 @@ const styles = `
 
   .about-page {
     min-height: 100vh;
-    background: #f5f1ea;
-    color: #23160d;
-    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: linear-gradient(180deg, #fff7ed 0%, #f8fafc 220px, #f8fafc 100%);
+    color: #111827;
+    font-family: Arial, sans-serif;
     padding-bottom: 40px;
   }
 
   .about-shell {
-    width: min(1120px, calc(100% - 32px));
+    width: min(1380px, calc(100% - 48px));
     margin: 0 auto;
-  }
-
-  .about-topbar {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(245, 241, 234, 0.94);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(218, 153, 65, 0.12);
-  }
-
-  .about-topbar__inner {
-    width: min(1180px, calc(100% - 28px));
-    margin: 0 auto;
-    min-height: 72px;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    align-items: center;
-    gap: 20px;
-  }
-
-  .about-brand {
-    border: none;
-    background: transparent;
-    padding: 0;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .about-brand__logo {
-    width: 38px;
-    height: 38px;
-    object-fit: cover;
-    border-radius: 10px;
-    box-shadow: 0 8px 18px rgba(220, 140, 36, 0.14);
-  }
-
-  .about-brand__text {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    line-height: 1.1;
-  }
-
-  .about-brand__title {
-    font-size: 1.55rem;
-    font-weight: 800;
-    color: #2b1b10;
-  }
-
-  .about-brand__sub {
-    font-size: 0.58rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #8a6a4f;
-    margin-top: 4px;
-  }
-
-  .about-nav {
-    display: flex;
-    justify-content: center;
-  }
-
-  .about-nav__pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px;
-    background: #ede4d7;
-    border: 1px solid rgba(177, 133, 80, 0.22);
-    border-radius: 999px;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.65);
-  }
-
-  .about-nav__pill button {
-    border: none;
-    background: transparent;
-    color: #5c4330;
-    font-size: 0.82rem;
-    font-weight: 700;
-    padding: 10px 16px;
-    border-radius: 999px;
-    cursor: pointer;
-    transition: 0.2s ease;
-  }
-
-  .about-nav__pill button:hover {
-    color: #c97710;
-  }
-
-  .about-nav__pill .active {
-    background: linear-gradient(135deg, #e8a238, #d58817);
-    color: white;
-    box-shadow: 0 8px 16px rgba(213, 136, 23, 0.24);
-  }
-
-  .about-actions {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    justify-content: flex-end;
-  }
-
-  .about-actions__login {
-    border: 1px solid rgba(177, 133, 80, 0.25);
-    background: #faf7f1;
-    color: #6a4d37;
-    font-size: 0.78rem;
-    font-weight: 700;
-    padding: 9px 16px;
-    border-radius: 999px;
-    cursor: pointer;
-  }
-
-  .about-actions__cta,
-  .about-btn--primary {
-    border: none;
-    background: linear-gradient(135deg, #e8a238, #d58817);
-    color: white;
-    font-weight: 800;
-    border-radius: 999px;
-    cursor: pointer;
-    box-shadow: 0 10px 18px rgba(213, 136, 23, 0.23);
-    transition: 0.2s ease;
-  }
-
-  .about-actions__cta {
-    font-size: 0.78rem;
-    padding: 10px 16px;
-  }
-
-  .about-actions__cta:hover,
-  .about-btn--primary:hover {
-    transform: translateY(-1px);
   }
 
   .about-hero {
-    padding: 18px 0 14px;
+    padding: 32px 0 14px;
   }
 
   .about-hero__card {
     display: grid;
-    grid-template-columns: 1.02fr 0.78fr;
-    gap: 26px;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 28px;
     align-items: center;
-    background: #f8f4ed;
-    border: 1px solid rgba(188, 147, 95, 0.16);
-    border-radius: 26px;
-    padding: 20px;
-    box-shadow: 0 12px 28px rgba(84, 53, 22, 0.05);
+    background: linear-gradient(135deg, #fff7ed 0%, #ffffff 45%, #ffffff 100%);
+    border: 1px solid rgba(249, 115, 22, 0.16);
+    border-radius: 30px;
+    padding: 36px;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
   }
 
   .about-badge {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.64rem;
-    font-weight: 800;
+    font-size: 12px;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #c97710;
-    background: #fde7c6;
-    border: 1px solid rgba(216, 143, 34, 0.22);
+    letter-spacing: 0.06em;
+    color: #f97316;
+    background: #ffffff;
+    border: 1px solid #fed7aa;
     border-radius: 999px;
-    padding: 7px 12px;
+    padding: 8px 14px;
+    width: fit-content;
+    box-shadow: 0 8px 18px rgba(249, 115, 22, 0.08);
   }
 
   .about-hero__content h1 {
-    margin: 16px 0 16px;
-    font-size: clamp(2.4rem, 5vw, 4rem);
+    margin: 20px 0 16px;
+    font-size: clamp(2.7rem, 5vw, 5rem);
     line-height: 1.03;
-    font-weight: 900;
+    font-weight: 800;
     letter-spacing: -0.03em;
-    max-width: 620px;
+    max-width: 760px;
+    color: #111827;
   }
 
   .about-hero__content h1 span {
-    color: #d58817;
+    color: #f97316;
   }
 
   .about-hero__content p {
     margin: 0;
-    max-width: 600px;
-    color: #6e5440;
-    line-height: 1.9;
-    font-size: 1rem;
+    max-width: 680px;
+    color: #6b7280;
+    line-height: 1.8;
+    font-size: 18px;
   }
 
   .about-btn-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 24px;
+    gap: 14px;
+    margin-top: 28px;
   }
 
   .about-btn {
-    border-radius: 999px;
-    padding: 13px 22px;
+    border-radius: 14px;
+    padding: 15px 24px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    font-size: 0.9rem;
-    font-weight: 800;
+    font-size: 15px;
+    font-weight: 700;
     cursor: pointer;
     transition: 0.2s ease;
   }
 
-  .about-btn--secondary {
-    border: 1px solid rgba(188, 147, 95, 0.22);
-    background: #faf7f1;
-    color: #7c582e;
+  .about-btn--primary {
+    border: none;
+    background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+    color: white;
+    box-shadow: 0 10px 22px rgba(249, 115, 22, 0.24);
   }
 
-  .about-btn--secondary:hover {
-    background: white;
+  .about-btn--primary:hover {
+    transform: translateY(-1px);
+  }
+
+  .about-btn--secondary {
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    color: #374151;
   }
 
   .about-hero__image {
     overflow: hidden;
-    border-radius: 22px;
-    min-height: 320px;
-    background: #eadfce;
-    border: 1px solid rgba(188, 147, 95, 0.16);
+    border-radius: 24px;
+    min-height: 460px;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
   }
 
   .about-hero__image img {
     width: 100%;
     height: 100%;
-    min-height: 320px;
+    min-height: 460px;
     object-fit: cover;
     display: block;
   }
@@ -272,73 +148,74 @@ const styles = `
   .about-stat-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 12px;
-    margin-top: 14px;
+    gap: 18px;
+    margin-top: 28px;
   }
 
   .about-stat-card {
-    background: #f7f4ef;
-    border: 1px solid rgba(188, 147, 95, 0.16);
-    border-radius: 18px;
-    padding: 18px 16px 14px;
-    box-shadow: 0 10px 22px rgba(84, 53, 22, 0.04);
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 22px;
+    padding: 24px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
   }
 
   .about-stat-card strong {
     display: block;
-    color: #d58817;
-    font-size: 2rem;
+    color: #f97316;
+    font-size: 34px;
     line-height: 1;
     margin-bottom: 8px;
-    font-weight: 900;
+    font-weight: 800;
   }
 
   .about-stat-card span {
     display: block;
-    color: #765943;
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.11em;
+    color: #6b7280;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
   }
 
   .about-section {
-    padding: 18px 0 8px;
+    padding: 30px 0 0;
   }
 
   .about-section__label {
     display: inline-block;
-    color: #c97710;
-    font-size: 0.64rem;
-    font-weight: 900;
-    letter-spacing: 0.1em;
+    color: #f97316;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     margin-bottom: 8px;
   }
 
   .about-section__header {
-    margin-bottom: 14px;
+    margin-bottom: 18px;
   }
 
   .about-section__header h2 {
     margin: 0;
-    font-size: clamp(1.9rem, 3vw, 2.8rem);
+    font-size: clamp(2rem, 3vw, 34px);
     line-height: 1.12;
-    font-weight: 900;
+    font-weight: 800;
     letter-spacing: -0.02em;
-    color: #24170f;
+    color: #111827;
   }
 
   .about-section__header p {
     margin: 10px 0 0;
-    color: #6e5440;
+    color: #6b7280;
     line-height: 1.8;
     max-width: 760px;
+    font-size: 15px;
   }
 
   .about-grid {
     display: grid;
-    gap: 12px;
+    gap: 18px;
   }
 
   .about-grid--4 {
@@ -350,188 +227,176 @@ const styles = `
   }
 
   .about-card {
-    background: #f7f4ef;
-    border: 1px solid rgba(188, 147, 95, 0.16);
-    border-radius: 18px;
-    padding: 20px 18px;
-    box-shadow: 0 10px 22px rgba(84, 53, 22, 0.04);
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
     transition: 0.2s ease;
   }
 
   .about-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 14px 26px rgba(84, 53, 22, 0.08);
   }
 
   .about-card__icon {
-    width: 42px;
-    height: 42px;
+    width: 52px;
+    height: 52px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border-radius: 14px;
-    background: linear-gradient(135deg, #7cc4ff, #4489e0);
-    color: white;
-    font-size: 1rem;
-    margin-bottom: 12px;
-    box-shadow: 0 8px 16px rgba(68, 137, 224, 0.18);
-  }
-
-  .about-card:nth-child(2) .about-card__icon {
-    background: linear-gradient(135deg, #7a9cff, #5a6fff);
-  }
-
-  .about-card:nth-child(3) .about-card__icon {
-    background: linear-gradient(135deg, #74d3c7, #27b29a);
-  }
-
-  .about-card:nth-child(4) .about-card__icon {
-    background: linear-gradient(135deg, #ffc35b, #e4a314);
+    background: #fff7ed;
+    color: #f97316;
+    font-size: 20px;
+    margin-bottom: 14px;
   }
 
   .about-card h3 {
     margin: 0 0 8px;
-    font-size: 1.03rem;
-    color: #2d1d11;
+    font-size: 19px;
+    color: #111827;
+    font-weight: 700;
   }
 
   .about-card p {
     margin: 0;
-    color: #6e5440;
+    color: #6b7280;
     line-height: 1.75;
-    font-size: 0.92rem;
+    font-size: 14px;
   }
 
   .about-story-wrap {
     display: grid;
     grid-template-columns: 1.1fr 0.9fr;
-    gap: 12px;
+    gap: 18px;
   }
 
   .about-story-main {
-    background: #f7f4ef;
-    border: 1px solid rgba(188, 147, 95, 0.16);
-    border-radius: 20px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 24px;
     padding: 24px;
-    box-shadow: 0 10px 22px rgba(84, 53, 22, 0.04);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
   }
 
   .about-story-main h3 {
     margin: 0 0 12px;
-    font-size: 1.14rem;
-    color: #2d1d11;
+    font-size: 20px;
+    color: #111827;
   }
 
   .about-story-main p {
     margin: 0 0 14px;
-    color: #6e5440;
+    color: #6b7280;
     line-height: 1.82;
+    font-size: 15px;
   }
 
   .about-mini-list {
     display: grid;
-    gap: 12px;
+    gap: 18px;
   }
 
   .about-mini-box {
-    background: #f7f4ef;
-    border: 1px solid rgba(188, 147, 95, 0.16);
-    border-radius: 18px;
-    padding: 18px;
-    box-shadow: 0 10px 22px rgba(84, 53, 22, 0.04);
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 24px;
+    padding: 20px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
   }
 
   .about-mini-box strong {
     display: block;
-    color: #d58817;
-    font-size: 0.92rem;
-    margin-bottom: 6px;
+    color: #f97316;
+    font-size: 16px;
+    margin-bottom: 8px;
   }
 
   .about-mini-box span {
-    color: #6e5440;
-    line-height: 1.7;
-    font-size: 0.92rem;
+    color: #6b7280;
+    line-height: 1.75;
+    font-size: 14px;
   }
 
   .about-image-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
+    gap: 18px;
   }
 
   .about-image-card {
     overflow: hidden;
-    border-radius: 18px;
-    background: #f7f4ef;
-    border: 1px solid rgba(188, 147, 95, 0.16);
-    box-shadow: 0 10px 22px rgba(84, 53, 22, 0.04);
+    border-radius: 22px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
   }
 
   .about-image-card img {
     width: 100%;
-    height: 190px;
+    height: 250px;
     display: block;
     object-fit: cover;
   }
 
   .about-image-card__body {
-    padding: 14px 16px 16px;
+    padding: 16px 18px 18px;
   }
 
   .about-image-card__body h3 {
     margin: 0 0 6px;
-    font-size: 1rem;
-    color: #2d1d11;
+    font-size: 18px;
+    color: #111827;
   }
 
   .about-image-card__body p {
     margin: 0;
-    color: #6e5440;
+    color: #6b7280;
     line-height: 1.7;
-    font-size: 0.9rem;
+    font-size: 14px;
   }
 
   .about-contact-wrap {
     display: grid;
     grid-template-columns: 0.92fr 1.08fr;
-    gap: 12px;
+    gap: 18px;
   }
 
   .about-contact-list {
     display: grid;
-    gap: 12px;
+    gap: 18px;
   }
 
   .about-contact-card {
-    background: #f7f4ef;
-    border: 1px solid rgba(188, 147, 95, 0.16);
-    border-radius: 18px;
-    padding: 16px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 24px;
+    padding: 18px;
     display: flex;
     gap: 14px;
     align-items: flex-start;
-    box-shadow: 0 10px 22px rgba(84, 53, 22, 0.04);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
   }
 
   .about-contact-card__icon {
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
     flex-shrink: 0;
     border-radius: 14px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: #fff0d7;
-    color: #d58817;
-    font-size: 1rem;
+    background: #fff7ed;
+    color: #f97316;
+    font-size: 18px;
   }
 
   .about-contact-card span {
     display: block;
-    color: #c97710;
-    font-size: 0.76rem;
-    font-weight: 900;
+    color: #f97316;
+    font-size: 12px;
+    font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     margin-bottom: 4px;
@@ -540,30 +405,31 @@ const styles = `
   .about-contact-card p,
   .about-contact-card a {
     margin: 0;
-    color: #5f4735;
+    color: #374151;
     text-decoration: none;
     line-height: 1.7;
-    font-size: 0.92rem;
+    font-size: 14px;
   }
 
   .about-form-card {
-    background: #f7f4ef;
-    border: 1px solid rgba(188, 147, 95, 0.16);
-    border-radius: 20px;
-    padding: 22px;
-    box-shadow: 0 10px 22px rgba(84, 53, 22, 0.04);
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 24px;
+    padding: 24px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
   }
 
   .about-form-card h3 {
     margin: 0 0 8px;
-    font-size: 1.1rem;
-    color: #2d1d11;
+    font-size: 20px;
+    color: #111827;
   }
 
   .about-form-card p {
     margin: 0;
-    color: #6e5440;
+    color: #6b7280;
     line-height: 1.75;
+    font-size: 14px;
   }
 
   .about-form {
@@ -577,58 +443,51 @@ const styles = `
   .about-field label {
     display: block;
     margin-bottom: 8px;
-    color: #3d2a1d;
-    font-size: 0.88rem;
-    font-weight: 800;
+    color: #111827;
+    font-size: 14px;
+    font-weight: 700;
   }
 
   .about-field input,
   .about-field textarea {
     width: 100%;
-    border: 1px solid rgba(188, 147, 95, 0.2);
-    background: #fcfaf6;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
     border-radius: 14px;
     padding: 13px 14px;
-    font-size: 0.94rem;
+    font-size: 14px;
     font-family: inherit;
-    color: #2c1c11;
+    color: #111827;
     outline: none;
     transition: 0.18s ease;
   }
 
   .about-field input:focus,
   .about-field textarea:focus {
-    border-color: #d58817;
-    box-shadow: 0 0 0 4px rgba(213, 136, 23, 0.08);
-    background: white;
+    border-color: #f97316;
+    box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.08);
   }
 
   .about-error {
     display: block;
     margin-top: 6px;
-    color: #cf2f2f;
-    font-size: 0.8rem;
+    color: #dc2626;
+    font-size: 12px;
     font-weight: 700;
   }
 
   .about-success {
     margin-top: 18px;
-    background: #fff5e5;
-    border: 1px solid rgba(213, 136, 23, 0.18);
-    color: #b46908;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #ea580c;
     border-radius: 16px;
     padding: 16px;
     line-height: 1.7;
-    font-weight: 800;
+    font-weight: 700;
   }
 
   @media (max-width: 1080px) {
-    .about-topbar__inner {
-      grid-template-columns: 1fr;
-      justify-items: center;
-      padding: 14px 0;
-    }
-
     .about-hero__card,
     .about-story-wrap,
     .about-contact-wrap {
@@ -647,20 +506,15 @@ const styles = `
 
   @media (max-width: 760px) {
     .about-shell {
-      width: min(1120px, calc(100% - 20px));
-    }
-
-    .about-nav__pill {
-      flex-wrap: wrap;
-      justify-content: center;
+      width: min(1380px, calc(100% - 20px));
     }
 
     .about-hero__card {
-      padding: 16px;
+      padding: 20px;
     }
 
     .about-hero__content h1 {
-      font-size: 2.25rem;
+      font-size: 2.4rem;
     }
 
     .about-stat-grid,
@@ -672,19 +526,6 @@ const styles = `
   }
 
   @media (max-width: 560px) {
-    .about-nav {
-      width: 100%;
-    }
-
-    .about-nav__pill button {
-      width: 100%;
-    }
-
-    .about-actions {
-      width: 100%;
-      justify-content: center;
-    }
-
     .about-btn-row {
       flex-direction: column;
     }
@@ -775,14 +616,14 @@ const contactItems = [
   {
     icon: <FaEnvelope />,
     label: "Email",
-    value: "unifind.support@gmail.com",
-    href: "mailto:unifind.support@gmail.com",
+    value: "support@sliit.lk",
+    href: "mailto:support@sliit.lk",
   },
   {
     icon: <FaPhoneAlt />,
     label: "Phone",
-    value: "+94 71 234 5678",
-    href: "tel:+94712345678",
+    value: "+94 11 754 4801",
+    href: "tel:+94117544801",
   },
   {
     icon: <FaMapMarkerAlt />,
@@ -792,8 +633,8 @@ const contactItems = [
   },
   {
     icon: <FaClock />,
-    label: "Office Hours",
-    value: "Monday to Friday • 8:30 AM to 5:00 PM",
+    label: "Support",
+    value: "Use the SLIIT support portal for help and inquiries",
     href: "",
   },
 ];
@@ -870,61 +711,7 @@ export default function AboutUsPage() {
     <div className="about-page">
       <style>{styles}</style>
 
-      <div className="about-topbar">
-        <div className="about-topbar__inner">
-          <button
-            type="button"
-            className="about-brand"
-            onClick={() => navigate("/")}
-          >
-            <img src={logo} alt="UniFind logo" className="about-brand__logo" />
-            <div className="about-brand__text">
-              <span className="about-brand__title">UniFind</span>
-              <span className="about-brand__sub">
-                University Lost &amp; Found Portal
-              </span>
-            </div>
-          </button>
-
-          <div className="about-nav">
-            <div className="about-nav__pill">
-              <button type="button" onClick={() => navigate("/")}>
-                Home
-              </button>
-              <button
-                type="button"
-                className="active"
-                onClick={() => navigate("/about")}
-              >
-                About
-              </button>
-              <button type="button" onClick={() => navigate("/found-items")}>
-                Found Portal
-              </button>
-              <button type="button" onClick={() => navigate("/lost-reports")}>
-                Lost Portal
-              </button>
-            </div>
-          </div>
-
-          <div className="about-actions">
-            <button
-              type="button"
-              className="about-actions__login"
-              onClick={() => navigate("/login")}
-            >
-              Login
-            </button>
-            <button
-              type="button"
-              className="about-actions__cta"
-              onClick={() => navigate("/report-lost")}
-            >
-              + Report Lost
-            </button>
-          </div>
-        </div>
-      </div>
+      <Navbar active="about" />
 
       <section className="about-hero">
         <div className="about-shell">
@@ -933,7 +720,7 @@ export default function AboutUsPage() {
               <span className="about-badge">Smart campus lost &amp; found</span>
 
               <h1>
-                About <span>UniFind</span> and why it matters on campus
+                About <span>UniFind</span> And Why It Matters On Campus
               </h1>
 
               <p>
@@ -982,7 +769,7 @@ export default function AboutUsPage() {
         <div className="about-shell">
           <div className="about-section__header">
             <div className="about-section__label">Why UniFind</div>
-            <h2>Made for real campus use</h2>
+            <h2>Made For Real Campus Use</h2>
           </div>
 
           <div className="about-grid about-grid--4">
@@ -1001,7 +788,7 @@ export default function AboutUsPage() {
         <div className="about-shell">
           <div className="about-section__header">
             <div className="about-section__label">Who We Are</div>
-            <h2>A simple digital solution for a common university problem</h2>
+            <h2>A Simple Digital Solution For A Common University Problem</h2>
             <p>
               Losing important belongings on campus can be stressful. UniFind
               was created to make that process more organized, more searchable,
@@ -1057,7 +844,7 @@ export default function AboutUsPage() {
         <div className="about-shell">
           <div className="about-section__header">
             <div className="about-section__label">Our Mission</div>
-            <h2>What UniFind is designed to improve</h2>
+            <h2>What UniFind Is Designed To Improve</h2>
             <p>
               The platform focuses on real student needs and aims to make campus
               lost and found more practical, accessible, and trustworthy.
@@ -1080,7 +867,7 @@ export default function AboutUsPage() {
         <div className="about-shell">
           <div className="about-section__header">
             <div className="about-section__label">What We Offer</div>
-            <h2>Core features in one organized system</h2>
+            <h2>Core Features In One Organized System</h2>
             <p>
               UniFind combines lost-item reporting, found-item browsing, and
               claim support in a way that is easier to understand and use.
@@ -1103,7 +890,7 @@ export default function AboutUsPage() {
         <div className="about-shell">
           <div className="about-section__header">
             <div className="about-section__label">Campus View</div>
-            <h2>University life, beautifully presented</h2>
+            <h2>University Life, Beautifully Presented</h2>
           </div>
 
           <div className="about-image-grid">
@@ -1147,7 +934,7 @@ export default function AboutUsPage() {
         <div className="about-shell">
           <div className="about-section__header">
             <div className="about-section__label">Contact Us</div>
-            <h2>Need help or want to contact the UniFind team?</h2>
+            <h2>Need Help Or Want To Contact The UniFind Team?</h2>
             <p>
               You can use the details below for general support, reporting
               guidance, or platform-related questions.
@@ -1169,6 +956,22 @@ export default function AboutUsPage() {
                   </div>
                 </div>
               ))}
+
+              <div className="about-contact-card">
+                <div className="about-contact-card__icon">
+                  <FaArrowRight />
+                </div>
+                <div>
+                  <span>Support Portal</span>
+                  <a
+                    href="https://support.sliit.lk/"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Open SLIIT Support Portal
+                  </a>
+                </div>
+              </div>
             </div>
 
             <div className="about-form-card">
@@ -1242,6 +1045,10 @@ export default function AboutUsPage() {
           </div>
         </div>
       </section>
+
+      <div className="about-shell">
+        <Footer />
+      </div>
     </div>
   );
 }

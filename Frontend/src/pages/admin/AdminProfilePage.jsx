@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import ProfileAvatar from "../../components/common/ProfileAvatar";
+import { FiUpload } from "react-icons/fi";
 
 const AdminProfilePage = () => {
-  const { user, updateProfile } = useAuth();
+  const { user, updateProfile, uploadProfileImage } = useAuth();
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -13,6 +15,9 @@ const AdminProfilePage = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
 
@@ -27,6 +32,14 @@ const AdminProfilePage = () => {
       });
     }
   }, [user]);
+
+  useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,9 +65,50 @@ const AdminProfilePage = () => {
     }
   };
 
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+    }
+
+    setSelectedImage(file);
+    setImagePreview(URL.createObjectURL(file));
+    setSuccess("");
+    setError("");
+  };
+
+  const handleImageUpload = async () => {
+    if (!selectedImage) {
+      setError("Please choose an image first.");
+      return;
+    }
+
+    try {
+      setUploadingImage(true);
+      setSuccess("");
+      setError("");
+
+      const response = await uploadProfileImage(selectedImage);
+      setSuccess(response?.message || "Profile image uploaded successfully");
+
+      setSelectedImage(null);
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+      setImagePreview("");
+    } catch (err) {
+      setError(
+        err?.response?.data?.message || "Failed to upload profile image"
+      );
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const displayName = user?.fullName || user?.name || "Admin";
   const displayRole = user?.role || "admin";
-  const initial = displayName.charAt(0).toUpperCase();
 
   return (
     <div style={styles.page}>
@@ -69,7 +123,43 @@ const AdminProfilePage = () => {
 
       <div style={styles.card}>
         <div style={styles.topSection}>
-          <div style={styles.avatar}>{initial}</div>
+          <div style={styles.avatarUploadColumn}>
+            {imagePreview ? (
+              <img
+                src={imagePreview}
+                alt="Preview"
+                style={styles.previewImage}
+              />
+            ) : (
+              <ProfileAvatar user={user} size={72} />
+            )}
+
+            <label style={styles.fileLabel}>
+              Choose Image
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                style={styles.hiddenFileInput}
+              />
+            </label>
+
+            <button
+              type="button"
+              style={styles.uploadButton}
+              onClick={handleImageUpload}
+              disabled={uploadingImage}
+            >
+              <FiUpload size={14} />
+              {uploadingImage ? "Uploading..." : "Upload Image"}
+            </button>
+
+            {selectedImage ? (
+              <p style={styles.fileName}>{selectedImage.name}</p>
+            ) : (
+              <p style={styles.fileHint}>Optional admin photo</p>
+            )}
+          </div>
 
           <div>
             <h2 style={styles.name}>{displayName}</h2>
@@ -217,17 +307,62 @@ const styles = {
     marginBottom: "28px",
     flexWrap: "wrap",
   },
-  avatar: {
+  avatarUploadColumn: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: "8px",
+  },
+  previewImage: {
     width: "72px",
     height: "72px",
     borderRadius: "50%",
-    backgroundColor: "#f97316",
-    color: "#ffffff",
-    display: "flex",
+    objectFit: "cover",
+    border: "2px solid #f97316",
+    display: "block",
+  },
+  fileLabel: {
+    display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#ffffff",
+    color: "#374151",
+    border: "1px solid #e5e7eb",
+    borderRadius: "10px",
+    padding: "8px 12px",
+    fontSize: "12px",
     fontWeight: "700",
-    fontSize: "28px",
+    cursor: "pointer",
+  },
+  hiddenFileInput: {
+    display: "none",
+  },
+  uploadButton: {
+    border: "none",
+    backgroundColor: "#f97316",
+    color: "#ffffff",
+    padding: "10px 12px",
+    borderRadius: "10px",
+    fontWeight: "700",
+    cursor: "pointer",
+    fontSize: "12px",
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+  },
+  fileName: {
+    margin: 0,
+    fontSize: "11px",
+    color: "#6b7280",
+    maxWidth: "140px",
+    textAlign: "center",
+    wordBreak: "break-word",
+  },
+  fileHint: {
+    margin: 0,
+    fontSize: "11px",
+    color: "#94a3b8",
+    textAlign: "center",
   },
   name: {
     margin: 0,

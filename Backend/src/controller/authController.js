@@ -16,6 +16,7 @@ const sanitizeUser = (user) => ({
   department: user.department,
   batch: user.batch,
   role: user.role,
+  profileImage: user.profileImage || "",
   createdAt: user.createdAt,
   updatedAt: user.updatedAt,
 });
@@ -320,6 +321,44 @@ export const updateCurrentUser = async (req, res) => {
     console.error("UPDATE PROFILE ERROR:", error);
     return res.status(500).json({
       message: "Server error while updating profile",
+      error: error.message,
+    });
+  }
+};
+
+export const uploadCurrentUserProfileImage = async (req, res) => {
+  try {
+    if (!req.session || !req.session.user) {
+      return res.status(401).json({
+        message: "Not authenticated",
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        message: "Please upload an image file",
+      });
+    }
+
+    const user = await User.findById(req.session.user.userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    user.profileImage = `/uploads/profiles/${req.file.filename}`;
+    await user.save();
+
+    return res.status(200).json({
+      message: "Profile image uploaded successfully",
+      user: sanitizeUser(user),
+    });
+  } catch (error) {
+    console.error("UPLOAD PROFILE IMAGE ERROR:", error);
+    return res.status(500).json({
+      message: "Server error while uploading profile image",
       error: error.message,
     });
   }

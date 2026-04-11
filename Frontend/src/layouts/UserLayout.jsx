@@ -1,30 +1,22 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import logo from "../assets/logo.jpeg"; // ✅ add this
 
 const UserLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const isDashboard = location.pathname === "/dashboard";
-
-  const isFoundItemsPage =
-    location.pathname === "/found-items" ||
-    location.pathname.startsWith("/report-found-item") ||
-    location.pathname.startsWith("/claims/new");
-
-  const isLostItemsPage =
-    location.pathname === "/lost-items" ||
-    location.pathname === "/report-lost" ||
-    location.pathname === "/lost-reports" ||
-    location.pathname.startsWith("/lost-reports/");
-
-  const isClaimsPage = location.pathname.startsWith("/my-claims");
+  const isFound = location.pathname.startsWith("/found-items");
+  const isLost = location.pathname.startsWith("/lost-items");
+  const isClaims = location.pathname.startsWith("/my-claims");
 
   return (
     <div style={styles.page}>
       <aside style={styles.sidebar}>
         <div>
+          {/* ✅ FIXED LOGO */}
           <div style={styles.logoBox} onClick={() => navigate("/")}>
-            <div style={styles.logoCircle}>U</div>
+            <img src={logo} alt="logo" style={styles.logoImage} />
 
             <div>
               <h2 style={styles.logoText}>UniFind</h2>
@@ -34,59 +26,57 @@ const UserLayout = () => {
 
           <nav style={styles.nav}>
             <div
-              onClick={() => navigate("/dashboard")}
               style={{
                 ...styles.navItem,
                 ...(isDashboard ? styles.activeNavItem : {}),
               }}
+              onClick={() => navigate("/dashboard")}
             >
               Dashboard
             </div>
 
             <div
-              onClick={() => navigate("/found-items")}
               style={{
                 ...styles.navItem,
-                ...(isFoundItemsPage ? styles.activeNavItem : {}),
+                ...(isFound ? styles.activeNavItem : {}),
               }}
+              onClick={() => navigate("/found-items")}
             >
               Found Items
             </div>
 
             <div
-              onClick={() => navigate("/lost-items")}
               style={{
                 ...styles.navItem,
-                ...(isLostItemsPage ? styles.activeNavItem : {}),
+                ...(isLost ? styles.activeNavItem : {}),
               }}
+              onClick={() => navigate("/lost-items")}
             >
               Lost Items
             </div>
 
             <div
-              onClick={() => navigate("/my-claims")}
               style={{
                 ...styles.navItem,
-                ...(isClaimsPage ? styles.activeNavItem : {}),
+                ...(isClaims ? styles.activeNavItem : {}),
               }}
+              onClick={() => navigate("/my-claims")}
             >
               My Claims
             </div>
           </nav>
         </div>
 
-        <div style={styles.bottomActions}>
+        <div>
           <button
-            type="button"
-            style={styles.reportFoundButton}
+            style={styles.primaryBtn}
             onClick={() => navigate("/report-found-item")}
           >
             + Report Found Item
           </button>
 
           <button
-            type="button"
-            style={styles.reportLostButton}
+            style={styles.outlineBtn}
             onClick={() => navigate("/report-lost")}
           >
             + Report Lost Item
@@ -105,22 +95,19 @@ const styles = {
   page: {
     display: "flex",
     minHeight: "100vh",
-    width: "100%",
     backgroundColor: "#f6f7fb",
-    fontFamily: "Arial, sans-serif",
-    boxSizing: "border-box",
   },
+
   sidebar: {
     width: "270px",
-    minWidth: "270px",
     backgroundColor: "#ffffff",
     borderRight: "1px solid #e5e7eb",
     padding: "20px",
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
-    boxSizing: "border-box",
   },
+
   logoBox: {
     display: "flex",
     alignItems: "center",
@@ -128,83 +115,69 @@ const styles = {
     marginBottom: "34px",
     cursor: "pointer",
   },
-  logoCircle: {
+
+  logoImage: {
     width: "46px",
     height: "46px",
-    borderRadius: "14px",
-    backgroundColor: "#f97316",
-    color: "white",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: "700",
-    fontSize: "22px",
-    flexShrink: 0,
+    objectFit: "contain",
+    borderRadius: "12px",
+    backgroundColor: "#ffffff",
+    padding: "4px",
+    border: "1px solid #e5e7eb",
   },
+
   logoText: {
     margin: 0,
     fontSize: "20px",
-    color: "#111827",
     fontWeight: "700",
   },
+
   logoSub: {
     margin: "4px 0 0 0",
     fontSize: "13px",
     color: "#6b7280",
   },
+
   nav: {
     display: "flex",
     flexDirection: "column",
     gap: "12px",
   },
+
   navItem: {
     padding: "14px 16px",
     borderRadius: "12px",
-    color: "#374151",
     cursor: "pointer",
-    fontWeight: "500",
-    fontSize: "15px",
-    transition: "0.2s ease",
   },
+
   activeNavItem: {
     backgroundColor: "#fff7ed",
     color: "#f97316",
     fontWeight: "700",
   },
-  bottomActions: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "10px",
-    marginTop: "20px",
-  },
-  reportFoundButton: {
+
+  primaryBtn: {
     backgroundColor: "#f97316",
     color: "#fff",
     border: "none",
     borderRadius: "14px",
-    padding: "14px 18px",
-    fontWeight: "700",
+    padding: "14px",
+    marginBottom: "10px",
     cursor: "pointer",
-    width: "100%",
-    fontSize: "15px",
   },
-  reportLostButton: {
-    backgroundColor: "#ffffff",
+
+  outlineBtn: {
+    backgroundColor: "#fff",
     color: "#f97316",
     border: "1px solid #f97316",
     borderRadius: "14px",
-    padding: "14px 18px",
-    fontWeight: "700",
+    padding: "14px",
     cursor: "pointer",
-    width: "100%",
-    fontSize: "15px",
   },
+
   main: {
     flex: 1,
-    width: "100%",
-    padding: "26px 32px",
-    boxSizing: "border-box",
-    overflowX: "hidden",
+    padding: "26px",
   },
 };
 

@@ -5,6 +5,7 @@ import {
   logoutUser as logoutApi,
   registerUser as registerApi,
   updateCurrentUser as updateCurrentUserApi,
+  uploadProfileImage as uploadProfileImageApi,
 } from "../api/authApi";
 
 const AuthContext = createContext();
@@ -75,6 +76,19 @@ export const AuthProvider = ({ children }) => {
     return response.data;
   };
 
+  const uploadProfileImage = async (file) => {
+    const response = await uploadProfileImageApi(file);
+    const updatedUser = response?.data?.user || null;
+
+    setUser(updatedUser);
+
+    if (updatedUser) {
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+    }
+
+    return response.data;
+  };
+
   const logout = async () => {
     try {
       await logoutApi();
@@ -96,6 +110,7 @@ export const AuthProvider = ({ children }) => {
         logout,
         checkAuth,
         updateProfile,
+        uploadProfileImage,
       }}
     >
       {children}

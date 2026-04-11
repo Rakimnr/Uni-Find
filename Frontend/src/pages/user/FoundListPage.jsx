@@ -10,10 +10,11 @@ import {
 import { getFoundItems } from "../../api/foundApi";
 import FoundCard from "../../components/found/FoundCard";
 import { useAuth } from "../../context/AuthContext";
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 
 const FoundListPage = () => {
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
 
   const [items, setItems] = useState([]);
   const [filteredCategory, setFilteredCategory] = useState("All Categories");
@@ -26,14 +27,12 @@ const FoundListPage = () => {
   const notificationRef = useRef(null);
   const profileRef = useRef(null);
 
-  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const userName =
-    storedUser?.fullName ||
-    storedUser?.name ||
-    storedUser?.username ||
+    user?.fullName ||
+    user?.name ||
+    user?.username ||
     "User";
-  const userRole = storedUser?.role || "member";
-  const userInitial = userName?.trim()?.charAt(0)?.toUpperCase() || "U";
+  const userRole = user?.role || "member";
 
   const handleLogout = async () => {
     await logout();
@@ -167,6 +166,7 @@ const FoundListPage = () => {
 
           <div style={styles.menuWrap} ref={notificationRef}>
             <button
+              type="button"
               style={styles.iconButton}
               onClick={() => {
                 setShowNotifications((prev) => !prev);
@@ -180,8 +180,17 @@ const FoundListPage = () => {
               <div style={styles.dropdownMenu}>
                 <p style={styles.dropdownTitle}>Notifications</p>
 
-                {notifications.map((note) => (
-                  <div key={note.id} style={styles.dropdownItemBlock}>
+                {notifications.map((note, index) => (
+                  <div
+                    key={note.id}
+                    style={{
+                      ...styles.dropdownItemBlock,
+                      borderBottom:
+                        index === notifications.length - 1
+                          ? "none"
+                          : "1px solid #f1f5f9",
+                    }}
+                  >
                     <p style={styles.dropdownItemTitle}>{note.title}</p>
                     <p style={styles.dropdownItemText}>{note.text}</p>
                   </div>
@@ -192,6 +201,7 @@ const FoundListPage = () => {
 
           <div style={styles.menuWrap} ref={profileRef}>
             <button
+              type="button"
               style={styles.profileButton}
               onClick={() => {
                 setShowProfileMenu((prev) => !prev);
@@ -199,7 +209,7 @@ const FoundListPage = () => {
               }}
             >
               <div style={styles.profileBox}>
-                <div style={styles.avatar}>{userInitial}</div>
+                <ProfileAvatar user={user} size={40} />
                 <div style={styles.profileTextWrap}>
                   <p style={styles.profileName}>{userName}</p>
                   <p style={styles.profileRole}>{userRole}</p>
@@ -211,14 +221,19 @@ const FoundListPage = () => {
             {showProfileMenu && (
               <div style={styles.profileDropdown}>
                 <button
-  style={styles.dropdownAction}
-  onClick={() => navigate("/profile")}
->
-  <FiUser size={16} />
-  <span>My Profile</span>
-</button>
+                  type="button"
+                  style={styles.dropdownAction}
+                  onClick={() => navigate("/profile")}
+                >
+                  <FiUser size={16} />
+                  <span>My Profile</span>
+                </button>
 
-                <button style={styles.dropdownAction} onClick={handleLogout}>
+                <button
+                  type="button"
+                  style={styles.dropdownAction}
+                  onClick={handleLogout}
+                >
                   <FiLogOut size={16} />
                   <span>Logout</span>
                 </button>
@@ -229,11 +244,12 @@ const FoundListPage = () => {
       </div>
 
       <div style={styles.tabs}>
-        <button style={{ ...styles.tabButton, ...styles.activeTab }}>
+        <button type="button" style={{ ...styles.tabButton, ...styles.activeTab }}>
           Found Items
         </button>
 
         <button
+          type="button"
           style={styles.tabButton}
           onClick={() => navigate("/my-claims")}
         >
@@ -245,6 +261,7 @@ const FoundListPage = () => {
         {categories.map((category) => (
           <button
             key={category}
+            type="button"
             onClick={() => setFilteredCategory(category)}
             style={{
               ...styles.filterButton,
@@ -355,19 +372,6 @@ const styles = {
     flexDirection: "column",
     alignItems: "flex-start",
   },
-  avatar: {
-    width: "40px",
-    height: "40px",
-    borderRadius: "50%",
-    backgroundColor: "#f97316",
-    color: "#ffffff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: "700",
-    fontSize: "16px",
-    flexShrink: 0,
-  },
   profileName: {
     margin: 0,
     fontSize: "14px",
@@ -402,7 +406,6 @@ const styles = {
   },
   dropdownItemBlock: {
     padding: "10px 0",
-    borderBottom: "1px solid #f1f5f9",
   },
   dropdownItemTitle: {
     margin: 0,
