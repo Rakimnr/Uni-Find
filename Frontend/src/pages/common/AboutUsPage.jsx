@@ -14,7 +14,7 @@ import {
 } from "react-icons/fa";
 import Navbar from "../../components/common/Navbar";
 import Footer from "../../components/common/Footer";
-import campusBuilding from "../../assets/campus-building.jpg";
+import campusBuilding from "../../assets/campus-hero.jpg";
 import campusLibrary from "../../assets/campus-library.jpg";
 import campusStudents from "../../assets/campus-students.jpg";
 

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.jpeg";
 
-function Navbar({ active = "home" }) {
+function Navbar({ active = "home", isOverlay = false }) {
   const navigate = useNavigate();
 
   const navItems = [
@@ -12,7 +12,12 @@ function Navbar({ active = "home" }) {
   ];
 
   return (
-    <header style={styles.header}>
+    <header
+      style={{
+        ...styles.header,
+        ...(isOverlay ? styles.headerOverlay : styles.headerDefault),
+      }}
+    >
       <div style={styles.headerInner}>
         <div style={styles.logoBox} onClick={() => navigate("/")}>
           <div style={styles.logoWrap}>
@@ -66,33 +71,40 @@ function Navbar({ active = "home" }) {
 
 const ORANGE = "#f97316";
 const ORANGE_DARK = "#ea580c";
-const TEXT = "#111827";
-const MUTED = "#6b7280";
+const NAVY_START = "#0f172a";
+const NAVY_END = "#1e293b";
 
 const styles = {
   header: {
-    position: "sticky",
     top: 0,
+    left: 0,
+    width: "100%",
     zIndex: 1000,
     padding: "18px 24px 0",
-    background:
-      "linear-gradient(180deg, rgba(248,243,236,0.95) 0%, rgba(248,243,236,0.82) 60%, rgba(248,243,236,0) 100%)",
-    backdropFilter: "blur(12px)",
+    boxSizing: "border-box",
+  },
+
+  headerOverlay: {
+    position: "absolute",
+  },
+
+  headerDefault: {
+    position: "relative",
   },
 
   headerInner: {
     maxWidth: "1380px",
     margin: "0 auto",
-    minHeight: "84px",
+    minHeight: "82px",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     gap: "18px",
     padding: "14px 18px",
-    borderRadius: "28px",
-    background: "rgba(255, 252, 247, 0.88)",
-    border: "1px solid rgba(234, 88, 12, 0.10)",
-    boxShadow: "0 18px 40px rgba(17, 24, 39, 0.08)",
+    borderRadius: "24px",
+    background: `linear-gradient(135deg, ${NAVY_START} 0%, ${NAVY_END} 100%)`,
+    border: "1px solid rgba(255,255,255,0.10)",
+    boxShadow: "0 18px 40px rgba(15, 23, 42, 0.24)",
     flexWrap: "wrap",
   },
 
@@ -105,16 +117,16 @@ const styles = {
   },
 
   logoWrap: {
-    width: "58px",
-    height: "58px",
+    width: "56px",
+    height: "56px",
     borderRadius: "18px",
-    background: "linear-gradient(135deg, #fffaf5 0%, #ffffff 100%)",
+    background: "rgba(255,255,255,0.10)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    border: "1px solid rgba(234, 88, 12, 0.10)",
-    boxShadow: "0 12px 24px rgba(249, 115, 22, 0.12)",
+    border: "1px solid rgba(255,255,255,0.14)",
     overflow: "hidden",
+    boxShadow: "0 10px 24px rgba(0, 0, 0, 0.18)",
   },
 
   logoImage: {
@@ -126,7 +138,7 @@ const styles = {
 
   logoText: {
     margin: 0,
-    color: TEXT,
+    color: "#ffffff",
     fontSize: "24px",
     fontWeight: "800",
     letterSpacing: "-0.03em",
@@ -134,7 +146,7 @@ const styles = {
 
   logoSub: {
     margin: "4px 0 0 0",
-    color: MUTED,
+    color: "rgba(255,255,255,0.72)",
     fontSize: "11px",
     fontWeight: "700",
     letterSpacing: "0.12em",
@@ -145,37 +157,32 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    gap: "8px",
-    padding: "6px",
-    borderRadius: "999px",
-    background: "#fffdf9",
-    border: "1px solid #eee5db",
-    boxShadow: "inset 0 1px 0 rgba(255,255,255,0.9)",
+    gap: "26px",
+    padding: "6px 10px",
     flexWrap: "wrap",
   },
 
   navButton: {
     border: "none",
     background: "transparent",
-    color: "#4b5563",
-    padding: "12px 18px",
-    borderRadius: "999px",
+    color: "rgba(255,255,255,0.82)",
+    padding: "10px 2px 12px",
     cursor: "pointer",
-    fontSize: "14px",
+    fontSize: "15px",
     fontWeight: "700",
+    borderBottom: "3px solid transparent",
     transition: "0.2s ease",
   },
 
   activeNavButton: {
     border: "none",
-    background: `linear-gradient(135deg, ${ORANGE} 0%, ${ORANGE_DARK} 100%)`,
+    background: "transparent",
     color: "#ffffff",
-    padding: "12px 18px",
-    borderRadius: "999px",
+    padding: "10px 2px 12px",
     cursor: "pointer",
-    fontSize: "14px",
+    fontSize: "15px",
     fontWeight: "800",
-    boxShadow: "0 10px 24px rgba(249, 115, 22, 0.28)",
+    borderBottom: `3px solid ${ORANGE}`,
   },
 
   actions: {
@@ -186,15 +193,14 @@ const styles = {
   },
 
   loginButton: {
-    border: "1px solid #eadfd4",
-    background: "#fffdfa",
-    color: "#374151",
+    border: "1px solid rgba(255,255,255,0.14)",
+    background: "rgba(255,255,255,0.06)",
+    color: "#ffffff",
     padding: "12px 18px",
     borderRadius: "999px",
     cursor: "pointer",
     fontSize: "14px",
     fontWeight: "700",
-    boxShadow: "0 8px 18px rgba(17, 24, 39, 0.04)",
   },
 
   reportButton: {
