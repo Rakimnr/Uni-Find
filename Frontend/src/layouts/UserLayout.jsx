@@ -5,6 +5,7 @@ const UserLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const isHome = location.pathname === "/";
   const isDashboard = location.pathname === "/dashboard";
   const isFound = location.pathname.startsWith("/found-items");
   const isLost = location.pathname.startsWith("/lost-items");
@@ -14,7 +15,6 @@ const UserLayout = () => {
     <div style={styles.page}>
       <aside style={styles.sidebar}>
         <div>
-          {/* LOGO */}
           <div style={styles.logoBox} onClick={() => navigate("/")}>
             <div style={styles.logoWrap}>
               <img src={logo} alt="logo" style={styles.logoImage} />
@@ -26,8 +26,17 @@ const UserLayout = () => {
             </div>
           </div>
 
-          {/* NAVIGATION */}
           <nav style={styles.nav}>
+            <div
+              style={{
+                ...styles.navItem,
+                ...(isHome ? styles.activeNavItem : {}),
+              }}
+              onClick={() => navigate("/")}
+            >
+              Home
+            </div>
+
             <div
               style={{
                 ...styles.navItem,
@@ -70,7 +79,6 @@ const UserLayout = () => {
           </nav>
         </div>
 
-        {/* 🔥 CLEAN BUTTONS (NO BOX) */}
         <div style={styles.actions}>
           <button
             style={styles.primaryBtn}
@@ -168,6 +176,7 @@ const styles = {
     color: "#374151",
     fontWeight: "600",
     fontSize: "14px",
+    transition: "0.2s ease",
   },
 
   activeNavItem: {
@@ -176,7 +185,6 @@ const styles = {
     fontWeight: "700",
   },
 
-  /* 🔥 CLEAN BUTTONS */
   actions: {
     display: "flex",
     flexDirection: "column",
