@@ -1,5 +1,5 @@
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import logo from "../assets/logo.jpeg"; // ✅ add this
+import logo from "../assets/logo.jpeg";
 
 const AdminLayout = () => {
   const navigate = useNavigate();
@@ -17,8 +17,11 @@ const AdminLayout = () => {
     <div style={styles.page}>
       <aside style={styles.sidebar}>
         <div>
-          {/* ✅ FIXED LOGO */}
-          <div style={styles.logoBox}>
+          {/* ✅ CLICKABLE LOGO */}
+          <div
+            style={styles.logoBox}
+            onClick={() => navigate("/")}
+          >
             <img src={logo} alt="logo" style={styles.logoImage} />
 
             <div>
@@ -27,6 +30,7 @@ const AdminLayout = () => {
             </div>
           </div>
 
+          {/* NAVIGATION */}
           <nav style={styles.nav}>
             <div
               style={{
@@ -100,9 +104,22 @@ const AdminLayout = () => {
           </nav>
         </div>
 
-        <button style={styles.backButton} onClick={() => navigate("/")}>
-          Log Out
-        </button>
+        {/* ✅ BOTTOM ACTIONS */}
+        <div style={styles.bottomActions}>
+          <button
+            style={styles.outlineBtn}
+            onClick={() => navigate("/")}
+          >
+            ← Back to Site
+          </button>
+
+          <button
+            style={styles.primaryBtn}
+            onClick={() => navigate("/login")}
+          >
+            Log Out
+          </button>
+        </div>
       </aside>
 
       <main style={styles.main}>
@@ -134,6 +151,7 @@ const styles = {
     alignItems: "center",
     gap: "12px",
     marginBottom: "34px",
+    cursor: "pointer",
   },
 
   logoImage: {
@@ -168,6 +186,8 @@ const styles = {
     padding: "14px 16px",
     borderRadius: "12px",
     cursor: "pointer",
+    color: "#374151",
+    fontWeight: "600",
   },
 
   activeNavItem: {
@@ -176,13 +196,30 @@ const styles = {
     fontWeight: "700",
   },
 
-  backButton: {
+  /* 🔥 NEW */
+  bottomActions: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "10px",
+  },
+
+  primaryBtn: {
     backgroundColor: "#f97316",
     color: "#fff",
     border: "none",
     borderRadius: "14px",
     padding: "14px",
     fontWeight: "700",
+    cursor: "pointer",
+  },
+
+  outlineBtn: {
+    backgroundColor: "transparent",
+    color: "#f97316",
+    border: "1.5px solid #f97316",
+    borderRadius: "14px",
+    padding: "14px",
+    fontWeight: "600",
     cursor: "pointer",
   },
 
