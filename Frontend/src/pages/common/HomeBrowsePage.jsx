@@ -134,7 +134,7 @@ function HomeBrowsePage() {
             <div style={styles.heroBadge}>Smart Campus Lost & Found Platform</div>
 
             <h1 style={styles.heroTitle}>
-              Find What Matters With A Cleaner And Smarter Campus Experience.
+              Find What Matters With a Cleaner and Smarter Campus Experience.
             </h1>
 
             <p style={styles.heroText}>

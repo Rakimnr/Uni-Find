@@ -89,7 +89,8 @@ const AdminAddFoundPage = () => {
   };
 
   return (
-    <div>
+    <div style={styles.pageWrapper}>
+      {/* Top Section */}
       <div style={styles.topSection}>
         <h1 style={styles.heading}>Add Found Item</h1>
         <p style={styles.subText}>
@@ -105,6 +106,7 @@ const AdminAddFoundPage = () => {
         </button>
       </div>
 
+      {/* Form */}
       <div style={styles.formCard}>
         {message && <p style={styles.success}>{message}</p>}
         {error && <p style={styles.error}>{error}</p>}
@@ -220,21 +222,33 @@ const AdminAddFoundPage = () => {
 };
 
 const styles = {
+  pageWrapper: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center", // ✅ centers everything
+    width: "100%",
+  },
+
   topSection: {
     marginBottom: "22px",
+    width: "100%",
+    maxWidth: "760px",
   },
+
   heading: {
     margin: 0,
     fontSize: "30px",
     color: "#111827",
     fontWeight: "700",
   },
+
   subText: {
     marginTop: "8px",
     marginBottom: "18px",
     color: "#6b7280",
     fontSize: "15px",
   },
+
   backButton: {
     padding: "10px 16px",
     border: "none",
@@ -245,21 +259,25 @@ const styles = {
     fontSize: "14px",
     fontWeight: "600",
   },
+
   formCard: {
     backgroundColor: "#ffffff",
     padding: "24px",
     borderRadius: "18px",
     maxWidth: "760px",
     width: "100%",
+    margin: "0 auto", // ✅ center fix
     boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
     border: "1px solid #eceff3",
     boxSizing: "border-box",
   },
+
   form: {
     display: "flex",
     flexDirection: "column",
     gap: "14px",
   },
+
   input: {
     width: "100%",
     padding: "14px 16px",
@@ -270,6 +288,7 @@ const styles = {
     boxSizing: "border-box",
     backgroundColor: "#ffffff",
   },
+
   textarea: {
     width: "100%",
     padding: "14px 16px",
@@ -282,6 +301,7 @@ const styles = {
     boxSizing: "border-box",
     backgroundColor: "#ffffff",
   },
+
   submitButton: {
     marginTop: "6px",
     width: "100%",
@@ -294,23 +314,22 @@ const styles = {
     fontSize: "16px",
     cursor: "pointer",
   },
+
   submitButtonDisabled: {
     opacity: 0.7,
     cursor: "not-allowed",
   },
+
   success: {
     color: "green",
-    marginTop: 0,
     marginBottom: "12px",
     fontSize: "14px",
-    fontWeight: "500",
   },
+
   error: {
     color: "red",
-    marginTop: 0,
     marginBottom: "12px",
     fontSize: "14px",
-    fontWeight: "500",
   },
 };
 
