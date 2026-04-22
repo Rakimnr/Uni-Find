@@ -1,16 +1,22 @@
 import { Navigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const AdminRoute = ({ children }) => {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const { user, authLoading } = useAuth();
 
-  // not logged in
-  if (!user) {
-    return <Navigate to="/" />;
+  // wait until auth loads
+  if (authLoading) {
+    return <h2 style={{ textAlign: "center", marginTop: "40px" }}>Loading...</h2>;
   }
 
-  // not admin
+  // not logged in → go login
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // not admin → go user dashboard
   if (user.role !== "admin") {
-    return <Navigate to="/" />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   // admin allowed

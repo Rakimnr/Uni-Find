@@ -4,6 +4,7 @@ import {
   getMyClaims,
   getAllClaims,
   updateClaimStatus,
+  getClaimReport,
 } from "../controller/claimController.js";
 
 import { protectAdmin } from "../middleware/authMiddleware.js";
@@ -15,6 +16,9 @@ router.post("/", createClaim);
 
 // USER: view own claims
 router.get("/my", getMyClaims);
+
+// ADMIN: claim report
+router.get("/report", protectAdmin, getClaimReport);
 
 // ADMIN: view all claims
 router.get("/", protectAdmin, getAllClaims);

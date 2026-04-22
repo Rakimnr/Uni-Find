@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   FiBell,
@@ -6,28 +6,73 @@ import {
   FiClock,
   FiCheckCircle,
   FiXCircle,
+  FiChevronDown,
+  FiLogOut,
+  FiUser,
+  FiAlertCircle,
 } from "react-icons/fi";
 import { getMyClaims } from "../../api/claimApi";
+import { useAuth } from "../../context/AuthContext";
+import ProfileAvatar from "../../components/common/ProfileAvatar";
 
 const UserDashboardPage = () => {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const [claims, setClaims] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  const notificationRef = useRef(null);
+  const profileRef = useRef(null);
+
+  const userName =
+    user?.fullName ||
+    user?.name ||
+    user?.username ||
+    "User";
+
+  const userRole = user?.role || "member";
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
 
   useEffect(() => {
     const fetchClaims = async () => {
       try {
         const res = await getMyClaims();
-        setClaims(res.claims || []);
+        setClaims(res?.claims || []);
       } catch (error) {
         console.error("Failed to load user dashboard data", error);
+        setError("Failed to load dashboard data.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchClaims();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target)
+      ) {
+        setShowNotifications(false);
+      }
+
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setShowProfileMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const stats = {
@@ -40,6 +85,42 @@ const UserDashboardPage = () => {
   const recentClaims = [...claims]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
     .slice(0, 5);
+
+  const notifications = [];
+
+  if (stats.pending > 0) {
+    notifications.push({
+      id: 1,
+      title: "Pending Claims",
+      text: `You have ${stats.pending} pending claim${
+        stats.pending > 1 ? "s" : ""
+      } awaiting approval.`,
+    });
+  }
+
+  if (stats.approved > 0) {
+    notifications.push({
+      id: 2,
+      title: "Approved Claims",
+      text: `${stats.approved} of your claim${
+        stats.approved > 1 ? "s have" : " has"
+      } been approved.`,
+    });
+  }
+
+  notifications.push({
+    id: 3,
+    title: "Total Claims",
+    text: `You have submitted ${stats.total} claim${
+      stats.total !== 1 ? "s" : ""
+    } in total.`,
+  });
+
+  notifications.push({
+    id: 4,
+    title: "System Notice",
+    text: "Items older than 30 days cannot be claimed online.",
+  });
 
   const formatDate = (dateString) => {
     if (!dateString) return "No date";
@@ -99,6 +180,15 @@ const UserDashboardPage = () => {
     return <p style={styles.stateText}>Loading dashboard...</p>;
   }
 
+  if (error) {
+    return (
+      <div style={styles.errorCard}>
+        <FiAlertCircle size={18} />
+        <span>{error}</span>
+      </div>
+    );
+  }
+
   return (
     <div style={styles.page}>
       <div style={styles.topBar}>
@@ -110,23 +200,94 @@ const UserDashboardPage = () => {
         </div>
 
         <div style={styles.topBarRight}>
-          <button style={styles.iconButton}>
-            <FiBell size={18} />
-          </button>
+          <div style={styles.menuWrap} ref={notificationRef}>
+            <button
+              type="button"
+              style={styles.iconButton}
+              onClick={() => {
+                setShowNotifications((prev) => !prev);
+                setShowProfileMenu(false);
+              }}
+            >
+              <FiBell size={18} />
+            </button>
 
-          <div style={styles.profileBox}>
-            <div style={styles.avatar}>H</div>
-            <div>
-              <p style={styles.profileName}>Hashini</p>
-              <p style={styles.profileRole}>UniFind User</p>
-            </div>
+            {showNotifications && (
+              <div style={styles.dropdownMenu}>
+                <p style={styles.dropdownTitle}>Notifications</p>
+
+                {notifications.length === 0 ? (
+                  <p style={styles.dropdownEmpty}>No notifications yet.</p>
+                ) : (
+                  notifications.map((note, index) => (
+                    <div
+                      key={note.id}
+                      style={{
+                        ...styles.dropdownItemBlock,
+                        borderBottom:
+                          index === notifications.length - 1
+                            ? "none"
+                            : "1px solid #f1f5f9",
+                      }}
+                    >
+                      <p style={styles.dropdownItemTitle}>{note.title}</p>
+                      <p style={styles.dropdownItemText}>{note.text}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+
+          <div style={styles.menuWrap} ref={profileRef}>
+            <button
+              type="button"
+              style={styles.profileButton}
+              onClick={() => {
+                setShowProfileMenu((prev) => !prev);
+                setShowNotifications(false);
+              }}
+            >
+              <div style={styles.profileBox}>
+                <ProfileAvatar user={user} size={40} />
+
+                <div style={styles.profileTextWrap}>
+                  <p style={styles.profileName}>{userName}</p>
+                  <p style={styles.profileRole}>{userRole}</p>
+                </div>
+
+                <FiChevronDown size={16} color="#6b7280" />
+              </div>
+            </button>
+
+            {showProfileMenu && (
+              <div style={styles.profileDropdown}>
+                <button
+                  type="button"
+                  style={styles.dropdownAction}
+                  onClick={() => navigate("/profile")}
+                >
+                  <FiUser size={16} />
+                  <span>My Profile</span>
+                </button>
+
+                <button
+                  type="button"
+                  style={styles.dropdownAction}
+                  onClick={handleLogout}
+                >
+                  <FiLogOut size={16} />
+                  <span>Logout</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       <div style={styles.welcomeCard}>
         <div>
-          <h2 style={styles.welcomeTitle}>Welcome back, Hashini</h2>
+          <h2 style={styles.welcomeTitle}>Welcome back, {userName}</h2>
           <p style={styles.welcomeText}>
             Here is a quick overview of your claim activity in UniFind.
           </p>
@@ -134,11 +295,16 @@ const UserDashboardPage = () => {
       </div>
 
       <div style={styles.actionsRow}>
-        <button style={styles.primaryAction} onClick={() => navigate("/")}>
+        <button
+          type="button"
+          style={styles.primaryAction}
+          onClick={() => navigate("/found-items")}
+        >
           Browse Found Items
         </button>
 
         <button
+          type="button"
           style={styles.secondaryAction}
           onClick={() => navigate("/my-claims")}
         >
@@ -146,6 +312,7 @@ const UserDashboardPage = () => {
         </button>
 
         <button
+          type="button"
           style={styles.secondaryAction}
           onClick={() => navigate("/report-found-item")}
         >
@@ -173,6 +340,17 @@ const UserDashboardPage = () => {
         ))}
       </div>
 
+      <div style={styles.noticeCard}>
+        <div style={styles.cardHeaderSimple}>
+          <h2 style={styles.sectionTitle}>System Notices</h2>
+        </div>
+        <ul style={styles.noticeList}>
+          <li>Pending claims need admin review before approval.</li>
+          <li>Expired items cannot be claimed online after 30 days.</li>
+          <li>Recent claims are displayed from newest to oldest.</li>
+        </ul>
+      </div>
+
       <div style={styles.tableCard}>
         <div style={styles.cardHeader}>
           <div>
@@ -180,6 +358,7 @@ const UserDashboardPage = () => {
             <p style={styles.sectionSubtext}>Your latest submitted claims</p>
           </div>
           <button
+            type="button"
             style={styles.viewAllBtn}
             onClick={() => navigate("/my-claims")}
           >
@@ -257,6 +436,9 @@ const styles = {
     fontSize: "15px",
     color: "#6b7280",
   },
+  menuWrap: {
+    position: "relative",
+  },
   iconButton: {
     width: "46px",
     height: "46px",
@@ -269,6 +451,12 @@ const styles = {
     cursor: "pointer",
     boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
   },
+  profileButton: {
+    border: "none",
+    background: "transparent",
+    padding: 0,
+    cursor: "pointer",
+  },
   profileBox: {
     display: "flex",
     alignItems: "center",
@@ -279,18 +467,10 @@ const styles = {
     padding: "8px 14px",
     boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
   },
-  avatar: {
-    width: "40px",
-    height: "40px",
-    borderRadius: "50%",
-    backgroundColor: "#f97316",
-    color: "#ffffff",
+  profileTextWrap: {
     display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontWeight: "700",
-    fontSize: "16px",
-    flexShrink: 0,
+    flexDirection: "column",
+    alignItems: "flex-start",
   },
   profileName: {
     margin: 0,
@@ -304,68 +484,132 @@ const styles = {
     fontSize: "12px",
     color: "#6b7280",
     lineHeight: 1.2,
+    textTransform: "capitalize",
+  },
+  dropdownMenu: {
+    position: "absolute",
+    top: "56px",
+    right: 0,
+    width: "290px",
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "16px",
+    boxShadow: "0 16px 40px rgba(0,0,0,0.08)",
+    padding: "14px",
+    zIndex: 100,
+  },
+  dropdownTitle: {
+    margin: "0 0 10px 0",
+    fontSize: "14px",
+    fontWeight: "700",
+    color: "#111827",
+  },
+  dropdownEmpty: {
+    margin: 0,
+    fontSize: "12px",
+    color: "#6b7280",
+  },
+  dropdownItemBlock: {
+    padding: "10px 0",
+  },
+  dropdownItemTitle: {
+    margin: 0,
+    fontSize: "13px",
+    fontWeight: "700",
+    color: "#111827",
+  },
+  dropdownItemText: {
+    margin: "4px 0 0 0",
+    fontSize: "12px",
+    color: "#6b7280",
+    lineHeight: 1.5,
+  },
+  profileDropdown: {
+    position: "absolute",
+    top: "62px",
+    right: 0,
+    width: "200px",
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "16px",
+    boxShadow: "0 16px 40px rgba(0,0,0,0.08)",
+    padding: "10px",
+    zIndex: 100,
+  },
+  dropdownAction: {
+    width: "100%",
+    border: "none",
+    backgroundColor: "#ffffff",
+    padding: "12px",
+    borderRadius: "12px",
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    cursor: "pointer",
+    color: "#374151",
+    fontSize: "14px",
+    fontWeight: "600",
   },
   welcomeCard: {
-    backgroundColor: "#ffffff",
-    borderRadius: "18px",
-    padding: "22px",
-    border: "1px solid #e5e7eb",
-    boxShadow: "0 6px 18px rgba(15, 23, 42, 0.05)",
-    marginBottom: "20px",
+    background: "linear-gradient(135deg, #fff7ed 0%, #ffffff 100%)",
+    border: "1px solid #fed7aa",
+    borderRadius: "22px",
+    padding: "24px",
+    marginBottom: "22px",
   },
   welcomeTitle: {
     margin: 0,
     fontSize: "24px",
-    fontWeight: "700",
+    fontWeight: "800",
     color: "#111827",
   },
   welcomeText: {
-    margin: "8px 0 0 0",
+    margin: "10px 0 0 0",
     fontSize: "14px",
     color: "#6b7280",
+    lineHeight: 1.6,
   },
   actionsRow: {
     display: "flex",
     gap: "12px",
     flexWrap: "wrap",
-    marginBottom: "24px",
+    marginBottom: "22px",
   },
   primaryAction: {
+    border: "none",
     backgroundColor: "#f97316",
     color: "#ffffff",
-    border: "none",
-    borderRadius: "12px",
     padding: "12px 18px",
-    fontSize: "14px",
-    fontWeight: "600",
+    borderRadius: "14px",
+    fontWeight: "700",
     cursor: "pointer",
-    boxShadow: "0 8px 20px rgba(249,115,22,0.22)",
+    fontSize: "14px",
   },
   secondaryAction: {
-    backgroundColor: "#ffffff",
-    color: "#111827",
     border: "1px solid #e5e7eb",
-    borderRadius: "12px",
+    backgroundColor: "#ffffff",
+    color: "#374151",
     padding: "12px 18px",
-    fontSize: "14px",
-    fontWeight: "600",
+    borderRadius: "14px",
+    fontWeight: "700",
     cursor: "pointer",
+    fontSize: "14px",
   },
   statsGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: "18px",
-    marginBottom: "28px",
+    gap: "16px",
+    marginBottom: "22px",
   },
   statCard: {
     backgroundColor: "#ffffff",
-    borderRadius: "18px",
-    padding: "20px",
     border: "1px solid #e5e7eb",
-    boxShadow: "0 6px 18px rgba(15, 23, 42, 0.05)",
+    borderRadius: "20px",
+    padding: "20px",
     display: "flex",
     alignItems: "center",
     gap: "14px",
+    boxShadow: "0 8px 24px rgba(15, 23, 42, 0.04)",
   },
   statIconWrap: {
     width: "48px",
@@ -378,52 +622,68 @@ const styles = {
   },
   statValue: {
     margin: 0,
-    fontSize: "28px",
+    fontSize: "26px",
     fontWeight: "800",
     color: "#111827",
-    lineHeight: 1.1,
   },
   statLabel: {
     margin: "6px 0 0 0",
-    fontSize: "14px",
+    fontSize: "13px",
     color: "#6b7280",
+  },
+  noticeCard: {
+    backgroundColor: "#ffffff",
+    border: "1px solid #e5e7eb",
+    borderRadius: "20px",
+    padding: "20px",
+    marginBottom: "22px",
+    boxShadow: "0 8px 24px rgba(15, 23, 42, 0.04)",
+  },
+  cardHeaderSimple: {
+    marginBottom: "8px",
+  },
+  noticeList: {
+    margin: 0,
+    paddingLeft: "18px",
+    color: "#4b5563",
+    lineHeight: 1.8,
+    fontSize: "14px",
   },
   tableCard: {
     backgroundColor: "#ffffff",
-    borderRadius: "20px",
-    padding: "22px",
     border: "1px solid #e5e7eb",
-    boxShadow: "0 6px 18px rgba(15, 23, 42, 0.05)",
-    overflowX: "auto",
+    borderRadius: "20px",
+    padding: "20px",
+    boxShadow: "0 8px 24px rgba(15, 23, 42, 0.04)",
   },
   cardHeader: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     gap: "12px",
-    marginBottom: "18px",
     flexWrap: "wrap",
+    marginBottom: "16px",
   },
   sectionTitle: {
     margin: 0,
     fontSize: "20px",
-    fontWeight: "700",
+    fontWeight: "800",
     color: "#111827",
   },
   sectionSubtext: {
-    margin: "4px 0 0 0",
+    margin: "6px 0 0 0",
     fontSize: "13px",
     color: "#6b7280",
   },
   viewAllBtn: {
+    border: "none",
     backgroundColor: "#fff7ed",
     color: "#ea580c",
-    border: "1px solid #fed7aa",
-    borderRadius: "10px",
-    padding: "8px 12px",
-    fontSize: "13px",
-    fontWeight: "600",
+    padding: "10px 14px",
+    borderRadius: "12px",
     cursor: "pointer",
+    fontWeight: "700",
+    fontSize: "13px",
   },
   tableWrapper: {
     overflowX: "auto",
@@ -492,6 +752,17 @@ const styles = {
     fontSize: "18px",
     color: "#6b7280",
     padding: "30px 0",
+  },
+  errorCard: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "10px",
+    padding: "14px 18px",
+    borderRadius: "14px",
+    border: "1px solid #fecaca",
+    backgroundColor: "#fef2f2",
+    color: "#b91c1c",
+    fontWeight: "600",
   },
 };
 

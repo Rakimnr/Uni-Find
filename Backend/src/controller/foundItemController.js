@@ -17,6 +17,14 @@ const expireOldAvailableItems = async () => {
   );
 };
 
+const normalizeText = (value = "") => value.trim().toLowerCase();
+
+const normalizeDateOnly = (value) => {
+  const date = new Date(value);
+  date.setHours(0, 0, 0, 0);
+  return date;
+};
+
 // @desc    Get all found items
 // @route   GET /api/found-items
 // @access  Public
@@ -84,18 +92,64 @@ export const createFoundItem = async (req, res) => {
       status,
     } = req.body;
 
+    if (
+      !title?.trim() ||
+      !description?.trim() ||
+      !category?.trim() ||
+      !foundLocation?.trim() ||
+      !dateFound ||
+      !storageLocation?.trim()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Please fill all required fields.",
+      });
+    }
+
     const image = req.file ? `/uploads/${req.file.filename}` : "";
 
+    const normalizedTitle = normalizeText(title);
+    const normalizedCategory = normalizeText(category);
+    const normalizedFoundLocation = normalizeText(foundLocation);
+    const normalizedStorageLocation = normalizeText(storageLocation);
+    const normalizedDate = normalizeDateOnly(dateFound);
+
+    const startOfDay = new Date(normalizedDate);
+    const endOfDay = new Date(normalizedDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const similarItems = await FoundItem.find({
+      category: new RegExp(`^${category.trim()}$`, "i"),
+      dateFound: { $gte: startOfDay, $lte: endOfDay },
+    });
+
+    const duplicateItem = similarItems.find((item) => {
+      return (
+        normalizeText(item.title) === normalizedTitle &&
+        normalizeText(item.category) === normalizedCategory &&
+        normalizeText(item.foundLocation) === normalizedFoundLocation &&
+        normalizeText(item.storageLocation) === normalizedStorageLocation
+      );
+    });
+
+    if (duplicateItem) {
+      return res.status(409).json({
+        success: false,
+        message:
+          "A very similar found item already exists for the same date and location. Please review existing records before adding.",
+      });
+    }
+
     const newFoundItem = await FoundItem.create({
-      title,
-      description,
-      category,
+      title: title.trim(),
+      description: description.trim(),
+      category: category.trim(),
       image,
-      foundLocation,
+      foundLocation: foundLocation.trim(),
       dateFound,
-      storageLocation,
+      storageLocation: storageLocation.trim(),
       status: status || "available",
-      createdBy: null, // no login yet
+      createdBy: null,
     });
 
     res.status(201).json({

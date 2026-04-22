@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 const claimSchema = new mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     itemId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "FoundItem",
@@ -21,11 +26,11 @@ const claimSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      lowercase: true,
     },
     phone: {
       type: String,
       trim: true,
-      default: "",
     },
     reason: {
       type: String,
@@ -54,7 +59,6 @@ const claimSchema = new mongoose.Schema(
     contentsDescription: {
       type: String,
       trim: true,
-      default: "",
     },
     status: {
       type: String,

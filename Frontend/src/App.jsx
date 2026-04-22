@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import UserLayout from "./layouts/UserLayout";
 import AdminLayout from "./layouts/AdminLayout";
 
@@ -7,31 +7,212 @@ import AddFoundItemPage from "./pages/user/AddFoundItemPage";
 import ClaimItemPage from "./pages/user/ClaimItemPage";
 import MyClaimsPage from "./pages/user/MyClaimsPage";
 import UserDashboardPage from "./pages/user/UserDashboardPage";
+import MyProfilePage from "./pages/user/MyProfilePage";
+import LostItemsCatalogPage from "./pages/user/LostItemsCatalogPage.jsx";
 
 import AdminClaimReviewPage from "./pages/admin/AdminClaimReviewPage";
+import AdminClaimReportPage from "./pages/admin/AdminClaimReportPage";
 import AdminManageFoundPage from "./pages/admin/AdminManageFoundPage";
 import AdminAddFoundPage from "./pages/admin/AdminAddFoundPage";
 import AdminExpiredItemsPage from "./pages/admin/AdminExpiredItemsPage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
+import AdminProfilePage from "./pages/admin/AdminProfilePage";
+
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./routes/AdminRoute";
+
+import ReportLostItemPage from "./pages/user/ReportLostItemPage.jsx";
+import MyLostReportsPage from "./pages/user/MyLostReportsPage.jsx";
+import LostItemDetailsPage from "./pages/user/LostItemDetailsPage.jsx";
+import EditLostItemPage from "./pages/user/EditLostItemPage.jsx";
+import AdminManageLostPage from "./pages/admin/AdminManageLostPage.jsx";
+import HomeBrowsePage from "./pages/common/HomeBrowsePage.jsx";
+import AboutUsPage from "./pages/common/AboutUsPage.jsx";
 
 function App() {
   return (
     <Routes>
+      {/* public routes */}
+      <Route path="/" element={<HomeBrowsePage />} />
+      <Route path="/homepage" element={<HomeBrowsePage />} />
+      <Route path="/about" element={<AboutUsPage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+
+      {/* user layout routes */}
       <Route element={<UserLayout />}>
-        <Route path="/" element={<FoundListPage />} />
-        <Route path="/report-found-item" element={<AddFoundItemPage />} />
-        <Route path="/claims/new/:itemId" element={<ClaimItemPage />} />
-        <Route path="/my-claims" element={<MyClaimsPage />} />
-        <Route path="/dashboard" element={<UserDashboardPage />} />
+        <Route path="/found-items" element={<FoundListPage />} />
+        <Route path="/lost-items" element={<LostItemsCatalogPage />} />
+
+        <Route
+          path="/report-found-item"
+          element={
+            <ProtectedRoute>
+              <AddFoundItemPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/claims/new/:itemId"
+          element={
+            <ProtectedRoute>
+              <ClaimItemPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/my-claims"
+          element={
+            <ProtectedRoute>
+              <MyClaimsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <UserDashboardPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <MyProfilePage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/report-lost"
+          element={
+            <ProtectedRoute>
+              <ReportLostItemPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/lost-reports"
+          element={
+            <ProtectedRoute>
+              <MyLostReportsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/lost-reports/:id"
+          element={
+            <ProtectedRoute>
+              <LostItemDetailsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/lost-reports/edit/:id"
+          element={
+            <ProtectedRoute>
+              <EditLostItemPage />
+            </ProtectedRoute>
+          }
+        />
       </Route>
 
+      {/* admin layout routes */}
       <Route element={<AdminLayout />}>
-        <Route path="/admin/claims" element={<AdminClaimReviewPage />} />
-        <Route path="/admin/found-items" element={<AdminManageFoundPage />} />
-        <Route path="/admin/add-found-item" element={<AdminAddFoundPage />} />
-        <Route path="/admin/expired-items" element={<AdminExpiredItemsPage />} />
-        <Route path="/admin" element={<AdminDashboardPage />} />
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminDashboardPage />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/claims"
+          element={
+            <AdminRoute>
+              <AdminClaimReviewPage />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/claim-report"
+          element={
+            <AdminRoute>
+              <AdminClaimReportPage />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/found-items"
+          element={
+            <AdminRoute>
+              <AdminManageFoundPage />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/lost-items"
+          element={
+            <AdminRoute>
+              <AdminManageLostPage />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/lost-items/:id"
+          element={
+            <AdminRoute>
+              <LostItemDetailsPage />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/add-found-item"
+          element={
+            <AdminRoute>
+              <AdminAddFoundPage />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/expired-items"
+          element={
+            <AdminRoute>
+              <AdminExpiredItemsPage />
+            </AdminRoute>
+          }
+        />
+
+        <Route
+          path="/admin/profile"
+          element={
+            <AdminRoute>
+              <AdminProfilePage />
+            </AdminRoute>
+          }
+        />
       </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

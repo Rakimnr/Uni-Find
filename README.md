@@ -1,100 +1,114 @@
-# 🎓 Uni-Find
-
-<div align="center">
+# Uni-Find
 
 **University Lost & Found Management System**
 
-A MERN-style web application that helps universities manage found items, student claims, and item return workflows through a centralized digital platform.
+Uni-Find is a full-stack university lost-and-found management system built to digitize item reporting, browsing, claims, and admin-side item management. The system supports both **Found Portal** and **Lost Portal** workflows through separate user and admin interfaces.
 
 ![Status](https://img.shields.io/badge/Status-Active%20Development-gold)
-![Frontend](https://img.shields.io/badge/Frontend-React%2019%20%2B%20Vite-61DAFB?logo=react&logoColor=white)
+![Frontend](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-61DAFB?logo=react&logoColor=white)
 ![Backend](https://img.shields.io/badge/Backend-Node.js%20%2B%20Express-339933?logo=node.js&logoColor=white)
 ![Database](https://img.shields.io/badge/Database-MongoDB-47A248?logo=mongodb&logoColor=white)
-![Uploads](https://img.shields.io/badge/File%20Uploads-Multer-blue)
-
-</div>
+![Testing](https://img.shields.io/badge/Testing-Playwright-45ba63?logo=playwright&logoColor=white)
 
 ---
 
-## 📚 Table of Contents
+## Table of Contents
 
-- [About the Project](#-about-the-project)
-- [Current Features](#-current-features)
-- [Tech Stack](#-tech-stack)
-- [System Architecture](#-system-architecture)
-- [Project Structure](#-project-structure)
-- [How to Run the Project](#-how-to-run-the-project)
-- [Environment Variables](#-environment-variables)
-- [Available Scripts](#-available-scripts)
-- [Frontend Routes](#-frontend-routes)
-- [Backend API Endpoints](#-backend-api-endpoints)
-- [Database Models](#-database-models)
-- [How the System Works](#-how-the-system-works)
-- [Troubleshooting](#-troubleshooting)
-- [Future Improvements](#-future-improvements)
-- [Project Notes](#-project-notes)
+- [About the Project](#about-the-project)
+- [Current Features](#current-features)
+- [Tech Stack](#tech-stack)
+- [System Architecture](#system-architecture)
+- [Project Structure](#project-structure)
+- [How to Run the Project](#how-to-run-the-project)
+- [Environment Variables](#environment-variables)
+- [Available Scripts](#available-scripts)
+- [Frontend Routes](#frontend-routes)
+- [Backend API Route Groups](#backend-api-route-groups)
+- [Core Modules](#core-modules)
+- [Testing](#testing)
+- [How the System Works](#how-the-system-works)
+- [Troubleshooting](#troubleshooting)
+- [Future Improvements](#future-improvements)
 
 ---
 
-## 📖 About the Project
+## About the Project
 
-**Uni-Find** is a university lost-and-found management system built to reduce the confusion and delay of manual lost property handling.
+Uni-Find is designed to reduce the confusion and delays of manual lost-and-found handling inside a university environment.
 
-Instead of depending on notice boards, security desks, or word of mouth, this system provides a single web platform where users can:
+Instead of depending only on notice boards, security desks, or word of mouth, the system provides a centralized platform where users can:
 
+- browse found items
 - report found items
-- browse available items
-- submit ownership claims
-- track submitted claims
-- manage items through an admin panel
+- report lost items
+- view lost item details
+- manage their own lost reports
+- submit claims for found items
+- track their claims
+- use user and admin dashboards
+- manage item records through an admin panel
 
-The current repository is organized into two main parts:
+The repository is organized into two main parts:
 
 - **Frontend** — React + Vite client application
 - **Backend** — Express + MongoDB REST API
 
-This project is a strong base for a full campus-wide lost-and-found portal and can be extended further with authentication, notifications, and smarter item matching.
-
 ---
 
-## ✨ Current Features
+## Current Features
 
-### 👤 User Features
-- Browse all found items
-- View item details
+### User Features
+
+- Browse found items
+- Browse lost item reports
+- View found item details
+- View lost item details
 - Report a found item with image upload
-- Submit a claim for an item
+- Report a lost item with image upload
+- Edit personal lost reports
+- View personal lost reports
+- Submit a claim for a found item
 - View personal claim history
 - Access a user dashboard
+- Access a user profile page
 
-### 👑 Admin Features
+### Admin Features
+
 - Access admin dashboard
-- Review submitted claims
-- Approve or reject claims
 - Manage found items
+- Manage lost items
+- Review submitted claims
+- View claim reports
 - Add found items manually
 - View expired items
+- Open admin-side lost item detail views
 
-### 🧩 System Features
-- REST API for found items and claims
+### System Features
+
+- Separate user and admin layouts
+- Protected user routes
+- Admin-only routes
+- REST API for authentication, claims, found items, and lost items
 - MongoDB database integration
 - Static image serving through the `uploads/` folder
-- Clean separation between frontend and backend
-- Reusable layouts for user and admin pages
+- Session-based authentication support
+- Playwright end-to-end testing scripts in the frontend
+- Reusable page structure for future scaling
 
 ---
 
-## 🛠 Tech Stack
+## Tech Stack
 
 | Layer | Technologies |
 |---|---|
-| **Frontend** | React 19, Vite, React Router DOM, Axios, React Icons, CSS |
-| **Backend** | Node.js, Express.js, MongoDB, Mongoose, Multer, JWT, CORS, Dotenv |
-| **Development Tools** | npm, Nodemon, ESLint, VS Code, Git |
+| **Frontend** | React, Vite, React Router DOM, Axios, React Icons, Recharts |
+| **Backend** | Node.js, Express.js, MongoDB, Mongoose, Multer, CORS, Dotenv, Express Session, Bcrypt |
+| **Testing** | Playwright |
+| **Development Tools** | npm, Nodemon, ESLint, VS Code, Git, GitHub |
 
 ---
 
-## 🏗 System Architecture
+## System Architecture
 
 ```text
 Users / Admin
@@ -108,9 +122,10 @@ Axios HTTP Requests
       ▼
 Backend API (Node.js + Express)
       │
-      ├── Found Item Routes
+      ├── Auth Routes
       ├── Claim Routes
-      ├── Middleware
+      ├── Found Item Routes
+      ├── Lost Item Routes
       └── Static Uploads
       │
       ▼
@@ -118,15 +133,17 @@ MongoDB Database
 ```
 
 ### Flow Summary
+
 1. The frontend sends requests to the Express backend.
 2. The backend processes the request using routes, controllers, and middleware.
-3. MongoDB stores item and claim data.
-4. Uploaded item images are stored in the `Backend/uploads/` folder.
-5. Admins review claims and update claim or item status.
+3. MongoDB stores authentication, claim, found-item, and lost-item data.
+4. Uploaded images are stored in the `Backend/uploads/` folder.
+5. Users and admins interact with different layouts and route groups.
+6. Admins manage found items, lost items, and claim-related workflows.
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```bash
 Uni-Find/
@@ -141,7 +158,6 @@ Uni-Find/
 │   │   ├── utils/
 │   │   └── app.js
 │   ├── uploads/
-│   ├── app.js
 │   ├── package.json
 │   └── package-lock.json
 │
@@ -160,30 +176,32 @@ Uni-Find/
 │   │   ├── App.css
 │   │   ├── index.css
 │   │   └── main.jsx
-│   ├── index.html
+│   ├── tests/
+│   ├── playwright.config.js
 │   ├── package.json
+│   ├── index.html
 │   └── vite.config.js
 │
-└── .gitignore
+└── README.md
 ```
 
 ---
 
-## 🚀 How to Run the Project
+## How to Run the Project
 
-## 1. Prerequisites
+### 1. Prerequisites
 
 Make sure these are installed on your computer:
 
-- **Node.js** (recommended: latest LTS version)
+- **Node.js** (latest LTS recommended)
 - **npm**
-- **MongoDB** (local installation or MongoDB Atlas)
+- **MongoDB** (local or Atlas)
 - **Git**
 - A code editor such as **VS Code**
 
 ---
 
-## 2. Clone the Repository
+### 2. Clone the Repository
 
 ```bash
 git clone https://github.com/Rakimnr/Uni-Find.git
@@ -192,7 +210,7 @@ cd Uni-Find
 
 ---
 
-## 3. Set Up the Backend
+### 3. Set Up the Backend
 
 Open a terminal and run:
 
@@ -208,7 +226,8 @@ Example:
 ```env
 PORT=5001
 MONGO_URI=mongodb://127.0.0.1:27017/unifind
-JWT_SECRET=your_secret_key_here
+CLIENT_URL=http://localhost:5173
+SESSION_SECRET=your_session_secret_here
 ```
 
 Then start the backend server:
@@ -217,21 +236,19 @@ Then start the backend server:
 npm run dev
 ```
 
-### Expected backend console output
-You should see something similar to:
+### Expected backend output
 
 ```bash
-Connected to MongoDB
 Server is started on PORT 5001
 ```
 
-If MongoDB is not running or your connection string is incorrect, the backend will fail to start.
+If MongoDB is not running or the connection string is incorrect, the backend will fail to start.
 
 ---
 
-## 4. Set Up the Frontend
+### 4. Set Up the Frontend
 
-Open a **new terminal** and run:
+Open a new terminal and run:
 
 ```bash
 cd Frontend
@@ -239,7 +256,7 @@ npm install
 npm run dev
 ```
 
-Because the frontend uses Vite with `--open`, it should automatically open in your browser.
+Because the frontend uses Vite with `--open`, it should open automatically in your browser.
 
 ### Expected frontend output
 
@@ -248,7 +265,7 @@ VITE v...
 Local: http://localhost:5173/
 ```
 
-If the browser does not open automatically, open this URL manually:
+If it does not open automatically, open this URL manually:
 
 ```text
 http://localhost:5173/
@@ -256,7 +273,7 @@ http://localhost:5173/
 
 ---
 
-## 5. Run Both at the Same Time
+### 5. Run Both at the Same Time
 
 To use the project correctly:
 
@@ -267,12 +284,14 @@ To use the project correctly:
 ### Recommended terminal setup
 
 **Terminal 1**
+
 ```bash
 cd Backend
 npm run dev
 ```
 
 **Terminal 2**
+
 ```bash
 cd Frontend
 npm run dev
@@ -280,19 +299,23 @@ npm run dev
 
 ---
 
-## 6. First Things to Check After Running
+### 6. First Things to Check After Running
 
 Once both servers are running:
 
-- open the frontend home page
-- test adding a found item
-- check whether the image is uploaded correctly
-- try submitting a claim
-- open admin pages and verify claim review pages load
+- open the public home page
+- check the found items page
+- check the lost items page
+- test reporting a found item
+- test reporting a lost item
+- test claim submission
+- test my claims
+- test my lost reports
+- test admin pages
 
 ---
 
-## ⚙️ Environment Variables
+## Environment Variables
 
 Create this file:
 
@@ -300,12 +323,13 @@ Create this file:
 Backend/.env
 ```
 
-Use the following variables:
+Use:
 
 ```env
 PORT=5001
 MONGO_URI=mongodb://127.0.0.1:27017/unifind
-JWT_SECRET=your_secret_key_here
+CLIENT_URL=http://localhost:5173
+SESSION_SECRET=your_session_secret_here
 ```
 
 ### Variable Explanation
@@ -314,13 +338,12 @@ JWT_SECRET=your_secret_key_here
 |---|---|
 | `PORT` | Port used by the Express backend |
 | `MONGO_URI` | MongoDB connection string |
-| `JWT_SECRET` | Secret key reserved for JWT-related features |
-
-> **Note:** JWT is installed in the backend, but the current admin protection is still a placeholder and not a full authentication system yet.
+| `CLIENT_URL` | Frontend origin allowed by CORS |
+| `SESSION_SECRET` | Secret used by express-session |
 
 ---
 
-## 📜 Available Scripts
+## Available Scripts
 
 ### Backend Scripts
 
@@ -329,11 +352,13 @@ Run inside `Backend/`:
 ```bash
 npm run dev
 ```
+
 Starts the backend using **nodemon**.
 
 ```bash
 npm start
 ```
+
 Starts the backend using **node**.
 
 ### Frontend Scripts
@@ -343,65 +368,115 @@ Run inside `Frontend/`:
 ```bash
 npm run dev
 ```
+
 Starts the Vite development server.
 
 ```bash
 npm start
 ```
+
 Also starts the Vite development server.
 
 ```bash
 npm run build
 ```
+
 Creates a production build.
 
 ```bash
 npm run preview
 ```
+
 Previews the production build locally.
 
 ```bash
 npm run lint
 ```
+
 Runs ESLint.
+
+```bash
+npm run test:e2e
+```
+
+Runs Playwright end-to-end tests.
+
+```bash
+npm run test:e2e:headed
+```
+
+Runs Playwright tests with a visible browser.
+
+```bash
+npm run test:e2e:ui
+```
+
+Opens Playwright UI mode.
+
+```bash
+npm run test:e2e:report
+```
+
+Opens the Playwright HTML report.
 
 ---
 
-## 🖥 Frontend Routes
+## Frontend Routes
 
 The current frontend routes are defined in `Frontend/src/App.jsx`.
+
+### Public Routes
+
+| Route | Description |
+|---|---|
+| `/` | Home browse page |
+| `/about` | About page |
+| `/login` | Login page |
+| `/register` | Register page |
 
 ### User Routes
 
 | Route | Description |
 |---|---|
-| `/` | Displays the found items list |
-| `/report-found-item` | Form to report a found item |
-| `/claims/new/:itemId` | Claim submission page for a selected item |
-| `/my-claims` | Shows claims submitted by the user |
+| `/found-items` | Browse found items |
+| `/lost-items` | Browse lost item reports |
+| `/report-found-item` | Report a found item |
+| `/report-lost` | Report a lost item |
+| `/claims/new/:itemId` | Submit a claim for a found item |
+| `/my-claims` | View personal claims |
 | `/dashboard` | User dashboard |
+| `/profile` | User profile |
+| `/lost-reports` | View and manage the user's lost reports |
+| `/lost-reports/:id` | View a lost report in detail |
+| `/lost-reports/edit/:id` | Edit a lost report |
 
 ### Admin Routes
 
 | Route | Description |
 |---|---|
 | `/admin` | Admin dashboard |
-| `/admin/claims` | Review all claims |
+| `/admin/claims` | Review claims |
+| `/admin/claim-report` | View claim report page |
 | `/admin/found-items` | Manage found items |
-| `/admin/add-found-item` | Add a found item from admin side |
+| `/admin/lost-items` | Manage lost items |
+| `/admin/lost-items/:id` | View lost item details in admin flow |
+| `/admin/add-found-item` | Add found item manually |
 | `/admin/expired-items` | View expired items |
+| `/admin/profile` | Admin profile |
 
 ---
 
-## 📡 Backend API Endpoints
+## Backend API Route Groups
 
-The backend is mounted through `Backend/src/app.js`.
+The backend mounts these main API groups:
 
-### Base URL
-
-```text
-http://localhost:5001
-```
+| Base Route | Description |
+|---|---|
+| `/api/auth` | Authentication routes |
+| `/api/claims` | Claim routes |
+| `/api/found-items` | Found item routes |
+| `/api/lost-items` | Lost item routes |
+| `/uploads` | Static uploaded images |
 
 ### Health Check
 
@@ -409,111 +484,131 @@ http://localhost:5001
 |---|---|---|
 | `GET` | `/` | Basic API test route |
 
-### Found Item Endpoints
+---
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `GET` | `/api/found-items` | Get all found items |
-| `POST` | `/api/found-items` | Create a found item with image upload |
-| `GET` | `/api/found-items/:id` | Get a single found item |
-| `PUT` | `/api/found-items/:id` | Update a found item |
-| `DELETE` | `/api/found-items/:id` | Delete a found item |
-| `PATCH` | `/api/found-items/:id/status` | Update item status |
+## Core Modules
 
-### Claim Endpoints
+### 1. Authentication Module
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/api/claims` | Submit a new claim |
-| `GET` | `/api/claims/my` | View the user's claims |
-| `GET` | `/api/claims` | View all claims (admin middleware applied) |
-| `PATCH` | `/api/claims/:id/status` | Approve or reject a claim |
+Handles login, registration, and session-based auth flow.
 
-### Static Uploads
+### 2. Found Portal
 
-| Path | Description |
-|---|---|
-| `/uploads` | Serves uploaded item images |
+Covers:
+
+- found item reporting
+- found item browsing
+- item claim submission
+- claim history
+- admin found item management
+
+### 3. Lost Portal
+
+Covers:
+
+- lost item reporting
+- lost item browsing
+- lost item detail viewing
+- personal lost report management
+- lost report editing
+- admin lost item management
+
+### 4. Claim Management
+
+Covers:
+
+- claim creation
+- my claims page
+- admin claim review
+- admin claim reporting
+
+### 5. Dashboard and Profile Module
+
+Covers:
+
+- user dashboard
+- admin dashboard
+- user profile
+- admin profile
 
 ---
 
-## 🗃 Database Models
+## Testing
 
-### Found Item Model
-The found item model currently stores:
+The frontend includes Playwright scripts for end-to-end testing.
 
-- title
-- description
-- category
-- image
-- found location
-- date found
-- storage location
-- item status
-- creator reference
+### Example commands
 
-### Allowed Categories
-- Electronics
-- Documents
-- Bags
-- Accessories
-- Stationery
-- Clothing
-- Other
+```bash
+cd Frontend
+npm run test:e2e
+```
 
-### Allowed Item Status Values
-- `available`
-- `pending_verification`
-- `approved_for_return`
-- `returned`
-- `expired`
-- `archived`
+```bash
+cd Frontend
+npm run test:e2e:headed
+```
 
-### Claim Model
-The claim model currently stores:
+```bash
+cd Frontend
+npm run test:e2e:ui
+```
 
-- item ID
-- full name
-- student ID
-- email
-- phone
-- reason
-- lost location
-- lost date
-- item description
-- unique feature
-- contents description
-- claim status
+```bash
+cd Frontend
+npm run test:e2e:report
+```
 
-### Allowed Claim Status Values
-- `pending`
-- `approved`
-- `rejected`
+### Suggested areas to test
+
+- login and registration flow
+- browsing found items
+- browsing lost items
+- reporting lost items
+- reporting found items
+- my claims page
+- my lost reports page
+- admin found item management
+- admin lost item management
 
 ---
 
-## 🔄 How the System Works
+## How the System Works
 
 ### Found Item Process
+
 1. A user or admin reports a found item.
-2. The item data is sent to the backend.
+2. The frontend sends the item data to the backend.
 3. The image is uploaded and stored in `Backend/uploads/`.
 4. MongoDB saves the item record.
-5. The frontend displays the item in the found items list.
+5. Users can browse the item list.
+6. A user can submit a claim for ownership.
+7. Admin reviews and manages the claim process.
+
+### Lost Item Process
+
+1. A user reports a lost item.
+2. The report is saved in the database.
+3. The lost item becomes visible in the lost catalog.
+4. The owner can view, edit, and manage their own lost reports.
+5. Admin can review lost records from the admin panel.
+6. Status changes such as open, possible match, and closed can be managed through the workflow.
 
 ### Claim Process
-1. A user opens a listed item.
+
+1. A user opens a found item.
 2. The user submits a claim form.
-3. Claim data is saved in MongoDB.
+3. Claim data is stored in MongoDB.
 4. Admin reviews the claim.
 5. Admin can approve or reject the request.
-6. Item status can then be updated based on the claim result.
+6. Item status can be updated based on the claim outcome.
 
 ---
 
-## 🧪 Troubleshooting
+## Troubleshooting
 
 ### 1. `npm install` fails
+
 Try:
 
 ```bash
@@ -529,16 +624,18 @@ Also make sure you are inside the correct folder:
 ---
 
 ### 2. MongoDB connection error
+
 Check:
 
 - MongoDB service is running
 - `MONGO_URI` is correct
 - `.env` file is placed inside `Backend/`
-- there are no spelling mistakes in the variable name
+- variable names are spelled correctly
 
 ---
 
 ### 3. Frontend opens but data does not load
+
 Possible reasons:
 
 - backend is not running
@@ -549,6 +646,7 @@ Possible reasons:
 ---
 
 ### 4. Images are not showing
+
 Check:
 
 - image was uploaded successfully
@@ -558,49 +656,65 @@ Check:
 
 ---
 
-### 5. Admin routes are not really secured yet
-At the moment, the admin middleware is a placeholder. That means the current version is useful for development and demo purposes, but it still needs proper authentication and role-based authorization for production use.
+### 5. Session or login issue
+
+Check:
+
+- backend is running on the expected port
+- `CLIENT_URL` matches the frontend URL
+- `SESSION_SECRET` exists in `.env`
+- browser cookies are not being blocked
+- frontend and backend are both running together
 
 ---
 
-## 🔮 Future Improvements
+### 6. Playwright tests fail to open the app
+
+Check:
+
+- frontend is running on `http://localhost:5173`
+- backend is running if the test needs authentication
+- Playwright browsers are installed
+
+Install browsers if needed:
+
+```bash
+cd Frontend
+npx playwright install
+```
+
+---
+
+## Future Improvements
 
 This project can be extended with:
 
-- full user authentication and registration
-- real admin login and role-based protection
-- lost item reporting module
-- smart matching between lost and found items
-- search and filter system
+- stronger role-based authorization
 - email notifications
+- smarter lost/found item matching
 - cloud image storage
-- mobile responsive UI improvements
-- analytics dashboard
-- audit logs and claim history
+- more analytics and reporting
+- improved mobile responsiveness
+- audit logs
+- advanced search and filtering
+- production deployment configuration
 
 ---
 
-## 📝 Project Notes
+## Final Summary
 
-- The frontend still includes the default Vite README inside `Frontend/README.md`.
-- The backend uses `MONGO_URI` for the database connection.
-- The backend server serves uploaded images statically.
-- The current structure is already clean enough to scale into a larger university portal.
+Uni-Find is a practical university software project with a clear real-world use case.
 
----
+It already includes the major building blocks of a campus lost-and-found system:
 
-## 🙌 Final Summary
-
-Uni-Find is a clean full-stack university project with a practical real-world use case.  
-It already includes the main building blocks of a lost-and-found portal:
-
-- item reporting
-- claim handling
-- admin review
-- dashboards
+- authentication flow
+- found item reporting
+- lost item reporting
+- claims
+- user dashboards
+- admin dashboards
 - file uploads
 - database storage
+- testing support
 
-With authentication, better admin security, and a polished UI, this project can become a strong production-style academic system.
-
----
+With continued refinement in security, testing, and deployment, it can become a strong production-style academic system.
